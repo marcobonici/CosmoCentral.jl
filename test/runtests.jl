@@ -1,4 +1,4 @@
-import CosmoCentral
+using CosmoCentral
 using Test
 
 ciccio = CosmoCentral.ComputeAdimensionalHubbleFactor(0.)
