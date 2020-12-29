@@ -7,3 +7,4 @@ ciccio = CosmoCentral.ComputeAdimensionalHubbleFactor(0.)
 
 ciccio = CosmoCentral.ComputeHubbleFactor(0.)
 @test ciccio == 67.
+println("Everything work!")
