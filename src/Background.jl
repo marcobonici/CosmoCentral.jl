@@ -1,12 +1,14 @@
 """
-ComputeAdimensionalHubbleFactor(z, w0, wa, ΩM, ΩDE, Ωk, Ωr)
+ComputeAdimensionalHubbleFactor(z, ``w0``, wa, ΩM, ΩDE, Ωk, Ωr)
 
 This function, given the value of the cosmological parameters, evaluate the
 Adimensional Hubble Factor for w0waCDM cosmologies
 
+...
 # Arguments
-* `z`: The redshift at which the Adimensional Hubble Factor is evaluated
-* ``w_0`` : The CPl
+- `n::Integer`: the number of elements to compute.
+- `dim::Integer=1`: the dimensions along which to perform the computation.
+...
 
 # Notes
 * Notes can go here

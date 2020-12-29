@@ -6,6 +6,7 @@ makedocs(
     sitename = "CosmoCentral.jl Documentation",
     pages = [
        "Index" => "index.md",
+       "anotherPage" => "anotherPage.md"
     ],
     format = Documenter.HTML(),
     modules = [CosmoCentral]
