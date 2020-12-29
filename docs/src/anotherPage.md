@@ -1,4 +1,4 @@
-# The MyAwesomePackage Module
+# The CosmoCentral Module
 
  ```@docs
  CosmoCentral
