@@ -1,7 +1,7 @@
 using CosmoCentral
 using Test
 
-cosmo = CosmoCentral.w0waCDM
+cosmo = CosmoCentral.w0waCDMParameters()
 
 test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., cosmo)
 @test test_E_z == 1.
