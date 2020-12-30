@@ -47,12 +47,7 @@ jobs:
           file: lcov.info
   docs:
     name: Documentation
-    on:
-      push:
-        branches:
-          - master
-        tags: '*'
-      pull_request:
+    
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
