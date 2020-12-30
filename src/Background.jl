@@ -16,19 +16,19 @@ Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies
 # Examples
 ```@example 1
 using PyPlot # hide
-using CosmoCentral
-z = LinRange(0,2,m 1000)
-r_z = CosmoCentral.ComputeComovingDistance.(z)
+f(x) = sin(2x) + 1
+g(x) = cos(x) - x
 ```
 
-and then we plot `r_z` over `z`
+and then we plot `f` over the interval from ``-π`` to ``π``
 
 ```@example 1
-plot(z, r_z, color = "red")
-savefig("r_z-plot.svg"); nothing # hide
+x = linspace(-π, π)
+plot(x, f(x), color = "red")
+savefig("f-plot.svg"); nothing # hide
 ```
 
-![](r_z-plot.svg)
+![](f-plot.svg)
 """
 function ComputeAdimensionalHubbleFactor(z::Float64, w0::Float64=-1.0,
     wa::Float64=0.0, ΩM::Float64=0.32, ΩDE::Float64=0.68, Ωk::Float64=0.0,
