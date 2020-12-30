@@ -47,6 +47,12 @@ jobs:
           file: lcov.info
   docs:
     name: Documentation
+    on:
+      push:
+        branches:
+          - master
+        tags: '*'
+      pull_request:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -61,8 +67,8 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
-            using MyAwesomePackage     # change MyAwesomePackage to the name of your package
-            doctest(MyAwesomePackage)' # change MyAwesomePackage to the name of your package
+            using CosmoCentral
+            doctest(CosmoCentral)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
