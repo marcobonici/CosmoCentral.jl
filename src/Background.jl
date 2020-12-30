@@ -14,10 +14,21 @@ Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies
 * This expression is valid only for the CPL parameterization
 
 # Examples
-```julia
-julia> ComputeAdimensionalHubbleFactor(1.0)
-1.0
+```@example 1
+using PyPlot # hide
+using CosmoCentral
+z = LinRange(0,2,m 1000)
+r_z = CosmoCentral.ComputeComovingDistance.(z)
+```
 
+and then we plot `r_z` over `z`
+
+```@example 1
+plot(z, r_z, color = "red")
+savefig("r_z-plot.svg"); nothing # hide
+```
+
+![](r_z-plot.svg)
 """
 function ComputeAdimensionalHubbleFactor(z::Float64, w0::Float64=-1.0,
     wa::Float64=0.0, ΩM::Float64=0.32, ΩDE::Float64=0.68, Ωk::Float64=0.0,
