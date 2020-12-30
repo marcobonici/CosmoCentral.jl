@@ -15,5 +15,5 @@ makedocs(
 
 deploydocs(
     repo = "github.com/marcobonici/CosmoCentral.jl.git",
-    devbranc = "main"
+    devbranch = "main"
 )
