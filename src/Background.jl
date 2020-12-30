@@ -1,5 +1,5 @@
 """
-ComputeAdimensionalHubbleFactor(z, ``w_0``, ``wa``, ``\\Omega_M``, ``\\Omega_{DE}``, ``\\Omega_k``, ``\Omega_R``)
+ComputeAdimensionalHubbleFactor(z, ``w_0``, ``wa``, ``\\Omega_M``, ``\\Omega_{DE}``, ``\\Omega_k``, ``\\Omega_R``)
 
 
 This function, given the value of the cosmological parameters, evaluate the
