@@ -1,5 +1,5 @@
 """
-ComputeAdimensionalHubbleFactor(z, ``w_0``, ``w_a``, ``\\Omega_M``, ``\\Omega_{DE}``, ``\\Omega_k``, ``\\Omega_R``)
+ComputeAdimensionalHubbleFactor(``z``, ``w_0``, ``w_a``, ``\\Omega_M``, ``\\Omega_{DE}``, ``\\Omega_k``, ``\\Omega_R``)
 
 
 This function, given the value of the cosmological parameters, evaluate the
@@ -28,10 +28,10 @@ function ComputeAdimensionalHubbleFactor(z::Float64, w0::Float64=-1.0,
 end
 
 """
-ComputeHubbleFactor(z, H0, w0, wa, ΩM, ΩDE, Ωk, Ωr)
+ComputeHubbleFactor(``z``, ``H_0``,``w_0``, ``w_a``, ``\\Omega_M``, ``\\Omega_{DE}``, ``\\Omega_k``, ``\\Omega_R``)
 
 This function, given the value of the cosmological parameters, evaluate the
-Hubble Factor for w0waCDM cosmologies
+Hubble Factor for ``w_0 w_a``CDM cosmologies
 """
 function ComputeHubbleFactor(z::Float64, H0::Float64=67.0, w0::Float64=-1.0,
     wa::Float64=0.0, ΩM::Float64=0.32, ΩDE::Float64=0.68, Ωk::Float64=0.0,
@@ -40,10 +40,10 @@ function ComputeHubbleFactor(z::Float64, H0::Float64=67.0, w0::Float64=-1.0,
 end
 
 """
-ComputeComovingDistance(z, H0, w0, wa, ΩM, ΩDE, Ωk, Ωr)
+ComputeComovingDistance(``z``, ``H_0``,``w_0``, ``w_a``, ``\\Omega_M``, ``\\Omega_{DE}``, ``\\Omega_k``, ``\\Omega_R``)
 
 This function, given the value of the cosmological parameters, evaluate the
-Comoving Distance for w0waCDM cosmologies. It is evaluated as
+Comoving Distance for ``w_0 w_a``CDM cosmologies. It is evaluated as
 ```math
 r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dx}{E(x)}
 ```
