@@ -1,6 +1,6 @@
 # CosmoCentral.jl
 
-Documentation for l.jl. This is a Julia package to perform cosmological calculations.
+Documentation for CosmoCentral.jl. This is a Julia package to perform cosmological calculations.
 
 # CosmoCentral.jl Documentation
 

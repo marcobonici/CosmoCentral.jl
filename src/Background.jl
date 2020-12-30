@@ -42,7 +42,10 @@ end
 ComputeComovingDistance(z, H0, w0, wa, ΩM, ΩDE, Ωk, Ωr)
 
 This function, given the value of the cosmological parameters, evaluate the
-Comoving Distance for w0waCDM cosmologies
+Comoving Distance for w0waCDM cosmologies. It is evaluated as
+```math
+r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dx}{E(x)}
+```
 """
 function ComputeComovingDistance(z::Float64, H0::Float64=67.0, w0::Float64=-1.0,
     wa::Float64=0.0, ΩM::Float64=0.32, ΩDE::Float64=0.68, Ωk::Float64=0.0,
