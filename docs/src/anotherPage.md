@@ -1,8 +1,6 @@
 # The CosmoCentral Module
 
-```@docs
-CosmoCentral
-```
+
 
 ## Module Index
 
