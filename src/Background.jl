@@ -3,21 +3,19 @@ ComputeAdimensionalHubbleFactor(z, ``w_0``, ``wa``, ``\\Omega_M``, ``\\Omega_{DE
 
 
 This function, given the value of the cosmological parameters, evaluate the
-Adimensional Hubble Factor for w0waCDM cosmologies
+Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies
 
 ...
 # Arguments
-- `n::Integer`: the number of elements to compute.
-- `dim::Integer=1`: the dimensions along which to perform the computation.
-...
+- `z::Float64`: the redshift value at which evaluate the Adimensional Hubble Factor
 
 # Notes
-* Notes can go here
+* This expression is valid only for the CPL parameterization
 
 # Examples
 ```julia
-julia> five = plusTwo(3)
-5
+julia> ComputeAdimensionalHubbleFactor(1.0)
+1.0
 
 """
 function ComputeAdimensionalHubbleFactor(z::Float64, w0::Float64=-1.0,
