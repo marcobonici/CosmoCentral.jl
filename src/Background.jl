@@ -9,6 +9,7 @@ Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies
 # Arguments
 - `z::Float64`: the redshift value at which evaluate the Adimensional Hubble Factor
 
+
 # Notes
 * This expression is valid only for the CPL parameterization
 
