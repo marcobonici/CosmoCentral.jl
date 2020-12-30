@@ -3,7 +3,10 @@ name: Documentation
 on:
   push:
     branches:
-      - main
+      - 'main'
+    paths-ignore:
+      - 'LICENSE.md'
+      - 'README.md'
     tags: '*'
   pull_request:
 
