@@ -47,25 +47,26 @@ jobs:
           file: lcov.info
   docs:
     name: Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: '1'
-      - run: |
-          julia --project=docs -e '
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
-      - run: |
-          julia --project=docs -e '
-            using Documenter: doctest
-            using CosmoCentral
-            doctest(CosmoCentral)'
-      - run: julia --project=docs docs/make.jl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-      - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+
+    on:
+      push:
+        branches:
+          - main
+        tags: '*'
+      pull_request:
+
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v2
+          - uses: julia-actions/setup-julia@latest
+            with:
+              version: '1.5'
+          - name: Install dependencies
+            - run: julia --project=docs/ --code-coverage=user docs/make.jl
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+            - uses: julia-actions/julia-processcoverage@v1
+            - uses: codecov/codecov-action@v1
