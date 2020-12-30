@@ -1,7 +1,12 @@
 module CosmoCentral
 
 import QuadGK
-export ComputeHubbleFactor, ComputeComovingDistance, ComputeAdimensionalHubbleFactor
+using Base: @kwdef
+using Parameters
+
+export ComputeHubbleFactor, ComputeComovingDistance, ComputeAdimensionalHubbleFactor, w0waCDMParameters, w0waCDMCosmology
+
+include("CosmologicalParameters.jl")
 include("Background.jl")
 
 
