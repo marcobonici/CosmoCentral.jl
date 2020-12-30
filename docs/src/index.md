@@ -10,7 +10,7 @@ Documentation for CosmoCentral.jl. This is a Julia package to perform cosmologic
 ### License
 
 CosmoCentral is licensed under the MIT "Expat" license; see
-[LICENSE](https://github.com/lbenet/TaylorSeries.jl/blob/master/LICENSE.md) for
+[LICENSE](https://github.com/marcobonici/CosmoCentral.jl/blob/main/LICENSE) for
 the full license text.
 
 
