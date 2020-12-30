@@ -5,8 +5,8 @@ push!(LOAD_PATH,"../src/")
 makedocs(
     modules = [CosmoCentral],
     format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
-    sitename = "TaylorSeries.jl",
-    authors  = "Luis Benet and David P. Sanders",
+    sitename = "CosmoCentral.jl",
+    authors  = "Marco Bonici",
     pages = [
         "Home" => "index.md",
         "Background" => "anotherPage.md",
