@@ -3,9 +3,11 @@ on:
   pull_request:
     branches:
       - main
+      - test_struct
   push:
     branches:
       - main
+      - test_struct
     tags: '*'
 jobs:
   test:
@@ -19,8 +21,8 @@ jobs:
           - '1' # Leave this line unchanged. '1' will automatically expand to the latest stable 1.x release of Julia.
         os:
           - ubuntu-latest
-          #- macOS-latest
-          #- windows-latest
+          - macOS-latest
+          - windows-latest
         arch:
           - x64
     steps:
