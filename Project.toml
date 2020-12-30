@@ -1,7 +1,7 @@
 name = "CosmoCentral"
 uuid = "ad8f630a-9b1f-4174-92d0-7638535e3d6b"
 authors = ["marcobonici <bonici.marco@gmail.com>"]
-version = "0.0.2"
+version = "0.0.1"
 
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
