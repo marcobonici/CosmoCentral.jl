@@ -1,7 +1,3 @@
-include("CosmologicalParameters.jl")
-#is this include really necessary? Maybe there is a better way to do this thing
-
-
 """
 ComputeAdimensionalHubbleFactor(``z``, params)
 

@@ -1,6 +1,7 @@
 abstract type AbstractCosmology end
 abstract type w0waCDMCosmology <: AbstractCosmology end
 
+
 @kwdef struct w0waCDMParameters <: w0waCDMCosmology
     w0::Float64  = -1
     wa::Float64  = 0

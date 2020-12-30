@@ -6,7 +6,8 @@ using Parameters
 
 export ComputeHubbleFactor, ComputeComovingDistance, ComputeAdimensionalHubbleFactor, w0waCDMParameters, w0waCDMCosmology
 
-include("Background.jl")
 include("CosmologicalParameters.jl")
+include("Background.jl")
+
 
 end # module
