@@ -1,4 +1,3 @@
-![header](https://raw.githubusercontent.com/JuliaML/FileStorage/master/Augmentor/readme/header.png)
 # CosmoCentral.jl
 
 Documentation for CosmoCentral.jl. This is a Julia package to perform cosmological calculations.
@@ -10,7 +9,7 @@ Documentation for CosmoCentral.jl. This is a Julia package to perform cosmologic
 
 ### License
 
-TaylorSeries is licensed under the MIT "Expat" license; see
+CosmoCentral is licensed under the MIT "Expat" license; see
 [LICENSE](https://github.com/lbenet/TaylorSeries.jl/blob/master/LICENSE.md) for
 the full license text.
 
