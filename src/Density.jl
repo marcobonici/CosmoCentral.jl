@@ -10,7 +10,7 @@ abstract type AnalitycalDensity <: AsbtractDensity end
 end
 
 function ComputeDensityFunction(z::Float64, densityparameters::AnalitycalDensity)
-    return (z/densityparameters.z0)^2*exp(-(z/densityparameters.z0)^(3./2.))/
+    return (z/densityparameters.z0)^2*exp(-(z/densityparameters.z0)^(3. / 2.))/
     densityparameters.normalization
 end
 
