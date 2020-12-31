@@ -1,5 +1,6 @@
 using CosmoCentral
 using Test
+using QuadGK
 
 params = CosmoCentral.w0waCDMParameters()
 density = CosmoCentral.AnalitycalDensityStruct()
