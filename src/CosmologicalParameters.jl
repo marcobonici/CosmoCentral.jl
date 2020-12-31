@@ -17,7 +17,7 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 
 - ``H_0``, the value of the Hubble paramater
 """
-functi
+
 @kwdef struct w0waCDMParameters <: w0waCDMCosmology
     w0::Float64  = -1
     wa::Float64  = 0
