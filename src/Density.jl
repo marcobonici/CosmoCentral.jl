@@ -16,9 +16,8 @@ end
 
 function NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensity)
     densityparameters.normalization = 1
-    normalization, err = QuadGK.quadgk(x -> 1 /
-    ComputeDensityFunction(x, densityparameters), densityparameters.zmin,
-    densityparameters.zmax, rtol=1e-12)*densityparameters.surfacedensity
-    densityparameters.normalization = normalization
+    normalization, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, densityparameters),
+    densityparameters.zmin, densityparameters.zmax, rtol=1e-12)
+    densityparameters.normalization = normalization*densityparameters.surfacedensity
     return densityparameters
 end
