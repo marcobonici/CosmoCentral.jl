@@ -21,9 +21,9 @@ end
 end
 
 @testset "Check the normalization of density function" begin
-    normalization, err = QuadGK.quadgk(x -> 1 /
-    CosmoCentral.ComputeDensityFunction(x, density), density.zmin,
-    density.zmax, rtol=1e-12)
     test_density = CosmoCentral.NormalizeAnalitycalDensityStruct(density)
-    @test normalization*density.surfacedensity == test_density.normalization
+    int, err = QuadGK.quadgk(x -> 1 /
+    CosmoCentral.ComputeDensityFunction(x, test_density), test_density.zmin,
+    test_density.zmax, rtol=1e-12)
+    @test isapprox(int, test_density.surface, atol=1e-9)
 end
