@@ -4,11 +4,12 @@ using QuadGK
 using Base: @kwdef
 using Parameters
 
-export ComputeHubbleFactor, ComputeComovingDistance, ComputeAdimensionalHubbleFactor, w0waCDMParameters, w0waCDMCosmology
+#export ComputeHubbleFactor, ComputeComovingDistance, ComputeAdimensionalHubbleFactor, w0waCDMParameters, w0waCDMCosmology
 
 include("CosmologicalParameters.jl")
 include("Background.jl")
 include("Density.jl")
-
+include("GeneralConfig.jl")
+include("MathUtils.jl")
 
 end # module

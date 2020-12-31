@@ -1,5 +1,6 @@
 abstract type AbstractCosmology end
 abstract type w0waCDMCosmology <: AbstractCosmology end
+abstract type CosmoGrid end
 
 """
 w0waCDMParameters
@@ -17,7 +18,6 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 
 - ``H_0``, the value of the Hubble paramater
 """
-
 @kwdef struct w0waCDMParameters <: w0waCDMCosmology
     w0::Float64  = -1
     wa::Float64  = 0
@@ -31,3 +31,7 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
     σ8::Float64  = 0.816
     H0::Float64  = 67.
 end
+
+#@kwdef struct CosmoGrid <: w0waCDMCosmology
+#    zgrid::Array{Float64,1}  = Array(LinRange(0.001, 2.5, 300))
+#end
