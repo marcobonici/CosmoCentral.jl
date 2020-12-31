@@ -23,6 +23,6 @@ end
     test_density = CosmoCentral.NormalizeAnalitycalDensityStruct(density)
     normalization, err = QuadGK.quadgk(x -> 1 /
     ComputeDensityFunction(x, densityparameters), densityparameters.zmin,
-    densityparameters.zmax, rtol=1e-12)*densityparameters.surfacedensity
-    @test normalization == test_density.normalization
+    densityparameters.zmax, rtol=1e-12)
+    @test normalization*densityparameters.surfacedensity == test_density.normalization
 end
