@@ -3,16 +3,19 @@ ComputeAdimensionalHubbleFactor(``z``, params)
 
 
 This function, given the value of the cosmological parameters, evaluate the
-Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies
+Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies.
 
 ...
 # Arguments
-- `z::Float64`: the redshift value at which evaluate the Adimensional Hubble Factor
-- `params::w0waCDMCosmology` : a collection of cosmological parameters
+- `z::Float64` the redshift value at which evaluate the Adimensional Hubble Factor
+- `params::w0waCDMCosmology`  a collection of cosmological parameters, whose expression is given by
+```math
+H(z)=H_0\\sqrt{\\Omega_M(1+z)^3+\\Omega_{DE}(1+z)^{3(1+w_0+w_a)\\exp(-3w_a \\frac{z}{1+z})}}
+```
 
 
 # Notes
-* This expression is valid only for the CPL parameterization
+* This expression is valid only for the CPL parameterization [LICENSE](https://github.com/marcobonici/CosmoCentral.jl/blob/main/LICENSE)
 """
 function ComputeAdimensionalHubbleFactor(z::Float64, params::w0waCDMCosmology)
     E_z = sqrt(params.ΩM*(1+z)^3 + params.Ωr*(1+z)^4+params.Ωk*(1+z)^2
