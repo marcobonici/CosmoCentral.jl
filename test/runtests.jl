@@ -3,6 +3,7 @@ using Test
 using QuadGK
 using Conda
 Conda.add("numpy")
+ENV["PYTHON"]=""
 using Pkg
 Pkg.build("PyCall")
 using PyCall
