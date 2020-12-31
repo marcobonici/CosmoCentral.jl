@@ -15,7 +15,7 @@ function ComputeDensityFunction(z::Float64, densityparameters::AnalitycalDensity
 end
 
 function NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensity)
-    densityparameters.normalization = 1
+    #densityparameters.normalization = 1
     int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, densityparameters),
     densityparameters.zmin, densityparameters.zmax, rtol=1e-12)
     densityparameters.normalization *= (densityparameters.surfacedensity/int)
