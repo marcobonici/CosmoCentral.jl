@@ -1,6 +1,10 @@
 using CosmoCentral
 using Test
 using QuadGK
+using Conda
+Conda.add("numpy")
+using Pkg
+Pkg.build("PyCall")
 using PyCall
 numpy = pyimport("numpy")
 
