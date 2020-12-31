@@ -1,6 +1,8 @@
 using CosmoCentral
 using Test
 using QuadGK
+using PyCall
+numpy = pyimport("numpy")
 
 params = CosmoCentral.w0waCDMParameters()
 density = CosmoCentral.AnalitycalDensityStruct()
@@ -25,4 +27,13 @@ end
     int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeDensityFunction(x, test_density),
     test_density.zmin, test_density.zmax, rtol=1e-12)
     @test isapprox(int, test_density.surfacedensity, atol=1e-9)
+end
+
+@testset "Check the LogSpace function against the Python equivalent" begin
+    minarray = 1e-5
+    maxarray = 10
+    n = 100
+    becnhmark_numpy = numpy.logspace(log10(minarray), log10(maxarray), n)
+    test_logspace = CosmoCentral.LogSpaced(minarray, maxarray, n)
+    @test isapprox(becnhmark_numpy, test_logspace, atol=1e-12)
 end
