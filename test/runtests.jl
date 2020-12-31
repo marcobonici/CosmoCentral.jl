@@ -22,7 +22,7 @@ end
 
 @testset "Check the normalization of density function" begin
     normalization, err = QuadGK.quadgk(x -> 1 /
-    ComputeDensityFunction(x, density), density.zmin,
+    CosmoCentral.ComputeDensityFunction(x, density), density.zmin,
     density.zmax, rtol=1e-12)
     test_density = CosmoCentral.NormalizeAnalitycalDensityStruct(density)
     @test normalization*density.surfacedensity == test_density.normalization
