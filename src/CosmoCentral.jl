@@ -9,7 +9,6 @@ using Parameters
 include("CosmologicalParameters.jl")
 include("Background.jl")
 include("Density.jl")
-include("GeneralConfig.jl")
 include("MathUtils.jl")
 
 end # module
