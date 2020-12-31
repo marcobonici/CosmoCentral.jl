@@ -8,6 +8,7 @@ export ComputeHubbleFactor, ComputeComovingDistance, ComputeAdimensionalHubbleFa
 
 include("CosmologicalParameters.jl")
 include("Background.jl")
+include("Density.jl")
 
 
 end # module
