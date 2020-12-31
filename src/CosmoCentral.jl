@@ -1,6 +1,6 @@
 module CosmoCentral
 
-import QuadGK
+using QuadGK
 using Base: @kwdef
 using Parameters
 
