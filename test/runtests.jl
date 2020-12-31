@@ -25,5 +25,5 @@ end
     int, err = QuadGK.quadgk(x -> 1 /
     CosmoCentral.ComputeDensityFunction(x, test_density), test_density.zmin,
     test_density.zmax, rtol=1e-12)
-    @test isapprox(int, test_density.surface, atol=1e-9)
+    @test isapprox(int, test_density.surfacedensity, atol=1e-9)
 end
