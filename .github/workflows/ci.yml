@@ -3,11 +3,11 @@ on:
   pull_request:
     branches:
       - main
-      - test_struct
+      - develop
   push:
     branches:
       - main
-      - test_struct
+      - develop
     tags: '*'
 jobs:
   test:
