@@ -36,7 +36,7 @@ end
 
 @testset "Check the LogSpace function against the Python equivalent" begin
     minarray = 1e-5
-    maxarray = 10
+    maxarray = 10.
     n = 100
     becnhmark_numpy = numpy.logspace(log10(minarray), log10(maxarray), n)
     test_logspace = CosmoCentral.LogSpaced(minarray, maxarray, n)
