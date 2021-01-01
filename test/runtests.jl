@@ -61,6 +61,8 @@ end
             ComputeConvolvedDensityFunction(cosmogrid.zgrid[idx_zgrid],
             convolveddensity.zbinarray[idx_zbinarray],
             convolveddensity)
+        end
+    end
     @test isapprox(test_array, convolveddensity.densitygridarray, atol=1e-12)
 end
 
