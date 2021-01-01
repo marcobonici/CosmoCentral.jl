@@ -12,7 +12,7 @@ abstract type InstrumentResponse end
 end
 
 @kwdef mutable struct ConvolvedDensityStruct <: ConvolvedDensity
-    AnalitycalDensity::AnalitycalDensity = AnalyticalDensityStruct()
+    AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct()
     InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
     zbinarray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
     0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
