@@ -38,7 +38,7 @@ end
 
 @testset "Check the normalization of convolved density function" begin
     test_normalization = zeros(length(convolveddensity.zbinarray)-1)
-    test_density = CosmoCentral.NormalizeConvolvedDensityStruct(convolveddensity)
+    CosmoCentral.NormalizeConvolvedDensityStruct(convolveddensity)
     for idx in 1:length(test_normalization)
         int, err = QuadGK.quadgk(x ->
         CosmoCentral.ComputeConvolvedDensityFunction(x, idx,
@@ -47,7 +47,7 @@ end
         convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
         test_normalization[idx] = int
     end
-    @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-9)
+    @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-12)
 end
 
 @testset "Check the LogSpace function against the Python equivalent" begin

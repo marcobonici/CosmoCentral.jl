@@ -39,7 +39,6 @@ function NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensity)
     int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, densityparameters),
     densityparameters.zmin, densityparameters.zmax, rtol=1e-12)
     densityparameters.normalization *= (densityparameters.surfacedensity/int)
-    return densityparameters
 end
 
 @kwdef struct InstrumentResponseStruct <: InstrumentResponse
@@ -90,7 +89,6 @@ function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
         convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
         convolveddensity.densityarraynormalization[idx] /= int
     end
-    return convolveddensity
 end
 
 
