@@ -60,7 +60,7 @@ function ComputeInstrumentResponse(z::Float64, zp::Float64,
     return prob_z
 end
 
-function ComputeConvolvedDensityFunction(z::Float64, i::Int64
+function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
     InstrumentResponse::InstrumentResponse, densityparameters::AnalitycalDensity)
     int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
     InstrumentResponse), densityparameters.zbinarray[i],

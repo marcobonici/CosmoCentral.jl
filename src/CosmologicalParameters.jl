@@ -32,7 +32,7 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
     H0::Float64  = 67.
 end
 
-@kwdef struct CosmoGrid <: CosmoGrid
+@kwdef struct CosmoGridStruct <: CosmoGrid
     zgrid::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
     kgrid::Vector{Float64} = LogSpaced(1e-5, 50, 1000)
 end
