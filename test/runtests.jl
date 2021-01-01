@@ -60,7 +60,7 @@ end
             test_array[idx_zbinarray, idx_zgrid] =
             CosmoCentral.ComputeConvolvedDensityFunction(
             cosmogrid.zgrid[idx_zgrid],
-            convolveddensity.zbinarray[idx_zbinarray],
+            idx_zbinarray,
             convolveddensity)
         end
     end
