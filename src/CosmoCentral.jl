@@ -1,13 +1,13 @@
 module CosmoCentral
 
-import QuadGK
+using QuadGK
 using Base: @kwdef
 using Parameters
-
-export ComputeHubbleFactor, ComputeComovingDistance, ComputeAdimensionalHubbleFactor, w0waCDMParameters, w0waCDMCosmology
+using NumericalIntegration
 
 include("CosmologicalParameters.jl")
 include("Background.jl")
-
+include("Density.jl")
+include("MathUtils.jl")
 
 end # module

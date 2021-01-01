@@ -1,7 +1,18 @@
 using CosmoCentral
 using Test
+using QuadGK
+using Conda
+using NumericalIntegration
+Conda.add("numpy")
+ENV["PYTHON"]=""
+using Pkg
+Pkg.build("PyCall")
+using PyCall
+numpy = pyimport("numpy")
 
-params = CosmoCentral.w0waCDMParameters()
+params           = CosmoCentral.w0waCDMParameters()
+density          = CosmoCentral.AnalitycalDensityStruct()
+convolveddensity = CosmoCentral.ConvolvedDensityStruct()
 
 @testset "Adimensional Hubble parameter at redshift zero is equal to one" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
@@ -16,4 +27,34 @@ end
 @testset "Comoving distance at redshift zero is equal to zero" begin
     test_r_z = CosmoCentral.ComputeComovingDistance(0., params)
     @test test_r_z == 0.
+end
+
+@testset "Check the normalization of density function" begin
+    test_density = CosmoCentral.NormalizeAnalitycalDensityStruct(density)
+    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeDensityFunction(x, test_density),
+    test_density.zmin, test_density.zmax, rtol=1e-12)
+    @test isapprox(int, test_density.surfacedensity, atol=1e-9)
+end
+
+@testset "Check the normalization of convolved density function" begin
+    test_normalization = zeros(length(convolveddensity.zbinarray)-1)
+    test_density = CosmoCentral.NormalizeConvolvedDensityStruct(convolveddensity)
+    for idx in 1:length(test_normalization)
+        int, err = QuadGK.quadgk(x ->
+        CosmoCentral.ComputeConvolvedDensityFunction(x, idx,
+        convolveddensity),
+        convolveddensity.AnalitycalDensity.zmin,
+        convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
+        test_normalization[idx] = int
+    end
+    @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-9)
+end
+
+@testset "Check the LogSpace function against the Python equivalent" begin
+    minarray = 1e-5
+    maxarray = 10.
+    n = 100
+    becnhmark_numpy = numpy.logspace(log10(minarray), log10(maxarray), n)
+    test_logspace = CosmoCentral.LogSpaced(minarray, maxarray, n)
+    @test isapprox(becnhmark_numpy, test_logspace, atol=1e-12)
 end
