@@ -34,5 +34,5 @@ end
 
 @kwdef struct CosmoGridStruct <: CosmoGrid
     zgrid::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
-    kgrid::Vector{Float64} = LogSpaced(1e-5, 50, 1000)
+    kgrid::Vector{Float64} = LogSpaced(1e-5, 50., 1000)
 end
