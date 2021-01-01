@@ -61,7 +61,7 @@ end
             ComputeConvolvedDensityFunction(cosmogrid.zgrid[idx_zgrid],
             convolveddensity.zbinarray[idx_zbinarray],
             convolveddensity)
-    @test isapprox(becnhmark_numpy, test_logspace, atol=1e-12)
+    @test isapprox(test_array, convolveddensity.densitygridarray, atol=1e-12)
 end
 
 @testset "Check the LogSpace function against the Python equivalent" begin
