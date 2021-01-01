@@ -39,7 +39,6 @@ function NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensity)
     int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, densityparameters),
     densityparameters.zmin, densityparameters.zmax, rtol=1e-12)
     densityparameters.normalization *= (densityparameters.surfacedensity/int)
-    return densityparameters
 end
 
 @kwdef struct InstrumentResponseStruct <: InstrumentResponse
@@ -90,22 +89,18 @@ function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
         convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
         convolveddensity.densityarraynormalization[idx] /= int
     end
-    return convolveddensity
 end
 
 
 function ComputeDensityFunctionConvolvedGrid(CosmoGrid::CosmoGrid,
-    InstrumentResponse::InstrumentResponse, analitycaldensity::AnalitycalDensity)
-    grid = zeros(Float64,length(densityparameters.zbinarray)-1, length(CosmoGrid.zgrid))
-    for idx_zbinarray in 1:length(densityparameters.zbinarray)-1
+    ConvolvedDensityStruct::ConvolvedDensity)
+    ConvolvedDensityStruct.densitygridarray = zeros(Float64,length(ConvolvedDensityStruct.zbinarray)-1,
+    length(CosmoGrid.zgrid))
+    for idx_zbinarray in 1:length(ConvolvedDensityStruct.zbinarray)-1
         for idx_zgrid in 1:length(CosmoGrid.zgrid)
-            grid[idx_zbinarray, idx_zgrid] = ComputeConvolvedDensityFunction(
-            CosmoGrid.zgrid[idx_zgrid], analitycaldensity.zbinarray[idx_zbinarray],
-            InstrumentResponse, densityparameters)
+            ConvolvedDensityStruct.densitygridarray[idx_zbinarray, idx_zgrid] =
+            ComputeConvolvedDensityFunction(CosmoGrid.zgrid[idx_zgrid],
+            idx_zbinarray, ConvolvedDensityStruct)
         end
-        normalization = NumericalIntegration.integrate(CosmoGrid.zgrid,
-        grid[idx_zbinarray,:], SimpsonEven())
-        grid[idx_zbinarray,:] ./= normalization
     end
-    return grid
 end
