@@ -10,9 +10,10 @@ Pkg.build("PyCall")
 using PyCall
 numpy = pyimport("numpy")
 
-params           = CosmoCentral.w0waCDMParameters()
-density          = CosmoCentral.AnalitycalDensityStruct()
+params = CosmoCentral.w0waCDMParameters()
+density = CosmoCentral.AnalitycalDensityStruct()
 convolveddensity = CosmoCentral.ConvolvedDensityStruct()
+cosmogrid  = CosmoCentral.CosmoGridStruct(zgrid=Array(LinRange(0.0, 1., 10.)))
 
 @testset "Adimensional Hubble parameter at redshift zero is equal to one" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
@@ -48,6 +49,19 @@ end
         test_normalization[idx] = int
     end
     @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-12)
+end
+
+@testset "Check the computation of the convolved density function on grid" begin
+    test_array = zeros(Float64,length(convolveddensity.zbinarray)-1,
+    length(cosmogrid.zgrid))
+    ComputeDensityFunctionConvolvedGrid(cosmogrid, convolveddensity)
+    for idx_zbinarray in 1:length(convolveddensity.zbinarray)-1
+        for idx_zgrid in 1:length(cosmogrid.zgrid)
+            test_array[idx_zbinarray, idx_zgrid] =
+            ComputeConvolvedDensityFunction(cosmogrid.zgrid[idx_zgrid],
+            convolveddensity.zbinarray[idx_zbinarray],
+            convolveddensity)
+    @test isapprox(becnhmark_numpy, test_logspace, atol=1e-12)
 end
 
 @testset "Check the LogSpace function against the Python equivalent" begin
