@@ -54,7 +54,7 @@ end
 @testset "Check the computation of the convolved density function on grid" begin
     test_array = zeros(Float64,length(convolveddensity.zbinarray)-1,
     length(cosmogrid.zgrid))
-    ComputeDensityFunctionConvolvedGrid(cosmogrid, convolveddensity)
+    CosmoCentral.ComputeDensityFunctionConvolvedGrid(cosmogrid, convolveddensity)
     for idx_zbinarray in 1:length(convolveddensity.zbinarray)-1
         for idx_zgrid in 1:length(cosmogrid.zgrid)
             test_array[idx_zbinarray, idx_zgrid] =
