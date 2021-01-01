@@ -48,7 +48,7 @@ end
     σb::Float64   = 0.05
     co::Float64   = 1.0
     zo::Float64   = 0.1
-    σ0::Float64   = 0.05
+    σo::Float64   = 0.05
     fout::Float64 = 0.1
 end
 
@@ -71,9 +71,9 @@ function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
     convolveddensity::ConvolvedDensity)
     int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
     convolveddensity.InstrumentResponse),
-    convolveddensity.analitycaldensity.zbinarray[i],
-    convolveddensity.analitycaldensity.zbinarray[i+1], rtol=1e-12)
-    return int*ComputeDensityFunction(z, convolveddensity.analitycaldensity)*
+    convolveddensity.zbinarray[i],
+    convolveddensity.zbinarray[i+1], rtol=1e-12)
+    return int*ComputeDensityFunction(z, convolveddensity.AnalitycalDensity)*
     convolveddensity.densityarraynormalization[i]
 end
 
@@ -84,10 +84,11 @@ This function modifies the normalization constant in the AnalitycalDensityStruct
 """
 function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
     for idx in 1:length(convolveddensity.densityarraynormalization)
-        int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, convolveddensity),
+        int, err = QuadGK.quadgk(x -> ComputeConvolvedDensityFunction(x, idx,
+        convolveddensity),
         convolveddensity.AnalitycalDensity.zmin,
         convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
-        convolveddensity.densityarraynormalization[i] /= int
+        convolveddensity.densityarraynormalization[idx] /= int
     end
     return convolveddensity
 end

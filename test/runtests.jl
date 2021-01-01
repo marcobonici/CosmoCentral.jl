@@ -40,10 +40,12 @@ end
     test_normalization = zeros(length(convolveddensity.zbinarray)-1)
     test_density = CosmoCentral.NormalizeConvolvedDensityStruct(convolveddensity)
     for idx in 1:length(test_normalization)
-        int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, test_density),
-        test_density.AnalitycalDensity.zmin,
-        test_density.AnalitycalDensity.zmax, rtol=1e-12)
-        test_normalization[i] = int
+        int, err = QuadGK.quadgk(x ->
+        CosmoCentral.ComputeConvolvedDensityFunction(x, idx,
+        convolveddensity),
+        convolveddensity.AnalitycalDensity.zmin,
+        convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
+        test_normalization[idx] = int
     end
     @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-9)
 end
