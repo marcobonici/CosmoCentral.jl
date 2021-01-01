@@ -9,7 +9,6 @@ using Pkg
 Pkg.build("PyCall")
 using PyCall
 numpy = pyimport("numpy")
-numpy = pyimport("scipy")
 
 params           = CosmoCentral.w0waCDMParameters()
 density          = CosmoCentral.AnalitycalDensityStruct()
