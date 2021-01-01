@@ -41,6 +41,8 @@ end
     zo::Float64   = 0.1
     σ0::Float64   = 0.05
     fout::Float64 = 0.1
+    zbinarray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
+    0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
 end
 
 
@@ -56,4 +58,29 @@ function ComputeInstrumentResponse(z::Float64, zp::Float64,
     +instrumentresponse.fout/(sqrt(2*pi)*instrumentresponse.σo*(1+z))*
     exp(-0.5*((z-instrumentresponse.co*zp-instrumentresponse.zo)/(instrumentresponse.σo*(1+z)))^2)
     return prob_z
+end
+
+function ComputeConvolvedDensityFunction(z::Float64, i::Int64
+    InstrumentResponse::InstrumentResponse, densityparameters::AnalitycalDensity)
+    int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
+    InstrumentResponse), densityparameters.zbinarray[i],
+    densityparameters.zbinarray[i+1], rtol=1e-12)
+    return int*ComputeDensityFunction(z, densityparameters)
+end
+
+
+function ComputeDensityFunctionConvolvedGrid(CosmoGrid::CosmoGrid,
+    InstrumentResponse::InstrumentResponse, densityparameters::AnalitycalDensity)
+    grid = zeros(Float64,length(densityparameters.zbinarray)-1, length(CosmoGrid.zgrid))
+    for idx_zbinarray in 1:length(densityparameters.zbinarray)-1
+        for idx_zgrid in 1:length(CosmoGrid.zgrid)
+            grid[idx_zbinarray, idx_zgrid] = ComputeConvolvedDensityFunction(
+            CosmoGrid.zgrid[idx_zgrid], densityparameters.zbinarray[idx_zbinarray],
+            InstrumentResponse, densityparameters)
+        end
+        normalization = NumericalIntegration.integrate(CosmoGrid.zgrid,
+        grid[idx_zbinarray,:], SimpsonEven())
+        grid[idx_zbinarray,:] ./= normalization
+    end
+    return grid
 end
