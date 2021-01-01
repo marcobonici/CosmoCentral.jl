@@ -83,7 +83,7 @@ ComputeDensityFunction(params)
 This function modifies the normalization constant in the AnalitycalDensityStruct in order to have the same value of the surface density once integrated.
 """
 function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
-    for idx in 1:length(convolveddensity.zarraynormalization)
+    for idx in 1:length(convolveddensity.densityarraynormalization)
         int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, convolveddensity),
         convolveddensity.zmin, convolveddensity.zmax, rtol=1e-12)
         convolveddensity.densityarraynormalization[i] /= int

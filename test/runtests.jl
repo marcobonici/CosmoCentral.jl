@@ -47,14 +47,6 @@ end
     @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-9)
 end
 
-function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
-    for idx in 1:length(convolveddensity.zarraynormalization)
-        int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, convolveddensity),
-        convolveddensity.zmin, convolveddensity.zmax, rtol=1e-12)
-        convolveddensity.densityarraynormalization[i] /= int
-    return convolveddensity
-end
-
 @testset "Check the LogSpace function against the Python equivalent" begin
     minarray = 1e-5
     maxarray = 10.

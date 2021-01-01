@@ -3,11 +3,9 @@ on:
   pull_request:
     branches:
       - main
-      - develop
   push:
     branches:
       - main
-      - develop
     tags: '*'
 jobs:
   test:
@@ -20,7 +18,6 @@ jobs:
           - '1.5' # Replace this with the minimum Julia version that your package supports. E.g. if your package requires Julia 1.5 or higher, change this to '1.5'.
         os:
           - ubuntu-latest
-          #- macOS-latest
         arch:
           - x64
     steps:
