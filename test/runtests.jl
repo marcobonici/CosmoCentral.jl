@@ -4,7 +4,6 @@ using QuadGK
 using Conda
 using NumericalIntegration
 Conda.add("numpy")
-Conda.add("scipy")
 ENV["PYTHON"]=""
 using Pkg
 Pkg.build("PyCall")
@@ -12,8 +11,9 @@ using PyCall
 numpy = pyimport("numpy")
 numpy = pyimport("scipy")
 
-params = CosmoCentral.w0waCDMParameters()
-density = CosmoCentral.AnalitycalDensityStruct()
+params           = CosmoCentral.w0waCDMParameters()
+density          = CosmoCentral.AnalitycalDensityStruct()
+convolveddensity = CosmoCentral.ConvolvedDensityStruct()
 
 @testset "Adimensional Hubble parameter at redshift zero is equal to one" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
@@ -35,6 +35,25 @@ end
     int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeDensityFunction(x, test_density),
     test_density.zmin, test_density.zmax, rtol=1e-12)
     @test isapprox(int, test_density.surfacedensity, atol=1e-9)
+end
+
+@testset "Check the normalization of convolved density function" begin
+    test_normalization = zeros(length(convolveddensity.zbinarray)-1)
+    test_density = CosmoCentral.NormalizeConvolvedDensityStruct(convolveddensity)
+    for idx in 1:length(test_normalization)
+        int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, test_density),
+        test_density.zmin, test_density.zmax, rtol=1e-12)
+        test_normalization[i] = int
+    end
+    @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-9)
+end
+
+function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
+    for idx in 1:length(convolveddensity.zarraynormalization)
+        int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, convolveddensity),
+        convolveddensity.zmin, convolveddensity.zmax, rtol=1e-12)
+        convolveddensity.densityarraynormalization[i] /= int
+    return convolveddensity
 end
 
 @testset "Check the LogSpace function against the Python equivalent" begin
