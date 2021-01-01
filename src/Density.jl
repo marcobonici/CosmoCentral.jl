@@ -85,7 +85,8 @@ This function modifies the normalization constant in the AnalitycalDensityStruct
 function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
     for idx in 1:length(convolveddensity.densityarraynormalization)
         int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, convolveddensity),
-        convolveddensity.zmin, convolveddensity.zmax, rtol=1e-12)
+        convolveddensity.AnalitycalDensity.zmin,
+        convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
         convolveddensity.densityarraynormalization[i] /= int
     end
     return convolveddensity
