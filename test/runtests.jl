@@ -58,7 +58,8 @@ end
     for idx_zbinarray in 1:length(convolveddensity.zbinarray)-1
         for idx_zgrid in 1:length(cosmogrid.zgrid)
             test_array[idx_zbinarray, idx_zgrid] =
-            ComputeConvolvedDensityFunction(cosmogrid.zgrid[idx_zgrid],
+            CosmoCentral.ComputeConvolvedDensityFunction(
+            cosmogrid.zgrid[idx_zgrid],
             convolveddensity.zbinarray[idx_zbinarray],
             convolveddensity)
         end

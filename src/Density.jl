@@ -100,8 +100,7 @@ function ComputeDensityFunctionConvolvedGrid(CosmoGrid::CosmoGrid,
         for idx_zgrid in 1:length(CosmoGrid.zgrid)
             ConvolvedDensityStruct.densitygridarray[idx_zbinarray, idx_zgrid] =
             ComputeConvolvedDensityFunction(CosmoGrid.zgrid[idx_zgrid],
-            ConvolvedDensityStruct.zbinarray[idx_zbinarray],
-            ConvolvedDensityStruct)
+            idx_zbinarray, ConvolvedDensityStruct)
         end
     end
 end
