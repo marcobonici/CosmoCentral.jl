@@ -32,7 +32,7 @@ end
 
 """
 ```math
-p(z_p|z)  =  \\frac{1-f_{\\mathrm{out}}}{\\sqrt{2 \\pi} \\sigma_{\\mathrm{b}}(1+z)} \\exp \\left\\{-\\frac{1}{2}\\left[\\frac{z-c_{\\mathrm{b}} z_{\\mathrm{p}}-z_{\\mathrm{b}}}{\\sigma_{\\mathrm{b}}(1+z)}\\right]^{2}\\right\\} \\, + \\, \\frac{f_{\\mathrm{out}}}{\\sqrt{2 \\pi} \\sigma_{\\mathrm{o}}(1+z)} \\exp \\left\\{-\frac{1}{2}\\left[\\frac{z-c_{\\mathrm{o}} z_{\\mathrm{p}}-z_{\\mathrm{o}}}{\\sigma_{\\mathrm{o}}(1+z)}\\right]^{2}\\right\\}
+p(z_p)  =  \\frac{1-f_{\\mathrm{out}}}{\\sqrt{2 \\pi} \\sigma_{\\mathrm{b}}(1+z)} \\exp \\left(-\\frac{1}{2}\\left(\\frac{z-c_{\\mathrm{b}} z_{\\mathrm{p}}-z_{\\mathrm{b}}}{\\sigma_{\\mathrm{b}}(1+z)}\\right)^{2}\\right) \\, + \\, \\frac{f_{\\mathrm{out}}}{\\sqrt{2 \\pi} \\sigma_{\\mathrm{o}}(1+z)} \\exp \\left(-\frac{1}{2}\\left(\\frac{z-c_{\\mathrm{o}} z_{\\mathrm{p}}-z_{\\mathrm{o}}}{\\sigma_{\\mathrm{o}}(1+z)}\\right)^{2}\\right)
 ```
 """
 @kwdef mutable struct ConvolvedDensityStruct <: ConvolvedDensity
