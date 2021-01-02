@@ -11,7 +11,7 @@ AnalitycalDensityStruct
 
 This struct contains the parameters of the source galaxy density as given by the [official Euclid forecast](https://arxiv.org/abs/1910.09273), whose expression is given by:
 ```math
-n(z)\\propto(\\frac{z}{z_0})^2 \\exp{-(\\frac{z}{z_0})^{-3/2}}
+n(z)\\propto\\left(\\frac{z}{z_0}\\lright)^2 \\exp{-\\left(\\frac{z}{z_0}\\right)^{-3/2}}
 ```
 The parameters contained in this struct are
 - ``z_{min}`` and ``z_{max}``, the minimum and the maximum redshift considered
