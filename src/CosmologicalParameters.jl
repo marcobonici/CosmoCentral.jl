@@ -36,20 +36,10 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 end
 
 """
-w0waCDMParameters
+    CosmoGridStruct(zgrid::Vector{Float64} = Array(LinRange(0.001, 2.5, 300)),
+    kgrid::Vector{Float64} = LogSpaced(1e-5, 50., 1000))
 
-This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM cosmologies:
-- ``w_0`` and ``w_a``, the parameters in the [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
-
-- ``\\Omega_M``, ``\\Omega_B``, ``\\Omega_{DE}``, ``\\Omega_R``, and ``\\Omega_k`` the density parameters for matter, baryons, Dark Energy, radiation, curvature
-
-- ``n_s``, the scalar spectral index
-
-- ``M_\\nu``, the sum of the neutrino mass eigenstates in eV
-
-- ``\\sigma_8``, the amplitude of the scalar fluctuations
-
-- ``H_0``, the value of the Hubble paramater
+This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
 """
 @kwdef struct CosmoGridStruct <: CosmoGrid
     zgrid::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
