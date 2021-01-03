@@ -1,18 +1,16 @@
-# High Level Interface
+# Background Universe
 
-The following i
+Some of the most basics quantities in cosmology are the Hubble factor ``H(z)``
+and the comoving distance ``r(z)``. In this section are presented the functions
+which evaluates them.
 
-## `ComputeAdimensionalHubbleFactor`
+## Hubble factor
 ```@docs
-CosmoCentral.ComputeAdimensionalHubbleFactor(::Float64, ::CosmoCentral.w0waCDMCosmology)
+CosmoCentral.ComputeAdimensionalHubbleFactor
+CosmoCentral.ComputeHubbleFactor
 ```
 
-## `ComputeHubbleFactor`
+## Distances
 ```@docs
-CosmoCentral.ComputeHubbleFactor(::Float64, ::CosmoCentral.w0waCDMCosmology)
-```
-
-## `ComputeComovingDistance`
-```@docs
-CosmoCentral.ComputeComovingDistance(::Float64, ::CosmoCentral.w0waCDMCosmology)
+CosmoCentral.ComputeComovingDistance
 ```

@@ -115,7 +115,7 @@ function ComputeInstrumentResponse(z::Float64, zp::Float64,
 end
 
 """
-    ComputeDensityFunction(z::Float64, i::Int64, convolveddensity::ConvolvedDensity)
+    ComputeConvolvedDensityFunction(z::Float64, i::Int64, convolveddensity::ConvolvedDensity)
 
 This function computes the Convolved density function for a single bin at a given redshift ``z``.
 """

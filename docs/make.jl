@@ -10,8 +10,10 @@ makedocs(
     authors  = "Marco Bonici",
     pages = [
         "Home" => "index.md",
-        "Background" => "anotherPage.md",
         "Background Universe" => "BackgroundUniverse.md",
+        "Source Density" => "SourceDensity.md",
+        "Cosmological Structure" => "CosmologicalStructure.md",
+        "Math Utils" => "MathUtils.md"
     ]
 )
 
