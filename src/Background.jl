@@ -5,18 +5,16 @@ This function, given the value of the cosmological parameters, evaluate the
 Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies.
 The analitycal expression is given by:
 ```math
-E(z)=\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+\\Omega_{DE}(1+z)^{3(1+w_0+w_a)}\\exp(-3w_a \\frac{z}{1+z})+\\Omega_k(1+z)^2}
+E(z)=\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+\\Omega_{DE}(1+z)^{3(1+w_0+w_a)}\\exp\\left(-3w_a \\frac{z}{1+z}\\rigth)+\\Omega_k(1+z)^2}
 ```
 
-# Arguments
-- `z::Float64` the redshift value
-- `params::w0waCDMCosmology`, a collection of cosmological parameters
-
 ## Example
-```julia-repl
-julia> params = CosmoCentral.w0waCDMStruct()
-julia> CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
-1.0
+
+```@repl
+using CosmoCentral
+params = CosmoCentral.w0waCDMStruct()
+z = 1.
+CosmoCentral.ComputeAdimensionalHubbleFactor(z, params)
 ```
 
 !!! warning
@@ -34,23 +32,20 @@ end
 """
     ComputeHubbleFactor(z::Float64, params::w0waCDMCosmology)
 
-# Arguments
-- `z::Float64`, the redshift value
-- `params::w0waCDMCosmology`,  a collection of cosmological parameters
-
 This function, given the value of the cosmological parameters, evaluate the
 Hubble Factor for ``w_0 w_a``CDM cosmologies, whose expression is given by
 ```math
 H(z)=H_0\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
 \\Omega_{DE}(1+z)^{3(1+w_0+w_a)}\\exp(-3w_a \\frac{z}{1+z})+\\Omega_k(1+z)^2}
 ```
-## Example
-```julia-repl
-julia> params = CosmoCentral.w0waCDMStruct(H0=67.)
-julia> CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
-67.0
-```
 
+## Example
+```@repl
+using CosmoCentral
+params = CosmoCentral.w0waCDMStruct(H0=67.)
+z = 1.
+CosmoCentral.ComputeHubbleFactor(z, params)
+```
 """
 function ComputeHubbleFactor(z::Float64, params::w0waCDMCosmology)
     H_z = params.H0*ComputeAdimensionalHubbleFactor(z, params)
@@ -66,10 +61,11 @@ r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dx}{E(x)}
 ```
 
 ## Example
-```julia-repl
-julia> params = CosmoCentral.w0waCDMStruct(H0=67.)
-julia> CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
-67.0
+```@repl
+using CosmoCentral
+params = CosmoCentral.w0waCDMStruct(H0=67.)
+z = 1.
+CosmoCentral.ComputeComovingDistance(z, params)
 ```
 """
 function ComputeComovingDistance(z::Float64, params::w0waCDMCosmology)

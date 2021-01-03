@@ -11,9 +11,12 @@ abstract type InstrumentResponse end
     zmax::Float64 = 2.5, surfacedensity::Float64 = 30.,
     normalization::Float64 = 1.)
 
-This struct contains the parameters of the source galaxy density as given by the [official Euclid forecast](https://arxiv.org/abs/1910.09273), whose expression is given by:
+This struct contains the parameters of the source galaxy density as given by the
+[official Euclid forecast](https://arxiv.org/abs/1910.09273), whose expression
+is given by:
 ```math
-n(z)\\propto\\left(\\frac{z}{z_0}\\right)^2 \\exp{\\left(-\\left(\\frac{z}{z_0}\\right)^{-3/2}\\right)}
+n(z)\\propto\\left(\\frac{z}{z_0}\\right)^2
+\\exp{\\left(-\\left(\\frac{z}{z_0}\\right)^{-3/2}\\right)}
 ```
 The parameters contained in this struct are
 - ``z_{min}`` and ``z_{max}``, the minimum and the maximum redshift considered
@@ -21,7 +24,6 @@ The parameters contained in this struct are
 - ``z_0``, the parameter present in the galaxy distribution
 
 - surfacedensity , the value of the galaxy source density integrated between ``z_{min}`` and ``z_{max}``
-
 - normalization, the value of parameter which multiplies the source dennsity in order to match the correct surface density
 """
 @kwdef mutable struct AnalitycalDensityStruct <: AnalitycalDensity
@@ -39,7 +41,17 @@ end
     densityarraynormalization::Vector{Float64} = ones(length(zbinarray)-1)
     densitygridarray::AbstractArray{Float64, 2} = ones(length(zbinarray)-1, 300))
 
-This function evaluate the normalization of the convolved density function.
+
+In order to take into account the error in the redshift measurement, the
+source density is convolved with the [`InstrumentResponseStruct`](@ref),
+according to [the following equation](https://arxiv.org/abs/1910.09273)
+```math
+n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
+\\mathrm{d} z_{\\mathrm{p}} n(z) p \\left(z_{\\mathrm{p}}
+\\mid z\\right)}{\\int_{z_{\\min }}^{z_{\\max }} \\mathrm{d} z
+\\int_{z_{i}^{-}}^{z_{i}^{+}} \\mathrm{d} z_{\\mathrm{p}} n(z) p
+\\left(z_{\\mathrm{p}} \\mid z\\right)}
+```
 """
 @kwdef mutable struct ConvolvedDensityStruct <: ConvolvedDensity
     AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct()
@@ -63,7 +75,8 @@ end
 """
     NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensity)
 
-This function normalize AnalitycalDensityStruct in order to have the correct value of the surface density once integrated.
+This function normalize AnalitycalDensityStruct in order to have the correct
+value of the surface density once integrated.
 """
 function NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensity)
     int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, densityparameters),
@@ -117,7 +130,8 @@ end
 """
     ComputeConvolvedDensityFunction(z::Float64, i::Int64, convolveddensity::ConvolvedDensity)
 
-This function computes the Convolved density function for a single bin at a given redshift ``z``.
+This function computes the Convolved density function for a single bin at a
+given redshift ``z``.
 """
 function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
     convolveddensity::ConvolvedDensity)
@@ -132,7 +146,8 @@ end
 """
     NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
 
-This function normalizes ConvolvedDensity such that the integrals of the convolved densities are normalized to 1.
+This function normalizes ConvolvedDensity such that the integrals of the
+convolved densities are normalized to 1.
 """
 function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
     for idx in 1:length(convolveddensity.densityarraynormalization)
