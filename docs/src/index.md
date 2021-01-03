@@ -25,7 +25,7 @@ quantities.
 
 ```@repl
 using CosmoCentral
-params = CosmoCentral.w0waCDMParameters()
+params = CosmoCentral.w0waCDMStruct()
 z = 1.
 CosmoCentral.ComputeAdimensionalHubbleFactor(z, params)
 CosmoCentral.ComputeHubbleFactor(z, params)

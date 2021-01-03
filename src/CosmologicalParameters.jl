@@ -3,7 +3,7 @@ abstract type w0waCDMCosmology <: AbstractCosmology end
 abstract type CosmoGrid end
 
 """
-    w0waCDMParameters(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
+    w0waCDMStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
     ΩB::Float64  = 0.05, ΩDE::Float64 = 0.68, Ωk::Float64  = 0.,
     Ωr::Float64  = 0., ns::Float64  = 0.96, Mν::Float64  = 0.06,
     σ8::Float64  = 0.816, H0::Float64  = 67.)
