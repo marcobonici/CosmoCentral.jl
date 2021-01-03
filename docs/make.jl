@@ -11,6 +11,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Background" => "anotherPage.md",
+        "Background Universe" => "BackgroundUniverse.md",
     ]
 )
 
