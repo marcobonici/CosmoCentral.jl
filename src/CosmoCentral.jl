@@ -10,4 +10,6 @@ include("Background.jl")
 include("Density.jl")
 include("MathUtils.jl")
 
+export ComputeAdimensionalHubbleFactor
+
 end # module
