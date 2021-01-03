@@ -1,4 +1,5 @@
 using Documenter, CosmoCentral
+#include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 
 push!(LOAD_PATH,"../src/")
 

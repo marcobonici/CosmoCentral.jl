@@ -3,7 +3,10 @@ abstract type w0waCDMCosmology <: AbstractCosmology end
 abstract type CosmoGrid end
 
 """
-w0waCDMParameters
+    w0waCDMParameters(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
+    ΩB::Float64  = 0.05, ΩDE::Float64 = 0.68, Ωk::Float64  = 0.,
+    Ωr::Float64  = 0., ns::Float64  = 0.96, Mν::Float64  = 0.06,
+    σ8::Float64  = 0.816, H0::Float64  = 67.)
 
 This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM cosmologies:
 - ``w_0`` and ``w_a``, the parameters in the [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
