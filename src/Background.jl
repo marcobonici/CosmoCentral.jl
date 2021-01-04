@@ -8,19 +8,10 @@ The analitycal expression is given by:
 E(z)=\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+\\Omega_{DE}(1+z)^{3(1+w_0+w_a)}\\exp\\left(-3w_a \\frac{z}{1+z}\\rigth)+\\Omega_k(1+z)^2}
 ```
 
-## Example
-
-```@repl
-using CosmoCentral
-params = CosmoCentral.w0waCDMStruct()
-z = 1.
-CosmoCentral.ComputeAdimensionalHubbleFactor(z, params)
-```
-
 !!! warning
     This expression is valid only for the
-        [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
-        of the Dark Energy Equation of State.
+    [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
+    of the Dark Energy Equation of State.
 """
 function ComputeAdimensionalHubbleFactor(z::Float64, cosmopars::w0waCDMCosmology)
     E_z = sqrt(cosmopars.ΩM*(1+z)^3 + cosmopars.Ωr*(1+z)^4+cosmopars.Ωk*(1+z)^2
@@ -39,13 +30,6 @@ H(z)=H_0\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
 \\Omega_{DE}(1+z)^{3(1+w_0+w_a)}\\exp(-3w_a \\frac{z}{1+z})+\\Omega_k(1+z)^2}
 ```
 
-## Example
-```@repl
-using CosmoCentral
-params = CosmoCentral.w0waCDMStruct(H0=67.)
-z = 1.
-CosmoCentral.ComputeHubbleFactor(z, params)
-```
 """
 function ComputeHubbleFactor(z::Float64, params::w0waCDMCosmology)
     H_z = params.H0*ComputeAdimensionalHubbleFactor(z, params)
@@ -60,13 +44,6 @@ Comoving Distance. It is evaluated as:
 r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dx}{E(x)}
 ```
 
-## Example
-```@repl
-using CosmoCentral
-params = CosmoCentral.w0waCDMStruct(H0=67.)
-z = 1.
-CosmoCentral.ComputeComovingDistance(z, params)
-```
 """
 function ComputeComovingDistance(z::Float64, params::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of

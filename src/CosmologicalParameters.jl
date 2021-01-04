@@ -1,6 +1,6 @@
 abstract type AbstractCosmology end
 abstract type w0waCDMCosmology <: AbstractCosmology end
-abstract type CosmoGrid end
+abstract type PowerSpectrumGrid end
 
 """
     w0waCDMStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -41,7 +41,7 @@ end
 
 This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
 """
-@kwdef struct CosmoGridStruct <: CosmoGrid
+@kwdef struct PowerSpectrumGridStruct <: PowerSpectrumGrid
     zgrid::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
     kgrid::Vector{Float64} = LogSpaced(1e-5, 50., 1000)
 end

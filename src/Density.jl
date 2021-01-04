@@ -160,19 +160,19 @@ function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
 end
 
 """
-    ComputeDensityFunction(CosmoGrid::CosmoGrid, ConvolvedDensityStruct::ConvolvedDensity)
+    ComputeDensityFunction(PowerSpectrumGrid::PowerSpectrumGrid, ConvolvedDensityStruct::ConvolvedDensity)
 
 This function computes the convolved density function for all tomographic bins
-on the ``z``-grid provided by CosmoGrid.
+on the ``z``-grid provided by PowerSpectrumGrid.
 """
-function ComputeDensityFunctionConvolvedGrid(CosmoGrid::CosmoGrid,
+function ComputeDensityFunctionConvolvedGrid(PowerSpectrumGrid::PowerSpectrumGrid,
     ConvolvedDensityStruct::ConvolvedDensity)
     ConvolvedDensityStruct.densitygridarray = zeros(Float64,length(ConvolvedDensityStruct.zbinarray)-1,
-    length(CosmoGrid.zgrid))
+    length(PowerSpectrumGrid.zgrid))
     for idx_zbinarray in 1:length(ConvolvedDensityStruct.zbinarray)-1
-        for idx_zgrid in 1:length(CosmoGrid.zgrid)
+        for idx_zgrid in 1:length(PowerSpectrumGrid.zgrid)
             ConvolvedDensityStruct.densitygridarray[idx_zbinarray, idx_zgrid] =
-            ComputeConvolvedDensityFunction(CosmoGrid.zgrid[idx_zgrid],
+            ComputeConvolvedDensityFunction(PowerSpectrumGrid.zgrid[idx_zgrid],
             idx_zbinarray, ConvolvedDensityStruct)
         end
     end
