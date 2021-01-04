@@ -37,5 +37,5 @@ CosmoCentral.ComputeInstrumentResponse
 CosmoCentral.ConvolvedDensityStruct
 CosmoCentral.ComputeConvolvedDensityFunction
 CosmoCentral.NormalizeConvolvedDensityStruct
-CosmoCentral.ComputeDensityFunctionConvolvedGrid
+CosmoCentral.ComputeConvolvedDensityFunctionGrid
 ```
