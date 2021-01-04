@@ -9,6 +9,7 @@ include("CosmologicalParameters.jl")
 include("Background.jl")
 include("Density.jl")
 include("MathUtils.jl")
+include("WeightFunctions.jl")
 
 export ComputeAdimensionalHubbleFactor
 
