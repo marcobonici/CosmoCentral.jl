@@ -13,7 +13,7 @@ numpy = pyimport("numpy")
 params = CosmoCentral.w0waCDMStruct()
 density = CosmoCentral.AnalitycalDensityStruct()
 convolveddensity = CosmoCentral.ConvolvedDensityStruct()
-cosmogrid  = CosmoCentral.CosmoGridStruct(zgrid=Array(LinRange(0.0, 1., 10)))
+cosmogrid  = CosmoCentral.PowerSpectrumGridStruct(zgrid=Array(LinRange(0.0, 1., 10)))
 
 @testset "Adimensional Hubble parameter at redshift zero is equal to one" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
