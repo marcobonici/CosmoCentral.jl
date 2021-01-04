@@ -5,5 +5,5 @@ under heavy developement and a lot of things may change.
 
 ```@docs
 CosmoCentral.w0waCDMStruct
-CosmoCentral.PowerSpectrumGrid
+CosmoCentral.PowerSpectrumGridStruct
 ```
