@@ -5,7 +5,14 @@ using Base: @kwdef
 using Parameters
 using NumericalIntegration
 using PyCall
+Conda.add("numpy")
+Conda.add("classy")
+ENV["PYTHON"]=""
+using Pkg
+Pkg.build("PyCall")
+using PyCall
 numpy = pyimport("numpy")
+classy = pyimport("classy")
 
 include("CosmologicalParameters.jl")
 include("Background.jl")
