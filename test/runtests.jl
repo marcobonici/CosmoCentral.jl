@@ -1,14 +1,16 @@
 using CosmoCentral
 using Test
 using QuadGK
-using Conda
+#using Conda
 using NumericalIntegration
-Conda.add("numpy")
-ENV["PYTHON"]=""
-using Pkg
-Pkg.build("PyCall")
+#Conda.add("numpy")
+#Conda.add("classy")
+#ENV["PYTHON"]=""
+#using Pkg
+#Pkg.build("PyCall")
 using PyCall
 numpy = pyimport("numpy")
+classy = pyimport("classy")
 
 params = CosmoCentral.w0waCDMStruct()
 density = CosmoCentral.AnalitycalDensityStruct()
