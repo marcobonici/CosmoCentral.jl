@@ -4,10 +4,12 @@ on:
     branches:
       - main
       - develop
+      - test_ci_classy
   push:
     branches:
       - main
       - develop
+      - test_ci_classy
     tags: '*'
 jobs:
   test:

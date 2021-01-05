@@ -4,6 +4,8 @@ using QuadGK
 using Base: @kwdef
 using Parameters
 using NumericalIntegration
+using PyCall
+classy = pyimport("classy")
 
 include("CosmologicalParameters.jl")
 include("Background.jl")
