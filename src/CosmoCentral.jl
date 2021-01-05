@@ -5,7 +5,7 @@ using Base: @kwdef
 using Parameters
 using NumericalIntegration
 using PyCall
-classy = pyimport("classy")
+numpy = pyimport("numpy")
 
 include("CosmologicalParameters.jl")
 include("Background.jl")
