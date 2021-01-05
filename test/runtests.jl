@@ -1,7 +1,7 @@
 using CosmoCentral
 using Test
 using QuadGK
-using Conda
+#using Conda
 using NumericalIntegration
 #Conda.add("numpy")
 #Conda.add("classy")
