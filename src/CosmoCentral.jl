@@ -4,7 +4,7 @@ using QuadGK
 using Base: @kwdef
 using Parameters
 using NumericalIntegration
-using PyCall
+using Conda
 Conda.add("numpy")
 Conda.add("classy")
 ENV["PYTHON"]=""
