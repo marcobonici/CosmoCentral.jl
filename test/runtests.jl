@@ -1,13 +1,7 @@
 using CosmoCentral
 using Test
 using QuadGK
-#using Conda
 using NumericalIntegration
-#Conda.add("numpy")
-#Conda.add("classy")
-#ENV["PYTHON"]=""
-#using Pkg
-#Pkg.build("PyCall")
 using PyCall
 numpy = pyimport("numpy")
 classy = pyimport("classy")
