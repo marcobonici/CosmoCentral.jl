@@ -4,12 +4,12 @@ on:
     branches:
       - main
       - develop
-      - test_remove_toml_file
+      - refactoring
   push:
     branches:
       - main
       - develop
-      - test_remove_toml_file
+      - refactoring
     tags: '*'
 jobs:
   test:

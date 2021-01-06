@@ -1,5 +1,4 @@
 using CosmoCentral
-#include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 using Test
 using QuadGK
 using NumericalIntegration
