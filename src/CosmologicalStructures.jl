@@ -1,6 +1,10 @@
 abstract type AbstractCosmology end
 abstract type w0waCDMCosmology <: AbstractCosmology end
-abstract type PowerSpectrumGrid end
+abstract type CosmologicalGrid end
+abstract type AngularCoefficientsGrid end
+abstract type BackgroundQuantities end
+
+
 
 """
     w0waCDMStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -37,12 +41,24 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 end
 
 """
-    PowerSpectrumGridStruct(zgrid::Vector{Float64} = Array(LinRange(0.001, 2.5, 300)),
-    kgrid::Vector{Float64} = LogSpaced(1e-5, 50., 1000))
+    CosmologicalGridStruct(ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300)),
+    KArray::Vector{Float64} = LogSpaced(1e-5, 50., 1000))
 
 This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
 """
-@kwdef struct PowerSpectrumGridStruct <: PowerSpectrumGrid
-    zgrid::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
-    kgrid::Vector{Float64} = LogSpaced(1e-5, 50., 1000)
+@kwdef struct CosmologicalGridStruct <: CosmologicalGrid
+    ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
+    KArray::Vector{Float64} = LogSpaced(1e-5, 50., 1000)
+    MultipolesArray::Vector{Float64} = LinRange(10., 3000., 2991)
+    KLimberArray::AbstractArray{Float64, 2} = zeros(length(MultipolesArray),
+    length(ZArray))
+end
+
+function ComputeKLimberArray(CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities)
+    for idx_z in 1:length((CosmologicalGrid.ZArray))
+        CosmologicalGrid.KLimberArray[:, myz] =
+        (CosmologicalGrid.MultipolesArray.+
+        1. /2.)./BackgroundQuantities.HZArray[idx_z]
+    end
 end

@@ -1,4 +1,5 @@
-using CosmoCentral
+#using CosmoCentral
+include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 using Test
 using QuadGK
 using NumericalIntegration
@@ -8,7 +9,7 @@ numpy = pyimport("numpy")
 params = CosmoCentral.w0waCDMStruct()
 density = CosmoCentral.AnalitycalDensityStruct()
 convolveddensity = CosmoCentral.ConvolvedDensityStruct()
-cosmogrid  = CosmoCentral.PowerSpectrumGridStruct(zgrid=Array(LinRange(0.0, 1., 10)))
+cosmogrid  = CosmoCentral.CosmologicalGridStruct(ZArray=Array(LinRange(0.0, 1., 10)))
 
 @testset "Adimensional Hubble parameter at redshift zero is equal to one" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
@@ -33,7 +34,7 @@ end
 end
 
 @testset "Check the normalization of convolved density function" begin
-    test_normalization = zeros(length(convolveddensity.zbinarray)-1)
+    test_normalization = zeros(length(convolveddensity.ZBinArray)-1)
     CosmoCentral.NormalizeConvolvedDensityStruct(convolveddensity)
     for idx in 1:length(test_normalization)
         int, err = QuadGK.quadgk(x ->
@@ -47,15 +48,15 @@ end
 end
 
 @testset "Check the computation of the convolved density function on grid" begin
-    test_array = zeros(Float64,length(convolveddensity.zbinarray)-1,
-    length(cosmogrid.zgrid))
+    test_array = zeros(Float64,length(convolveddensity.ZBinArray)-1,
+    length(cosmogrid.ZArray))
     CosmoCentral.ComputeConvolvedDensityFunctionGrid(cosmogrid, convolveddensity)
-    for idx_zbinarray in 1:length(convolveddensity.zbinarray)-1
-        for idx_zgrid in 1:length(cosmogrid.zgrid)
-            test_array[idx_zbinarray, idx_zgrid] =
+    for idx_ZBinArray in 1:length(convolveddensity.ZBinArray)-1
+        for idx_ZArray in 1:length(cosmogrid.ZArray)
+            test_array[idx_ZBinArray, idx_ZArray] =
             CosmoCentral.ComputeConvolvedDensityFunction(
-            cosmogrid.zgrid[idx_zgrid],
-            idx_zbinarray,
+            cosmogrid.ZArray[idx_ZArray],
+            idx_ZBinArray,
             convolveddensity)
         end
     end

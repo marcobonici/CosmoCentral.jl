@@ -23,19 +23,19 @@ abstract type classyParams <: BoltzmannSolverParams end
         "cs2_fld" =>  1.,
         "N_ncdm" =>  1,
         "tau_reio" =>  0.058,)
-    PowerSpectrumGrid::PowerSpectrumGrid = PowerSpectrumGridStruct()
+    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
     LinPowerSpectrumArray::AbstractArray{Float64, 2} =
-    zeros(length(PowerSpectrumGrid.kgrid), length(PowerSpectrumGrid.zgrid))
+    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray))
     NonlinPowerSpectrumArray::AbstractArray{Float64, 2} =
-    zeros(length(PowerSpectrumGrid.kgrid), length(PowerSpectrumGrid.zgrid))
+    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray))
 end
 
 function EvaluatePowerSpectrum(classyParams:: classyParams)
     cosmo = classy.Class()
     cosmo.set(classyParams.classyParamsDict)
     cosmo.compute()
-    for (idxz, myz) in enumerate(classyParams.PowerSpectrumGrid.zgrid)
-        for (idxk, myk) in enumerate(classyParams.PowerSpectrumGrid.zgrid)
+    for (idxz, myz) in enumerate(classyParams.CosmologicalGrid.ZArray)
+        for (idxk, myk) in enumerate(classyParams.CosmologicalGrid.ZArray)
             classyParams.LinPowerSpectrumArray[idxk, idxz] =
             cosmo.pk_lin(myk, myz)
             classyParams.NonlinPowerSpectrumArray[idxk, idxz] =

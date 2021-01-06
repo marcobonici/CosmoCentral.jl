@@ -37,9 +37,9 @@ end
 """
     ConvolvedDensityStruct(AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct(),
     InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
-    zbinarray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789, 0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
-    densityarraynormalization::Vector{Float64} = ones(length(zbinarray)-1)
-    densitygridarray::AbstractArray{Float64, 2} = ones(length(zbinarray)-1, 300))
+    ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789, 0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
+    densityarraynormalization::Vector{Float64} = ones(length(ZBinArray)-1)
+    densitygridarray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300))
 
 
 In order to take into account the error in the redshift measurement, the
@@ -56,10 +56,10 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
 @kwdef mutable struct ConvolvedDensityStruct <: ConvolvedDensity
     AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct()
     InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
-    zbinarray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
+    ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
     0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
-    densityarraynormalization::Vector{Float64} = ones(length(zbinarray)-1)
-    densitygridarray::AbstractArray{Float64, 2} = ones(length(zbinarray)-1, 300)
+    densityarraynormalization::Vector{Float64} = ones(length(ZBinArray)-1)
+    densitygridarray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300)
 end
 
 """
@@ -137,8 +137,8 @@ function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
     convolveddensity::ConvolvedDensity)
     int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
     convolveddensity.InstrumentResponse),
-    convolveddensity.zbinarray[i],
-    convolveddensity.zbinarray[i+1], rtol=1e-12)
+    convolveddensity.ZBinArray[i],
+    convolveddensity.ZBinArray[i+1], rtol=1e-12)
     return int*ComputeDensityFunction(z, convolveddensity.AnalitycalDensity)*
     convolveddensity.densityarraynormalization[i]
 end
@@ -160,20 +160,20 @@ function NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
 end
 
 """
-    ComputeConvolvedDensityFunctionGrid(PowerSpectrumGrid::PowerSpectrumGrid, ConvolvedDensityStruct::ConvolvedDensity)
+    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid::CosmologicalGrid, ConvolvedDensityStruct::ConvolvedDensity)
 
 This function computes the convolved density function for all tomographic bins
-on the ``z``-grid provided by PowerSpectrumGrid.
+on the ``z``-grid provided by CosmologicalGrid.
 """
-function ComputeConvolvedDensityFunctionGrid(PowerSpectrumGrid::PowerSpectrumGrid,
+function ComputeConvolvedDensityFunctionGrid(CosmologicalGrid::CosmologicalGrid,
     ConvolvedDensityStruct::ConvolvedDensity)
-    ConvolvedDensityStruct.densitygridarray = zeros(Float64,length(ConvolvedDensityStruct.zbinarray)-1,
-    length(PowerSpectrumGrid.zgrid))
-    for idx_zbinarray in 1:length(ConvolvedDensityStruct.zbinarray)-1
-        for idx_zgrid in 1:length(PowerSpectrumGrid.zgrid)
-            ConvolvedDensityStruct.densitygridarray[idx_zbinarray, idx_zgrid] =
-            ComputeConvolvedDensityFunction(PowerSpectrumGrid.zgrid[idx_zgrid],
-            idx_zbinarray, ConvolvedDensityStruct)
+    ConvolvedDensityStruct.densitygridarray = zeros(Float64,length(ConvolvedDensityStruct.ZBinArray)-1,
+    length(CosmologicalGrid.ZArray))
+    for idx_ZBinArray in 1:length(ConvolvedDensityStruct.ZBinArray)-1
+        for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
+            ConvolvedDensityStruct.densitygridarray[idx_ZBinArray, idx_ZArray] =
+            ComputeConvolvedDensityFunction(CosmologicalGrid.ZArray[idx_ZArray],
+            idx_ZBinArray, ConvolvedDensityStruct)
         end
     end
 end

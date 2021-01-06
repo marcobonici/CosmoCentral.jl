@@ -57,28 +57,28 @@ end
 
 """
     BackgroundQuantitiesStruct(
-    PowerSpectrumGrid::PowerSpectrumGrid = PowerSpectrumGridStruct()
-    Hzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
-    rzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
+    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
+    HZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
+    rZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
     w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct())
 
 This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
 """
 @kwdef struct BackgroundQuantitiesStruct <: BackgroundQuantities
-    PowerSpectrumGrid::PowerSpectrumGrid = PowerSpectrumGridStruct()
-    Hzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
-    rzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
+    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
+    HZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
+    rZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
     w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
 end
 
 function ComputeBackgroundQuantitiesOverGrid(
     BackgroundQuantities::BackgroundQuantities)
-    for idx_zgrid in 1:length(BackgroundQuantities.PowerSpectrumGrid.zgrid)
-        BackgroundQuantities.Hzgrid[idx_zgrid] = ComputeHubbleFactor(
-        BackgroundQuantities.PowerSpectrumGrid.zgrid[idx_zgrid],
+    for idx_ZArray in 1:length(BackgroundQuantities.CosmologicalGrid.ZArray)
+        BackgroundQuantities.HZArray[idx_ZArray] = ComputeHubbleFactor(
+        BackgroundQuantities.CosmologicalGrid.ZArray[idx_ZArray],
         BackgroundQuantities.w0waCDMCosmology)
-        BackgroundQuantities.rzgrid[idx_zgrid] = ComputeComovingDistance(
-        BackgroundQuantities.PowerSpectrumGrid.zgrid[idx_zgrid],
+        BackgroundQuantities.rZArray[idx_ZArray] = ComputeComovingDistance(
+        BackgroundQuantities.CosmologicalGrid.ZArray[idx_ZArray],
         BackgroundQuantities.w0waCDMCosmology)
     end
 end
