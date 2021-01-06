@@ -4,12 +4,12 @@ on:
     branches:
       - main
       - develop
-      - test_ci_classy
+      - test_remove_toml_file
   push:
     branches:
       - main
       - develop
-      - test_ci_classy
+      - test_remove_toml_file
     tags: '*'
 jobs:
   test:
