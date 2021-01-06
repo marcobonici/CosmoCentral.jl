@@ -4,7 +4,6 @@ using QuadGK
 using NumericalIntegration
 using PyCall
 numpy = pyimport("numpy")
-classy = pyimport("classy")
 
 params = CosmoCentral.w0waCDMStruct()
 density = CosmoCentral.AnalitycalDensityStruct()
