@@ -10,3 +10,11 @@ function LogSpaced(min::Float64, max::Float64, n::Int64)
     logarray = Array(LinRange(logmin, logmax, n))
     return exp10.(logarray)
 end
+
+function BinSearch(x::Float64, Array::Vector{Float64})
+    idx = 1
+    while !(x >= Array[idx] && x <= Array[idx+1])
+        idx += 1
+    end
+    return idx
+end

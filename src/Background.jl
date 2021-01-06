@@ -1,3 +1,5 @@
+abstract type BackgroundQuantities end
+
 """
     ComputeAdimensionalHubbleFactor(z::Float64, params::w0waCDMCosmology)
 
@@ -51,4 +53,32 @@ function ComputeComovingDistance(z::Float64, params::w0waCDMCosmology)
     integral, err = QuadGK.quadgk(x -> 1 /
     ComputeAdimensionalHubbleFactor(x,params), 0, z, rtol=1e-12)
      return integral*c_0/params.H0
+end
+
+"""
+    BackgroundQuantitiesStruct(
+    PowerSpectrumGrid::PowerSpectrumGrid = PowerSpectrumGridStruct()
+    Hzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
+    rzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
+    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct())
+
+This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
+"""
+@kwdef struct BackgroundQuantitiesStruct <: BackgroundQuantities
+    PowerSpectrumGrid::PowerSpectrumGrid = PowerSpectrumGridStruct()
+    Hzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
+    rzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
+    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
+end
+
+function ComputeBackgroundQuantitiesOverGrid(
+    BackgroundQuantities::BackgroundQuantities)
+    for idx_zgrid in 1:length(BackgroundQuantities.PowerSpectrumGrid.zgrid)
+        BackgroundQuantities.Hzgrid[idx_zgrid] = ComputeHubbleFactor(
+        BackgroundQuantities.PowerSpectrumGrid.zgrid[idx_zgrid],
+        BackgroundQuantities.w0waCDMCosmology)
+        BackgroundQuantities.rzgrid[idx_zgrid] = ComputeComovingDistance(
+        BackgroundQuantities.PowerSpectrumGrid.zgrid[idx_zgrid],
+        BackgroundQuantities.w0waCDMCosmology)
+    end
 end
