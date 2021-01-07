@@ -7,8 +7,9 @@ numpy = pyimport("numpy")
 
 params = CosmoCentral.w0waCDMStruct()
 density = CosmoCentral.AnalitycalDensityStruct()
+instrumentresponse = CosmoCentral.InstrumentResponseStruct()
 convolveddensity = CosmoCentral.ConvolvedDensityStruct()
-cosmogrid  = CosmoCentral.PowerSpectrumGridStruct(zgrid=Array(LinRange(0.0, 1., 10)))
+cosmogrid  = CosmoCentral.CosmologicalGridStruct(ZArray=Array(LinRange(0.0, 1., 10)))
 
 @testset "Adimensional Hubble parameter at redshift zero is equal to one" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., params)
@@ -28,38 +29,42 @@ end
 @testset "Check the normalization of density function" begin
     CosmoCentral.NormalizeAnalitycalDensityStruct(density)
     int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeDensityFunction(x, density),
-    density.zmin, density.zmax, rtol=1e-12)
-    @test isapprox(int, density.surfacedensity, atol=1e-9)
+    density.ZMin, density.ZMax, rtol=1e-12)
+    @test isapprox(int, density.SurfaceDensity, atol=1e-9)
 end
 
 @testset "Check the normalization of convolved density function" begin
-    test_normalization = zeros(length(convolveddensity.zbinarray)-1)
-    CosmoCentral.NormalizeConvolvedDensityStruct(convolveddensity)
+    test_normalization = zeros(length(convolveddensity.ZBinArray)-1)
+    CosmoCentral.NormalizeConvolvedDensityStruct(convolveddensity, density,
+    instrumentresponse)
     for idx in 1:length(test_normalization)
         int, err = QuadGK.quadgk(x ->
         CosmoCentral.ComputeConvolvedDensityFunction(x, idx,
-        convolveddensity),
-        convolveddensity.AnalitycalDensity.zmin,
-        convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
+        convolveddensity, density, instrumentresponse),
+        density.ZMin,
+        density.ZMax, rtol=1e-12)
         test_normalization[idx] = int
     end
     @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-12)
 end
 
 @testset "Check the computation of the convolved density function on grid" begin
-    test_array = zeros(Float64,length(convolveddensity.zbinarray)-1,
-    length(cosmogrid.zgrid))
-    CosmoCentral.ComputeConvolvedDensityFunctionGrid(cosmogrid, convolveddensity)
-    for idx_zbinarray in 1:length(convolveddensity.zbinarray)-1
-        for idx_zgrid in 1:length(cosmogrid.zgrid)
-            test_array[idx_zbinarray, idx_zgrid] =
+    test_array = zeros(Float64,length(convolveddensity.ZBinArray)-1,
+    length(cosmogrid.ZArray))
+    CosmoCentral.ComputeConvolvedDensityFunctionGrid(cosmogrid, convolveddensity,
+    density, instrumentresponse)
+    for idx_ZBinArray in 1:length(convolveddensity.ZBinArray)-1
+        for idx_ZArray in 1:length(cosmogrid.ZArray)
+            test_array[idx_ZBinArray, idx_ZArray] =
             CosmoCentral.ComputeConvolvedDensityFunction(
-            cosmogrid.zgrid[idx_zgrid],
-            idx_zbinarray,
-            convolveddensity)
+            cosmogrid.ZArray[idx_ZArray],
+            idx_ZBinArray,
+            convolveddensity,
+            density,
+            instrumentresponse)
         end
     end
-    @test isapprox(test_array, convolveddensity.densitygridarray, atol=1e-12)
+    @test isapprox(test_array, convolveddensity.DensityGridArray, atol=1e-12)
 end
 
 @testset "Check the LogSpace function against the Python equivalent" begin

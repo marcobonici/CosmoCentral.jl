@@ -15,10 +15,12 @@ E(z)=\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+\\Omega_{DE}(1+z)^{3(1+w_0+w_a)}\\
     [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
     of the Dark Energy Equation of State.
 """
-function ComputeAdimensionalHubbleFactor(z::Float64, cosmopars::w0waCDMCosmology)
-    E_z = sqrt(cosmopars.ΩM*(1+z)^3 + cosmopars.Ωr*(1+z)^4+cosmopars.Ωk*(1+z)^2
-    +cosmopars.ΩDE*(1+z)^(3*(1+cosmopars.w0+
-    cosmopars.wa))*exp(-3*cosmopars.wa*z/(1+z)) )
+function ComputeAdimensionalHubbleFactor(z::Float64,
+    w0waCDMCosmology::w0waCDMCosmology)
+    E_z = sqrt(w0waCDMCosmology.ΩM*(1+z)^3 + w0waCDMCosmology.Ωr*(1+z)^4+
+    w0waCDMCosmology.Ωk*(1+z)^2
+    +w0waCDMCosmology.ΩDE*(1+z)^(3*(1+w0waCDMCosmology.w0+
+    w0waCDMCosmology.wa))*exp(-3*w0waCDMCosmology.wa*z/(1+z)) )
     return E_z
 end
 
@@ -47,38 +49,23 @@ r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dx}{E(x)}
 ```
 
 """
-function ComputeComovingDistance(z::Float64, params::w0waCDMCosmology)
+function ComputeComovingDistance(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     integral, err = QuadGK.quadgk(x -> 1 /
-    ComputeAdimensionalHubbleFactor(x,params), 0, z, rtol=1e-12)
-     return integral*c_0/params.H0
+    ComputeAdimensionalHubbleFactor(x,w0waCDMCosmology), 0, z, rtol=1e-12)
+     return integral*c_0/w0waCDMCosmology.H0
 end
 
-"""
-    BackgroundQuantitiesStruct(
-    PowerSpectrumGrid::PowerSpectrumGrid = PowerSpectrumGridStruct()
-    Hzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
-    rzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct())
 
-This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
-"""
-@kwdef struct BackgroundQuantitiesStruct <: BackgroundQuantities
-    PowerSpectrumGrid::PowerSpectrumGrid = PowerSpectrumGridStruct()
-    Hzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
-    rzgrid::Vector{Float64} = zeros(length(PowerSpectrumGrid.zgrid))
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
-end
-
-function ComputeBackgroundQuantitiesOverGrid(
-    BackgroundQuantities::BackgroundQuantities)
-    for idx_zgrid in 1:length(BackgroundQuantities.PowerSpectrumGrid.zgrid)
-        BackgroundQuantities.Hzgrid[idx_zgrid] = ComputeHubbleFactor(
-        BackgroundQuantities.PowerSpectrumGrid.zgrid[idx_zgrid],
-        BackgroundQuantities.w0waCDMCosmology)
-        BackgroundQuantities.rzgrid[idx_zgrid] = ComputeComovingDistance(
-        BackgroundQuantities.PowerSpectrumGrid.zgrid[idx_zgrid],
-        BackgroundQuantities.w0waCDMCosmology)
+function ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmology)
+    for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
+        BackgroundQuantities.HZArray[idx_ZArray] = ComputeHubbleFactor(
+        CosmologicalGrid.ZArray[idx_ZArray], w0waCDMCosmology)
+        BackgroundQuantities.rZArray[idx_ZArray] = ComputeComovingDistance(
+        BackgroundQuantities.CosmologicalGrid.ZArray[idx_ZArray],
+        w0waCDMCosmology)
     end
 end

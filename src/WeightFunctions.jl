@@ -1,15 +1,3 @@
-abstract type WeightFunction end
-
-@kwdef mutable struct WeightFunctionStruct <: WeightFunction
-    ConvolvedDensity::ConvolvedDensity = ConvolvedDensityStruct()
-    PowerSpectrumGrid::PowerSpectrumGrid = PowerSpectrumGridStruct()
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
-    Bias::Bias = PiecewiseBiasStruct()
-    BackgroundQuantities::BackgroundQuantities = BackgroundQuantitiesStruct()
-    WeightFunctionArray::AbstractArray{Float64, 2} =
-    ones(length(ConvolvedDensity.zbinarray)-1, length(PowerSpectrumGrid.zgrid))
-end
-
 """
     ComputeGalaxyClusteringWeightFunction(z::Float64, i::Int64,
         ConvolvedDensity::ConvolvedDensity,
@@ -29,22 +17,24 @@ end
 
 
 """
-    ComputeGalaxyClusteringWeightFunction(PowerSpectrumGrid::PowerSpectrumGrid,
+    ComputeGalaxyClusteringWeightFunction(CosmologicalGrid::CosmologicalGrid,
         ConvolvedDensity::ConvolvedDensity,
         w0waCDMCosmology::w0waCDMCosmology)
 
 This function returns the source density for a given redshift ``z``.
 """
 function ComputeGalaxyClusteringWeightFunctionOverGrid(
-    WeightFunction::WeightFunction)
+    WeightFunction::WeightFunction, ConvolvedDensity::ConvolvedDensity,
+    Bias::Bias)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    for idx_zbinarray in 1:length(WeightFunction.ConvolvedDensity.zbinarray)-1
-        for idx_zgrid in 1:length(WeightFunction.PowerSpectrumGrid.zgrid)
-            WeightFunction.WeightFunctionArray[idx_zbinarray, idx_zgrid] =
-            WeightFunction.Bias.BiasArray[idx_zbinarray, idx_zgrid]*
-            WeightFunction.ConvolvedDensity.densitygridarray[idx_zbinarray, idx_zgrid] *
-            WeightFunction.BackgroundQuantities.Hzgrid[idx_zgrid] / c_0
+    for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
+        for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
+            WeightFunction.WeightFunctionArray[idx_ZBinArray, idx_ZArray] =
+            Bias.BiasArray[idx_ZBinArray, idx_ZArray]*
+            ConvolvedDensity.DensityGridArray[idx_ZBinArray,
+            idx_ZArray] *
+            WeightFunction.BackgroundQuantities.HZArray[idx_ZArray] / c_0
         end
     end
 end
