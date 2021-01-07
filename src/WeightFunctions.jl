@@ -1,15 +1,3 @@
-abstract type WeightFunction end
-
-@kwdef mutable struct WeightFunctionStruct <: WeightFunction
-    ConvolvedDensity::ConvolvedDensity = ConvolvedDensityStruct()
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
-    Bias::Bias = PiecewiseBiasStruct()
-    BackgroundQuantities::BackgroundQuantities = BackgroundQuantitiesStruct()
-    WeightFunctionArray::AbstractArray{Float64, 2} =
-    ones(length(ConvolvedDensity.ZBinArray)-1, length(CosmologicalGrid.ZArray))
-end
-
 """
     ComputeGalaxyClusteringWeightFunction(z::Float64, i::Int64,
         ConvolvedDensity::ConvolvedDensity,

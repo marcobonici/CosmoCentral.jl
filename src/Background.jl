@@ -55,21 +55,6 @@ function ComputeComovingDistance(z::Float64, params::w0waCDMCosmology)
      return integral*c_0/params.H0
 end
 
-"""
-    BackgroundQuantitiesStruct(
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
-    HZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    rZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct())
-
-This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
-"""
-@kwdef struct BackgroundQuantitiesStruct <: BackgroundQuantities
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
-    HZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    rZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
-end
 
 function ComputeBackgroundQuantitiesOverGrid(
     BackgroundQuantities::BackgroundQuantities)

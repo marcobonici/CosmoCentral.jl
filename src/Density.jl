@@ -1,67 +1,3 @@
-abstract type AsbtractDensity end
-abstract type AnalitycalDensity <: AsbtractDensity end
-abstract type ConvolvedDensity <: AsbtractDensity end
-abstract type InstrumentResponse end
-
-
-
-
-"""
-    AnalitycalDensityStruct(z0::Float64 = 0.9/sqrt(2.), zmin::Float64 = 0.001,
-    zmax::Float64 = 2.5, surfacedensity::Float64 = 30.,
-    normalization::Float64 = 1.)
-
-This struct contains the parameters of the source galaxy density as given by the
-[official Euclid forecast](https://arxiv.org/abs/1910.09273), whose expression
-is given by:
-```math
-n(z)\\propto\\left(\\frac{z}{z_0}\\right)^2
-\\exp{\\left(-\\left(\\frac{z}{z_0}\\right)^{-3/2}\\right)}
-```
-The parameters contained in this struct are
-- ``z_{min}`` and ``z_{max}``, the minimum and the maximum redshift considered
-
-- ``z_0``, the parameter present in the galaxy distribution
-
-- surfacedensity , the value of the galaxy source density integrated between ``z_{min}`` and ``z_{max}``
-- normalization, the value of parameter which multiplies the source dennsity in order to match the correct surface density
-"""
-@kwdef mutable struct AnalitycalDensityStruct <: AnalitycalDensity
-    z0::Float64 = 0.9/sqrt(2.)
-    zmin::Float64 = 0.001
-    zmax::Float64 = 2.5
-    surfacedensity::Float64 = 30.
-    normalization::Float64 = 1.
-end
-
-"""
-    ConvolvedDensityStruct(AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct(),
-    InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
-    ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789, 0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
-    densityarraynormalization::Vector{Float64} = ones(length(ZBinArray)-1)
-    densitygridarray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300))
-
-
-In order to take into account the error in the redshift measurement, the
-source density is convolved with the [`InstrumentResponseStruct`](@ref),
-according to [the following equation](https://arxiv.org/abs/1910.09273)
-```math
-n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
-\\mathrm{d} z_{\\mathrm{p}} n(z) p \\left(z_{\\mathrm{p}}
-\\mid z\\right)}{\\int_{z_{\\min }}^{z_{\\max }} \\mathrm{d} z
-\\int_{z_{i}^{-}}^{z_{i}^{+}} \\mathrm{d} z_{\\mathrm{p}} n(z) p
-\\left(z_{\\mathrm{p}} \\mid z\\right)}
-```
-"""
-@kwdef mutable struct ConvolvedDensityStruct <: ConvolvedDensity
-    AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct()
-    InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
-    ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
-    0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
-    densityarraynormalization::Vector{Float64} = ones(length(ZBinArray)-1)
-    densitygridarray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300)
-end
-
 """
     ComputeDensityFunction(z::Float64, AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct())
 
@@ -82,33 +18,6 @@ function NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensity)
     int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, densityparameters),
     densityparameters.zmin, densityparameters.zmax, rtol=1e-12)
     densityparameters.normalization *= (densityparameters.surfacedensity/int)
-end
-
-"""
-    InstrumentResponseStruct(cb::Float64 = 1.0, zb::Float64 = 0.0,
-    σb::Float64 = 0.05, co::Float64 = 1.0, zo::Float64 = 0.1,
-    σo::Float64 = 0.05, fout::Float64 = 0.1)
-
-When we measure the redshift of a galaxy with redshit ``z``, we will measure a
-redshift ``z_p`` with a probability given by
-[the following expression](https://arxiv.org/abs/1910.09273):
-```math
-p(z_p|z)  = \\frac{1-f_{out}}{\\sqrt{2 \\pi} \\sigma_{b}(1+z)} \\exp \\left(
--\\frac{1}{2}\\left(\\frac{z-c_{b} z_{b}-z_{b}}{\\sigma_{b}(1+z)}\\right)^{2}
-\\right) + \\frac{f_{out}}{\\sqrt{2 \\pi} \\sigma_{\\mathrm{o}}(1+z)} \\exp
-\\left(-\\frac{1}{2}\\left(\\frac{z-c_{o} z_{p}-z_{o}}{\\sigma_{o}(1+z)}
-\\right)^{2}\\right)
-```
-This struct contains all these parameters.
-"""
-@kwdef struct InstrumentResponseStruct <: InstrumentResponse
-    cb::Float64   = 1.0
-    zb::Float64   = 0.0
-    σb::Float64   = 0.05
-    co::Float64   = 1.0
-    zo::Float64   = 0.1
-    σo::Float64   = 0.05
-    fout::Float64 = 0.1
 end
 
 
