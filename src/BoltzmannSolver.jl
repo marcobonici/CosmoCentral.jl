@@ -1,45 +1,25 @@
-abstract type BoltzmannSolverParams end
-abstract type classyParams <: BoltzmannSolverParams end
 
-@kwdef mutable struct classyParamsStruct <: classyParams
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
-    classyParamsDict::Dict = Dict("output" => "mPk",
-        "non linear"=> "halofit",
-        "Omega_b"=> w0waCDMCosmology.ΩB,
-        "Omega_cdm"=> w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
-        w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2),
-        "N_ur"=> 2.0328,
-        "h"=> w0waCDMCosmology.H0/100.,
-        "sigma8" => w0waCDMCosmology.σ8,
-        "n_s" => w0waCDMCosmology.ns,
-        "m_ncdm" => w0waCDMCosmology.Mν,
-        "P_k_max_1/Mpc" => 50,
-        "z_max_pk" =>  2.5,
-        "use_ppf" =>  "yes",
-        "w0_fld" =>  w0waCDMCosmology.w0,
-        "Omega_k" =>  w0waCDMCosmology.Ωk,
-        "Omega_fld" =>  w0waCDMCosmology.ΩDE,
-        "wa_fld" =>  w0waCDMCosmology.wa,
-        "cs2_fld" =>  1.,
-        "N_ncdm" =>  1,
-        "tau_reio" =>  0.058,)
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
-    LinPowerSpectrumArray::AbstractArray{Float64, 2} =
-    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray))
-    NonlinPowerSpectrumArray::AbstractArray{Float64, 2} =
-    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray))
-end
 
-function EvaluatePowerSpectrum(classyParams:: classyParams)
+function EvaluatePowerSpectrum(classyParams:: classyParams,
+    CosmologicalGrid::CosmologicalGrid)
     cosmo = classy.Class()
     cosmo.set(classyParams.classyParamsDict)
     cosmo.compute()
-    for (idxz, myz) in enumerate(classyParams.CosmologicalGrid.ZArray)
-        for (idxk, myk) in enumerate(classyParams.CosmologicalGrid.ZArray)
+    for (idxz, myz) in enumerate(CosmologicalGrid.ZArray)
+        for (idxk, myk) in enumerate(CosmologicalGrid.ZArray)
             classyParams.LinPowerSpectrumArray[idxk, idxz] =
             cosmo.pk_lin(myk, myz)
             classyParams.NonlinPowerSpectrumArray[idxk, idxz] =
             cosmo.pk(myk, myz)
         end
+    end
+end
+
+function ComputeKLimberArray(CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities)
+    for idx_z in 1:length((CosmologicalGrid.ZArray))
+        CosmologicalGrid.KLimberArray[:, myz] =
+        (CosmologicalGrid.MultipolesArray.+
+        1. /2.)./BackgroundQuantities.HZArray[idx_z]
     end
 end
