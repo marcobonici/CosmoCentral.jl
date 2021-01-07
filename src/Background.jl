@@ -1,5 +1,3 @@
-abstract type BackgroundQuantities end
-
 """
     ComputeAdimensionalHubbleFactor(z::Float64, params::w0waCDMCosmology)
 
@@ -35,8 +33,10 @@ H(z)=H_0\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
 ```
 
 """
-function ComputeHubbleFactor(z::Float64, params::w0waCDMCosmology)
-    H_z = params.H0*ComputeAdimensionalHubbleFactor(z, params)
+function ComputeHubbleFactor(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
+    H_z = w0waCDMCosmology.H0*ComputeAdimensionalHubbleFactor(z,
+    w0waCDMCosmology)
+    return H_z
 end
 
 """
@@ -65,7 +65,6 @@ function ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
         BackgroundQuantities.HZArray[idx_ZArray] = ComputeHubbleFactor(
         CosmologicalGrid.ZArray[idx_ZArray], w0waCDMCosmology)
         BackgroundQuantities.rZArray[idx_ZArray] = ComputeComovingDistance(
-        BackgroundQuantities.CosmologicalGrid.ZArray[idx_ZArray],
-        w0waCDMCosmology)
+        CosmologicalGrid.ZArray[idx_ZArray], w0waCDMCosmology)
     end
 end

@@ -7,6 +7,7 @@ using NumericalIntegration
 using PyCall
 numpy = pyimport("numpy")
 classy = pyimport("classy")
+scipy = pyimport("scipy")
 
 include("CosmologicalStructures.jl")
 include("Background.jl")

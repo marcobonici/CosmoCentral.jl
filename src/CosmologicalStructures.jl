@@ -12,6 +12,7 @@ abstract type AnalitycalDensity <: AsbtractDensity end
 abstract type ConvolvedDensity <: AsbtractDensity end
 abstract type InstrumentResponse end
 abstract type WeightFunction end
+abstract type GCWeightFunction <: WeightFunction end
 abstract type PowerSpectrum end
 
 
@@ -74,9 +75,8 @@ end
 This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
 """
 @kwdef struct BackgroundQuantitiesStruct <: BackgroundQuantities
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
-    HZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    rZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
+    HZArray::Vector{Float64} = zeros(300)
+    rZArray::Vector{Float64} = zeros(300)
 end
 
 
@@ -88,21 +88,20 @@ end
 @kwdef mutable struct classyParamsStruct <: classyParams
     classyParamsDict::Dict = Dict("output" => "mPk",
         "non linear"=> "halofit",
-        "Omega_b"=> w0waCDMCosmology.ΩB,
-        "Omega_cdm"=> w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
-        w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2),
+        "Omega_b"=> 0.05,
+        "Omega_cdm"=> 0.2735,
         "N_ur"=> 2.0328,
-        "h"=> w0waCDMCosmology.H0/100.,
-        "sigma8" => w0waCDMCosmology.σ8,
-        "n_s" => w0waCDMCosmology.ns,
-        "m_ncdm" => w0waCDMCosmology.Mν,
+        "h"=> 0.67,
+        "sigma8" => 0.816,
+        "n_s" => 0.96,
+        "m_ncdm" => 0.06,
         "P_k_max_1/Mpc" => 50,
-        "z_max_pk" =>  2.5,
+        "z_max_pk" =>  4,
         "use_ppf" =>  "yes",
-        "w0_fld" =>  w0waCDMCosmology.w0,
-        "Omega_k" =>  w0waCDMCosmology.Ωk,
-        "Omega_fld" =>  w0waCDMCosmology.ΩDE,
-        "wa_fld" =>  w0waCDMCosmology.wa,
+        "w0_fld" =>  -1.,
+        "Omega_k" =>  0,
+        "Omega_fld" =>  0.68,
+        "wa_fld" =>  0.,
         "cs2_fld" =>  1.,
         "N_ncdm" =>  1,
         "tau_reio" =>  0.058)
@@ -189,14 +188,9 @@ This struct contains all these parameters.
     fout::Float64 = 0.1
 end
 
-@kwdef mutable struct WeightFunctionStruct <: WeightFunction
-    ConvolvedDensity::ConvolvedDensity = ConvolvedDensityStruct()
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
-    Bias::Bias = PiecewiseBiasStruct()
-    BackgroundQuantities::BackgroundQuantities = BackgroundQuantitiesStruct()
+@kwdef mutable struct GCWeightFunctionStruct <: GCWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} =
-    ones(length(ConvolvedDensity.ZBinArray)-1, length(CosmologicalGrid.ZArray))
+    ones(10, 300)
 end
 
 @kwdef mutable struct PowerSpectrumStruct <: PowerSpectrum
