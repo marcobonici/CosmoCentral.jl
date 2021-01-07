@@ -1,12 +1,14 @@
-function ComputeBias(z::Float64, PiecewiseBias::PiecewiseBias)
-    idx = BinSearch(z, PiecewiseBias.ConvolvedDensity.ZBinArray)
-    bias = sqrt(1+(PiecewiseBias.ConvolvedDensity.ZBinArray[idx]+
-    PiecewiseBias.ConvolvedDensity.ZBinArray[idx+1])/2)
+function ComputeBias(z::Float64, PiecewiseBias::PiecewiseBias,
+    ConvolvedDensity::ConvolvedDensity)
+    idx = BinSearch(z, ConvolvedDensity.ZBinArray)
+    bias = sqrt(1+(ConvolvedDensity.ZBinArray[idx]+
+    ConvolvedDensity.ZBinArray[idx+1])/2)
     return bias
 end
 
-function ComputeBiasOverGrid(PiecewiseBias::PiecewiseBias)
-    for (zidx, zvalue) in enumerate(PiecewiseBias.ConvolvedDensity.ZBinArray)
+function ComputeBiasOverGrid(PiecewiseBias::PiecewiseBias,
+    ConvolvedDensity::ConvolvedDensity)
+    for (zidx, zvalue) in enumerate(ConvolvedDensity.ZBinArray)
         PiecewiseBias.BiasArray[:, zidx] .=
         ComputeBias(zvalue, PiecewiseBias)
     end

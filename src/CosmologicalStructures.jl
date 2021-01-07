@@ -12,6 +12,7 @@ abstract type AnalitycalDensity <: AsbtractDensity end
 abstract type ConvolvedDensity <: AsbtractDensity end
 abstract type InstrumentResponse end
 abstract type WeightFunction end
+abstract type PowerSpectrum end
 
 
 
@@ -47,7 +48,6 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
     Ωr::Float64  = 0.
     ns::Float64  = 0.96
     σ8::Float64  = 0.816
-
 end
 
 """
@@ -77,19 +77,15 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
     CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
     HZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
     rZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
 end
 
 
 @kwdef mutable struct PiecewiseBiasStruct <: PiecewiseBias
-    ConvolvedDensity::ConvolvedDensity = ConvolvedDensityStruct()
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
     BiasArray::AbstractArray{Float64, 2} =
-    ones(length(ConvolvedDensity.ZBinArray)-1, length(CosmologicalGrid.ZArray))
+    ones(10, 300)
 end
 
 @kwdef mutable struct classyParamsStruct <: classyParams
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct()
     classyParamsDict::Dict = Dict("output" => "mPk",
         "non linear"=> "halofit",
         "Omega_b"=> w0waCDMCosmology.ΩB,
@@ -109,12 +105,7 @@ end
         "wa_fld" =>  w0waCDMCosmology.wa,
         "cs2_fld" =>  1.,
         "N_ncdm" =>  1,
-        "tau_reio" =>  0.058,)
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
-    LinPowerSpectrumArray::AbstractArray{Float64, 2} =
-    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray))
-    NonlinPowerSpectrumArray::AbstractArray{Float64, 2} =
-    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray))
+        "tau_reio" =>  0.058)
 end
 
 """
@@ -138,19 +129,19 @@ The parameters contained in this struct are
 - normalization, the value of parameter which multiplies the source dennsity in order to match the correct surface density
 """
 @kwdef mutable struct AnalitycalDensityStruct <: AnalitycalDensity
-    z0::Float64 = 0.9/sqrt(2.)
-    zmin::Float64 = 0.001
-    zmax::Float64 = 2.5
-    surfacedensity::Float64 = 30.
-    normalization::Float64 = 1.
+    Z0::Float64 = 0.9/sqrt(2.)
+    ZMin::Float64 = 0.001
+    ZMax::Float64 = 2.5
+    SurfaceDensity::Float64 = 30.
+    Normalization::Float64 = 1.
 end
 
 """
     ConvolvedDensityStruct(AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct(),
     InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
     ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789, 0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
-    densityarraynormalization::Vector{Float64} = ones(length(ZBinArray)-1)
-    densitygridarray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300))
+    DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)
+    DensityGridArray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300))
 
 
 In order to take into account the error in the redshift measurement, the
@@ -169,8 +160,8 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
     InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
     ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
     0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
-    densityarraynormalization::Vector{Float64} = ones(length(ZBinArray)-1)
-    densitygridarray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300)
+    DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)
+    DensityGridArray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300)
 end
 
 """
@@ -208,4 +199,11 @@ end
     BackgroundQuantities::BackgroundQuantities = BackgroundQuantitiesStruct()
     WeightFunctionArray::AbstractArray{Float64, 2} =
     ones(length(ConvolvedDensity.ZBinArray)-1, length(CosmologicalGrid.ZArray))
+end
+
+@kwdef mutable struct PowerSpectrumStruct <: PowerSpectrum
+    PowerSpectrumLinArray::AbstractArray{Float64, 2} =
+    zeros(1000, 300)
+    PowerSpectrumNonlinArray::AbstractArray{Float64, 2} =
+    zeros(1000, 300)
 end

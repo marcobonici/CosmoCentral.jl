@@ -1,4 +1,5 @@
-using CosmoCentral
+#using CosmoCentral
+include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 using Test
 using QuadGK
 using NumericalIntegration
@@ -39,8 +40,8 @@ end
         int, err = QuadGK.quadgk(x ->
         CosmoCentral.ComputeConvolvedDensityFunction(x, idx,
         convolveddensity),
-        convolveddensity.AnalitycalDensity.zmin,
-        convolveddensity.AnalitycalDensity.zmax, rtol=1e-12)
+        convolveddensity.AnalitycalDensity.ZMin,
+        convolveddensity.AnalitycalDensity.ZMax, rtol=1e-12)
         test_normalization[idx] = int
     end
     @test isapprox(test_normalization, ones(length(test_normalization)), atol=1e-12)

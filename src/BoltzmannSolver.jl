@@ -1,11 +1,12 @@
 
 
-function EvaluatePowerSpectrum(classyParams:: classyParams)
+function EvaluatePowerSpectrum(classyParams:: classyParams,
+    CosmologicalGrid::CosmologicalGrid)
     cosmo = classy.Class()
     cosmo.set(classyParams.classyParamsDict)
     cosmo.compute()
-    for (idxz, myz) in enumerate(classyParams.CosmologicalGrid.ZArray)
-        for (idxk, myk) in enumerate(classyParams.CosmologicalGrid.ZArray)
+    for (idxz, myz) in enumerate(CosmologicalGrid.ZArray)
+        for (idxk, myk) in enumerate(CosmologicalGrid.ZArray)
             classyParams.LinPowerSpectrumArray[idxk, idxz] =
             cosmo.pk_lin(myk, myz)
             classyParams.NonlinPowerSpectrumArray[idxk, idxz] =
