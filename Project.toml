@@ -14,6 +14,7 @@ QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
+Conda = "1.5"
 Documenter = "0.26"
 DocumenterTools = "0.1"
 NumericalIntegration = "0.2"
