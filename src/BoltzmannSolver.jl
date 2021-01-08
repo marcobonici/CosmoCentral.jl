@@ -37,12 +37,3 @@ function EvaluatePowerSpectrum(classyParams:: classyParams,
         end
     end
 end
-
-function ComputeKLimberArray(CosmologicalGrid::CosmologicalGrid,
-    BackgroundQuantities::BackgroundQuantities)
-    for idx_z in 1:length((CosmologicalGrid.ZArray))
-        CosmologicalGrid.KLimberArray[:, myz] =
-        (CosmologicalGrid.MultipolesArray.+
-        1. /2.)./BackgroundQuantities.HZArray[idx_z]
-    end
-end

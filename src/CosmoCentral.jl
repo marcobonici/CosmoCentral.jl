@@ -5,9 +5,9 @@ using Base: @kwdef
 using Parameters
 using NumericalIntegration
 using PyCall
+using Dierckx
 numpy = pyimport("numpy")
 classy = pyimport("classy")
-scipy = pyimport("scipy")
 
 include("CosmologicalStructures.jl")
 include("Background.jl")
@@ -16,6 +16,7 @@ include("Bias.jl")
 include("MathUtils.jl")
 include("WeightFunctions.jl")
 include("BoltzmannSolver.jl")
-
+include("PowerSpectrum.jl")
+include("AngularCoefficients.jl")
 
 end # module

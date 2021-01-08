@@ -198,4 +198,6 @@ end
     zeros(1000, 300)
     PowerSpectrumNonlinArray::AbstractArray{Float64, 2} =
     zeros(1000, 300)
+    InterpolatedPowerSpectrum::AbstractArray{Float64, 2} =
+    zeros(2991, 300)
 end
