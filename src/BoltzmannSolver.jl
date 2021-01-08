@@ -29,7 +29,7 @@ function EvaluatePowerSpectrum(classyParams:: classyParams,
     cosmo.set(classyParams.classyParamsDict)
     cosmo.compute()
     for (idxz, myz) in enumerate(CosmologicalGrid.ZArray)
-        for (idxk, myk) in enumerate(CosmologicalGrid.ZArray)
+        for (idxk, myk) in enumerate(CosmologicalGrid.KArray)
             PowerSpectrum.PowerSpectrumLinArray[idxk, idxz] =
             cosmo.pk_lin(myk, myz)
             PowerSpectrum.PowerSpectrumNonlinArray[idxk, idxz] =
