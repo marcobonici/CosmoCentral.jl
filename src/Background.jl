@@ -47,7 +47,6 @@ Comoving Distance. It is evaluated as:
 ```math
 r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dx}{E(x)}
 ```
-
 """
 function ComputeComovingDistance(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
@@ -57,7 +56,14 @@ function ComputeComovingDistance(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
      return integral*c_0/w0waCDMCosmology.H0
 end
 
+"""
+    ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
+        BackgroundQuantities::BackgroundQuantities,
+        w0waCDMCosmology::w0waCDMCosmology)
 
+This function evaluate the Hubble factor and the comoving distance over the
+[`CosmologicalGrid`](@ref).
+"""
 function ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology)

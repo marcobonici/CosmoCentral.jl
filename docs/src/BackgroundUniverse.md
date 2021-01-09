@@ -14,3 +14,8 @@ CosmoCentral.ComputeHubbleFactor
 ```@docs
 CosmoCentral.ComputeComovingDistance
 ```
+
+## Utils
+```@docs
+CosmoCentral.ComputeBackgroundQuantitiesOverGrid
+```

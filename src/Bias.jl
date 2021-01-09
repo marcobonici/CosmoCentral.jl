@@ -1,3 +1,11 @@
+"""
+    ComputeBias(z::Float64, PiecewiseBias::PiecewiseBias,
+    ConvolvedDensity::ConvolvedDensity)
+
+This function evaluate the piecewise bias, given by ``\\sqrt{1+z}``, for a given
+redshift.
+
+"""
 function ComputeBias(z::Float64, PiecewiseBias::PiecewiseBias,
     ConvolvedDensity::ConvolvedDensity)
     idx = BinSearch(z, ConvolvedDensity.ZBinArray)
@@ -6,6 +14,14 @@ function ComputeBias(z::Float64, PiecewiseBias::PiecewiseBias,
     return bias
 end
 
+"""
+    ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
+    PiecewiseBias::PiecewiseBias, ConvolvedDensity::ConvolvedDensity)
+
+This function evaluate the piecewise bias, given by ``\\sqrt{1+z}``, over the
+cosmological redshift grid.
+
+"""
 function ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
     PiecewiseBias::PiecewiseBias, ConvolvedDensity::ConvolvedDensity)
     for (zidx, zvalue) in enumerate(CosmologicalGrid.ZArray)
