@@ -26,8 +26,7 @@ Here is an example of how CosmoCentral can be used to evaluate background
 quantities.
 
 ```@repl
-#using CosmoCentral
-include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
+using CosmoCentral
 w0waCDMCosmology = CosmoCentral.w0waCDMCosmologyStruct()
 z = 1.
 CosmoCentral.ComputeAdimensionalHubbleFactor(z, w0waCDMCosmology)
