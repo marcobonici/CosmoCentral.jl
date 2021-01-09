@@ -32,7 +32,7 @@ jobs:
           arch: ${{ matrix.arch }}
       - run: >
           sudo apt-get install --no-install-recommends gfortran python3-setuptools python3-wheel
-          && pip3 install numpy && pip3 install Cython && pip3 install classy
+          && pip3 install numpy && pip3 install Cython && pip3 install scipy && pip3 install classy
       - uses: actions/cache@v1
         env:
           cache-name: cache-artifacts

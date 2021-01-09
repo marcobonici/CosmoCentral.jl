@@ -21,6 +21,7 @@ jobs:
       - run: >
           sudo apt-get install --no-install-recommends gfortran python3-setuptools python3-wheel
           && pip3 install numpy && pip3 install Cython && pip3 install classy
+          && pip3 install matplotlib
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy

@@ -1,5 +1,3 @@
-abstract type BackgroundQuantities end
-
 """
     ComputeAdimensionalHubbleFactor(z::Float64, params::w0waCDMCosmology)
 
@@ -35,8 +33,10 @@ H(z)=H_0\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
 ```
 
 """
-function ComputeHubbleFactor(z::Float64, params::w0waCDMCosmology)
-    H_z = params.H0*ComputeAdimensionalHubbleFactor(z, params)
+function ComputeHubbleFactor(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
+    H_z = w0waCDMCosmology.H0*ComputeAdimensionalHubbleFactor(z,
+    w0waCDMCosmology)
+    return H_z
 end
 
 """
@@ -47,7 +47,6 @@ Comoving Distance. It is evaluated as:
 ```math
 r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dx}{E(x)}
 ```
-
 """
 function ComputeComovingDistance(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
@@ -57,7 +56,14 @@ function ComputeComovingDistance(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
      return integral*c_0/w0waCDMCosmology.H0
 end
 
+"""
+    ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
+        BackgroundQuantities::BackgroundQuantities,
+        w0waCDMCosmology::w0waCDMCosmology)
 
+This function evaluate the Hubble factor and the comoving distance over the
+[`CosmologicalGrid`](@ref).
+"""
 function ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology)
@@ -65,7 +71,6 @@ function ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
         BackgroundQuantities.HZArray[idx_ZArray] = ComputeHubbleFactor(
         CosmologicalGrid.ZArray[idx_ZArray], w0waCDMCosmology)
         BackgroundQuantities.rZArray[idx_ZArray] = ComputeComovingDistance(
-        BackgroundQuantities.CosmologicalGrid.ZArray[idx_ZArray],
-        w0waCDMCosmology)
+        CosmologicalGrid.ZArray[idx_ZArray], w0waCDMCosmology)
     end
 end
