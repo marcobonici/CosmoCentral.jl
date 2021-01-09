@@ -5,7 +5,7 @@ using NumericalIntegration
 using PyCall
 numpy = pyimport("numpy")
 
-params = CosmoCentral.w0waCDMStruct()
+params = CosmoCentral.w0waCDMCosmologyStruct()
 density = CosmoCentral.AnalitycalDensityStruct()
 instrumentresponse = CosmoCentral.InstrumentResponseStruct()
 convolveddensity = CosmoCentral.ConvolvedDensityStruct()
