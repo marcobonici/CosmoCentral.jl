@@ -11,6 +11,13 @@ function LogSpaced(min::Float64, max::Float64, n::Int64)
     return exp10.(logarray)
 end
 
+
+"""
+    BinSearch(x::Float64, Array::Vector{Float64})
+
+Given a value ``z`` and an Array, determines the couple of array elements where
+``z`` lies and returns the index correspondin to the first value.
+"""
 function BinSearch(x::Float64, Array::Vector{Float64})
     idx = 1
     while !(x >= Array[idx] && x <= Array[idx+1])

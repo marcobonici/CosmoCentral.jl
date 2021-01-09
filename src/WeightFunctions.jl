@@ -1,9 +1,10 @@
 """
-    ComputeGalaxyClusteringWeightFunction(z::Float64, i::Int64,
+    ComputeWeightFunction(z::Float64, i::Int64,
         ConvolvedDensity::ConvolvedDensity,
         w0waCDMCosmology::w0waCDMCosmology)
 
-This function returns the source density for a given redshift ``z``.
+This function returns the Galaxy Clustering Weight function for a given redshift
+``z`` and tomographic bin ``i``.
 """
 function ComputeWeightFunction(z::Float64, i::Int64,
     ConvolvedDensity::ConvolvedDensity, w0waCDMCosmology::w0waCDMCosmology,
@@ -15,13 +16,16 @@ function ComputeWeightFunction(z::Float64, i::Int64,
     ComputeHubbleFactor(z, w0waCDMCosmology) / c_0
 end
 
-
 """
-    ComputeGalaxyClusteringWeightFunction(CosmologicalGrid::CosmologicalGrid,
-        ConvolvedDensity::ConvolvedDensity,
-        w0waCDMCosmology::w0waCDMCosmology)
+    ComputeWeightFunctionOverGrid(
+    GCWeightFunction::GCWeightFunction, AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    Bias::Bias, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmology)
 
-This function returns the source density for a given redshift ``z``.
+This function evaluates the Galaxy Clustering Weight Function over the ``z``
+grid and for all tomographic bins ``i``.
 """
 function ComputeWeightFunctionOverGrid(
     GCWeightFunction::GCWeightFunction, AnalitycalDensity::AnalitycalDensity,

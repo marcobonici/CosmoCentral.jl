@@ -5,11 +5,13 @@ it can evaluate:
 
 - Background quantities for ``w_0 w_a``CDM cosmologies
 - Source densities, with an analitycal in input
+- Angular Correlation functions, ``C_{ℓ}``'s, for several probes Galaxy
+  Clustering
 
 We aim to include also:
 - Angular Correlation functions, ``C_{ℓ}``'s, for several probes (e.g., Weak
-  Lensing, Galaxy Clustering)
-- Fisher Matrix evaluation to perform forecasts
+  Lensing, etc.)
+- Fisher Matrix evaluation
 
 
 
@@ -24,12 +26,13 @@ Here is an example of how CosmoCentral can be used to evaluate background
 quantities.
 
 ```@repl
-using CosmoCentral
-params = CosmoCentral.w0waCDMStruct()
+#using CosmoCentral
+include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
+w0waCDMCosmology = CosmoCentral.w0waCDMCosmologyStruct()
 z = 1.
-CosmoCentral.ComputeAdimensionalHubbleFactor(z, params)
-CosmoCentral.ComputeHubbleFactor(z, params)
-CosmoCentral.ComputeComovingDistance(z, params)
+CosmoCentral.ComputeAdimensionalHubbleFactor(z, w0waCDMCosmology)
+CosmoCentral.ComputeHubbleFactor(z, w0waCDMCosmology)
+CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology)
 ```
 
 ## Contributing
