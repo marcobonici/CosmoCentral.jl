@@ -5,8 +5,7 @@ it can evaluate:
 
 - Background quantities for ``w_0 w_a``CDM cosmologies
 - Source densities, with an analitycal in input
-- Angular Correlation functions, ``C_{ℓ}``'s, for several probes Galaxy
-  Clustering
+- Angular Correlation functions, ``C_{ℓ}``'s, for Galaxy Clustering
 
 We aim to include also:
 - Angular Correlation functions, ``C_{ℓ}``'s, for several probes (e.g., Weak
