@@ -1,4 +1,5 @@
 using CosmoCentral
+#include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 using Test
 using QuadGK
 using NumericalIntegration
@@ -7,24 +8,36 @@ numpy = pyimport("numpy")
 
 w0waCDMCosmology = CosmoCentral.w0waCDMCosmologyStruct()
 AnalitycalDensity = CosmoCentral.AnalitycalDensityStruct()
-instrumentresponse = CosmoCentral.InstrumentResponseStruct()
+InstrumentResponse = CosmoCentral.InstrumentResponseStruct()
 ConvolvedDensity = CosmoCentral.ConvolvedDensityStruct()
-CosmologicalGrid  = CosmoCentral.CosmologicalGridStruct(ZArray=Array(LinRange(0.2, 1., 100)))
-PiecewiseBias = CosmoCentral.PiecewiseBiasStruct(BiasArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
+CosmologicalGrid  = CosmoCentral.CosmologicalGridStruct(
+ZArray=Array(LinRange(0.001, 1., 100)))
+BackgroundQuantities = CosmoCentral.BackgroundQuantitiesStruct(HZArray=
+zeros(length(CosmologicalGrid.ZArray)),
+rZArray=zeros(length(CosmologicalGrid.ZArray)))
+PiecewiseBias = CosmoCentral.PiecewiseBiasStruct(BiasArray =
+zeros(length(ConvolvedDensity.DensityNormalizationArray),
+length(CosmologicalGrid.ZArray)))
 
-@testset "Adimensional Hubble parameter at redshift zero is equal to one" begin
+@testset "Evaluation of background quantities" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., w0waCDMCosmology)
     @test test_E_z == 1.
-end
-
-@testset "Adimensional Hubble parameter at redshift zero is equal to default value" begin
     test_H_z = CosmoCentral.ComputeHubbleFactor(0., w0waCDMCosmology)
     @test test_H_z == w0waCDMCosmology.H0
-end
-
-@testset "Comoving distance at redshift zero is equal to zero" begin
     test_r_z = CosmoCentral.ComputeComovingDistance(0., w0waCDMCosmology)
     @test test_r_z == 0.
+    test_r_array = zeros(length(CosmologicalGrid.ZArray))
+    test_H_array = zeros(length(CosmologicalGrid.ZArray))
+    for (idxz, zvalue) in enumerate(CosmologicalGrid.ZArray)
+        test_r_array[idxz] = CosmoCentral.ComputeComovingDistance(zvalue,
+        w0waCDMCosmology)
+        test_H_array[idxz] = CosmoCentral.ComputeHubbleFactor(zvalue,
+        w0waCDMCosmology)
+    end
+    CosmoCentral.ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid,
+    BackgroundQuantities, w0waCDMCosmology)
+    @test test_r_array ==BackgroundQuantities.rZArray
+    @test test_H_array ==BackgroundQuantities.HZArray
 end
 
 @testset "Check the normalization of density function" begin
@@ -37,11 +50,11 @@ end
 @testset "Check the normalization of convolved density function" begin
     test_normalization = zeros(length(ConvolvedDensity.ZBinArray)-1)
     CosmoCentral.NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
-    instrumentresponse)
+    InstrumentResponse)
     for idx in 1:length(test_normalization)
         int, err = QuadGK.quadgk(x ->
         CosmoCentral.ComputeConvolvedDensityFunction(x, idx,
-        ConvolvedDensity, AnalitycalDensity, instrumentresponse),
+        ConvolvedDensity, AnalitycalDensity, InstrumentResponse),
         AnalitycalDensity.ZMin,
         AnalitycalDensity.ZMax, rtol=1e-12)
         test_normalization[idx] = int
@@ -53,7 +66,7 @@ end
     test_array = zeros(Float64,length(ConvolvedDensity.ZBinArray)-1,
     length(CosmologicalGrid.ZArray))
     CosmoCentral.ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
-    AnalitycalDensity, instrumentresponse)
+    AnalitycalDensity, InstrumentResponse)
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
             test_array[idx_ZBinArray, idx_ZArray] =
@@ -62,7 +75,7 @@ end
             idx_ZBinArray,
             ConvolvedDensity,
             AnalitycalDensity,
-            instrumentresponse)
+            InstrumentResponse)
         end
     end
     @test isapprox(test_array, ConvolvedDensity.DensityGridArray, atol=1e-12)
