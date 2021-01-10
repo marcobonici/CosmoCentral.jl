@@ -32,7 +32,8 @@ jobs:
           arch: ${{ matrix.arch }}
       - run: >
           sudo apt-get install --no-install-recommends gfortran python3-setuptools python3-wheel gcc
-          && pip3 install numpy && pip3 install Cython && pip3 install scipy && pip3 install classy
+          && pip3 install numpy && pip3 install Cython && pip3 install scipy
+          && pip install numpy && pip install Cython && pip install scipy
           && wget https://lesgourg.github.io/class_public/class_public-2.9.4.tar.gz
           && tar -zvxf class_public-2.9.4.tar.gz && rm -r class_public-2.9.4.tar.gz
           && cd class_public-2.9.4 && make && cd python && python3 setup.py install --user
