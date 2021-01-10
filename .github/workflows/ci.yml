@@ -9,8 +9,6 @@ jobs:
       matrix:
         julia-version: ['1.5']
         os: [ubuntu-latest]
-        JULIA_FFTW_PROVIDER: ['MKL','FFTW']
-      fail-fast: false
     env:
       PYTHON: python3
 
