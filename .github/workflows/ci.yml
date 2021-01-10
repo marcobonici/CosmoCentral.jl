@@ -36,7 +36,7 @@ jobs:
           && pip install numpy && pip install Cython && pip install scipy
           && wget https://lesgourg.github.io/class_public/class_public-2.9.4.tar.gz
           && tar -zvxf class_public-2.9.4.tar.gz && rm -r class_public-2.9.4.tar.gz
-          && cd class_public-2.9.4 && make && cd python && python3 setup.py install
+          && cd class_public-2.9.4 && make && cd python && python3 setup.py install --user
           && sudo apt-get update
 
       - uses: actions/cache@v1
