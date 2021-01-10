@@ -143,21 +143,22 @@ end
     length(CosmologicalGrid.ZArray)),
     InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
     length(CosmologicalGrid.ZArray)))
-    #CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
-    #PowerSpectrum)
     CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
-    #CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
-    #BackgroundQuantities, PowerSpectrum)
     test_k_limber = (CosmologicalGrid.MultipolesArray[1]+0.5) /
     BackgroundQuantities.rZArray[1]
     @test test_k_limber == CosmologicalGrid.KLimberArray[1, 1]
     test_Omega_cdm = w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
     w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2)
     @test test_Omega_cdm == classyParams.classyParamsDict["Omega_cdm"]
+    CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
+    PowerSpectrum)
+    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    BackgroundQuantities, PowerSpectrum)
     cosmo = classy.Class()
     cosmo.set(classyParams.classyParamsDict)
     cosmo.compute()
     test_power_spectrum = cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1])
+    println(test_power_spectrum)
     #@test isapprox(test_power_spectrum,
     #PowerSpectrum.InterpolatedPowerSpectrum[1, 1], atol=1e-7)
 end
