@@ -137,14 +137,14 @@ end
 
 @testset "Check the Power Spectrum evaluated over the Limber Grid" begin
     classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
-    #PowerSpectrum = CosmoCentral.PowerSpectrumStruct(PowerSpectrumLinArray =
-    #zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray)),
-    #PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
-    #length(CosmologicalGrid.ZArray)),
-    #InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
-    #length(CosmologicalGrid.ZArray)))
-    #CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
-    #PowerSpectrum)
+    PowerSpectrum = CosmoCentral.PowerSpectrumStruct(PowerSpectrumLinArray =
+    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray)),
+    PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
+    length(CosmologicalGrid.ZArray)),
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
+    length(CosmologicalGrid.ZArray)))
+    CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
+    PowerSpectrum)
     CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
     #CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     #BackgroundQuantities, PowerSpectrum)
