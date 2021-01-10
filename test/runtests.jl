@@ -1,4 +1,5 @@
 using CosmoCentral
+#include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 using Test
 using QuadGK
 using NumericalIntegration
@@ -136,17 +137,17 @@ end
 
 @testset "Check the Power Spectrum evaluated over the Limber Grid" begin
     classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
-    PowerSpectrum = CosmoCentral.PowerSpectrumStruct(PowerSpectrumLinArray =
-    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray)),
-    PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
-    length(CosmologicalGrid.ZArray)),
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
-    length(CosmologicalGrid.ZArray)))
-    CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
-    PowerSpectrum)
+    #PowerSpectrum = CosmoCentral.PowerSpectrumStruct(PowerSpectrumLinArray =
+    #zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray)),
+    #PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
+    #length(CosmologicalGrid.ZArray)),
+    #InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
+    #length(CosmologicalGrid.ZArray)))
+    #CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
+    #PowerSpectrum)
     CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
-    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
-    BackgroundQuantities, PowerSpectrum)
+    #CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    #BackgroundQuantities, PowerSpectrum)
     test_k_limber = (CosmologicalGrid.MultipolesArray[1]+0.5) /
     BackgroundQuantities.rZArray[1]
     @test test_k_limber == CosmologicalGrid.KLimberArray[1, 1]
