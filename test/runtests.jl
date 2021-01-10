@@ -143,8 +143,8 @@ end
     length(CosmologicalGrid.ZArray)),
     InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
     length(CosmologicalGrid.ZArray)))
-    CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
-    PowerSpectrum)
+    #CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
+    #PowerSpectrum)
     CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
     #CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     #BackgroundQuantities, PowerSpectrum)
