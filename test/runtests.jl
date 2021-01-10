@@ -150,10 +150,10 @@ end
     test_Omega_cdm = w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
     w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2)
     @test test_Omega_cdm == classyParams.classyParamsDict["Omega_cdm"]
-    CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
-    PowerSpectrum)
-    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
-    BackgroundQuantities, PowerSpectrum)
+    #CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
+    #PowerSpectrum)
+    #CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    #BackgroundQuantities, PowerSpectrum)
     #cosmo = classy.Class()
     #cosmo.set(classyParams.classyParamsDict)
     #cosmo.compute()
