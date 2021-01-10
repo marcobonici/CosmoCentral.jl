@@ -1,17 +1,29 @@
 name: CI
-on: [push, pull_request]
-
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - refactoring
+  push:
+    branches:
+      - main
+      - develop
+      - refactoring
+    tags: '*'
 jobs:
-  main:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental == 'nightly' }}
     strategy:
+      fail-fast: false
       matrix:
-        julia-version: ['1.5']
-        os: [ubuntu-latest]
-    env:
-      PYTHON: python3
-
+        version:
+          - '1.5' # Replace this with the minimum Julia version that your package supports. E.g. if your package requires Julia 1.5 or higher, change this to '1.5'.
+        os:
+          - ubuntu-latest
+        arch:
+          - x64
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
@@ -19,14 +31,8 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - run: >
-          sudo apt-get install --no-install-recommends gfortran python3-setuptools python3-wheel gcc
-          && pip3 install numpy && pip3 install Cython && pip3 install scipy
-          && pip install numpy && pip install Cython && pip install scipy
-          && wget https://lesgourg.github.io/class_public/class_public-2.9.4.tar.gz
-          && tar -zvxf class_public-2.9.4.tar.gz && rm -r class_public-2.9.4.tar.gz
-          && cd class_public-2.9.4 && make && cd python && python3 setup.py install --user
-          && sudo apt-get update
-
+          sudo apt-get install --no-install-recommends gfortran python3-setuptools python3-wheel
+          && pip3 install numpy && pip3 install Cython && pip3 install scipy && pip3 install classy
       - uses: actions/cache@v1
         env:
           cache-name: cache-artifacts
