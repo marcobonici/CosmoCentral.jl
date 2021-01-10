@@ -17,6 +17,7 @@ makedocs(
         "Bias" => "Bias.md",
         "Boltzmann Solver" => "BoltzmannSolver.md",
         "Weight Functions" => "WeightFunction.md",
+        "Angular Coefficients" => "AngularCoefficients.md",
         "Cosmological Structure" => "CosmologicalStructure.md",
         "Math Utils" => "MathUtils.md"
     ]

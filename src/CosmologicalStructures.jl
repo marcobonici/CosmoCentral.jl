@@ -14,9 +14,7 @@ abstract type InstrumentResponse end
 abstract type WeightFunction end
 abstract type GCWeightFunction <: WeightFunction end
 abstract type PowerSpectrum end
-
-
-
+abstract type AngularCoefficients end
 
 """
     w0waCDMCosmologyStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -227,4 +225,13 @@ Limber ``k-z`` grid.
     zeros(1000, 300)
     InterpolatedPowerSpectrum::AbstractArray{Float64, 2} =
     zeros(2991, 300)
+end
+
+"""
+    AngularCoefficientsStruct()
+
+This struct contains the array with the Angular Coefficients.
+"""
+@kwdef mutable struct AngularCoefficientsStruct <: AngularCoefficients
+    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
