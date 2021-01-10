@@ -1,5 +1,4 @@
 using CosmoCentral
-#include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 using Test
 using QuadGK
 using NumericalIntegration
@@ -16,6 +15,9 @@ BackgroundQuantities = CosmoCentral.BackgroundQuantitiesStruct(HZArray=
 zeros(length(CosmologicalGrid.ZArray)),
 rZArray=zeros(length(CosmologicalGrid.ZArray)))
 PiecewiseBias = CosmoCentral.PiecewiseBiasStruct(BiasArray =
+zeros(length(ConvolvedDensity.DensityNormalizationArray),
+length(CosmologicalGrid.ZArray)))
+GCWeightFunction = CosmoCentral.GCWeightFunctionStruct(WeightFunctionArray =
 zeros(length(ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
 
@@ -107,4 +109,20 @@ end
     CosmoCentral.ComputeBiasOverGrid(CosmologicalGrid, PiecewiseBias,
     ConvolvedDensity)
     @test isapprox(test_array, PiecewiseBias.BiasArray[1,:], atol=1e-12)
+end
+
+@testset "Check the Weight function evaluation" begin
+    test_array = zeros(length(ConvolvedDensity.ZBinArray)-1,
+    length(CosmologicalGrid.ZArray))
+    for (idxz, zvalue) in enumerate(CosmologicalGrid.ZArray)
+        for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
+            test_array[idx_ZBinArray, idxz] =
+            CosmoCentral.ComputeWeightFunction(zvalue, idx_ZBinArray,
+        ConvolvedDensity, AnalitycalDensity,
+        InstrumentResponse, w0waCDMCosmology,
+        PiecewiseBias, GCWeightFunction)
+        end
+    end
+CosmoCentral.ComputeWeightFunctionOverGrid(GCWeightFunction, AnalitycalDensity, InstrumentResponse, ConvolvedDensity, PiecewiseBias, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+@test isapprox(test_array, GCWeightFunction.WeightFunctionArray, atol=1e-9)
 end
