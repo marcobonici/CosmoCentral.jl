@@ -157,6 +157,7 @@ end
     cosmo = classy.Class()
     cosmo.set(classyParams.classyParamsDict)
     cosmo.compute()
+    println(cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1]))
     test_power_spectrum = cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1])
     println(test_power_spectrum)
     #@test isapprox(test_power_spectrum,
