@@ -154,12 +154,12 @@ end
     PowerSpectrum)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantities, PowerSpectrum)
-    cosmo = classy.Class()
-    cosmo.set(classyParams.classyParamsDict)
-    cosmo.compute()
-    println(cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1]))
-    test_power_spectrum = cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1])
-    println(test_power_spectrum)
+    #cosmo = classy.Class()
+    #cosmo.set(classyParams.classyParamsDict)
+    #cosmo.compute()
+    #println(cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1]))
+    #test_power_spectrum = cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1])
+    #println(test_power_spectrum)
     #@test isapprox(test_power_spectrum,
     #PowerSpectrum.InterpolatedPowerSpectrum[1, 1], atol=1e-7)
 end
