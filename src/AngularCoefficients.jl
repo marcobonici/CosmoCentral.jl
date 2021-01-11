@@ -26,7 +26,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
                 PowerSpectrum.InterpolatedPowerSpectrum[idx_l,:]
                 AngularCoefficients.AngularCoefficientsArray[idx_l, idx_a,
                 idx_b] = NumericalIntegration.integrate(CosmologicalGrid.ZArray,
-                Integrand, TrapezoidalEvenFast())
+                Integrand, SimpsonEvenFast())
             end
         end
     end

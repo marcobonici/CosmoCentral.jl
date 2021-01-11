@@ -59,7 +59,7 @@ end
 @testset "Check the normalization of convolved density function" begin
     test_normalization = zeros(length(ConvolvedDensity.ZBinArray)-1)
     CosmoCentral.NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
-    InstrumentResponse)
+    InstrumentResponse, CosmologicalGrid)
     for idx in 1:length(test_normalization)
         int, err = QuadGK.quadgk(x ->
         CosmoCentral.ComputeConvolvedDensityFunction(x, idx,

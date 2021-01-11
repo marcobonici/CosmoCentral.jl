@@ -20,8 +20,14 @@ Given a value ``z`` and an Array, determines the couple of array elements where
 """
 function BinSearch(x::Float64, Array::Vector{Float64})
     idx = 1
-    while !(x >= Array[idx] && x <= Array[idx+1])
-        idx += 1
+    if x <= first(Array)
+        idx = 1
+    elseif x >= last(Array)
+        idx = length(Array)-1
+    else
+        while !(x >= Array[idx] && x <= Array[idx+1])
+            idx += 1
+        end
     end
     return idx
 end

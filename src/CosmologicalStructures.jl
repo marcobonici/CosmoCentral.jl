@@ -109,7 +109,7 @@ explanation of the parameters, please refer to the
         "n_s" => 0.96,
         "m_ncdm" => 0.06,
         "P_k_max_1/Mpc" => 50,
-        "z_max_pk" =>  4,
+        "z_max_pk" =>  5,
         "use_ppf" =>  "yes",
         "w0_fld" =>  -1.,
         "Omega_k" =>  0,
