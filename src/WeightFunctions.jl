@@ -1,27 +1,33 @@
 """
-    ComputeGalaxyClusteringWeightFunction(z::Float64, i::Int64,
+    ComputeWeightFunction(z::Float64, i::Int64,
         ConvolvedDensity::ConvolvedDensity,
         w0waCDMCosmology::w0waCDMCosmology)
 
-This function returns the source density for a given redshift ``z``.
+This function returns the Galaxy Clustering Weight function for a given redshift
+``z`` and tomographic bin ``i``.
 """
 function ComputeWeightFunction(z::Float64, i::Int64,
-    ConvolvedDensity::ConvolvedDensity, w0waCDMCosmology::w0waCDMCosmology,
+    ConvolvedDensity::ConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
     Bias::Bias, GCWeightFunction::GCWeightFunction)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    return ComputeConvolvedDensityFunction(z, i, ConvolvedDensity)*
-    ComputeBias(z, Bias)
+    return ComputeConvolvedDensityFunction(z, i, ConvolvedDensity,
+    AnalitycalDensity, InstrumentResponse) *
+    ComputeBias(z, Bias, ConvolvedDensity) *
     ComputeHubbleFactor(z, w0waCDMCosmology) / c_0
 end
 
-
 """
-    ComputeGalaxyClusteringWeightFunction(CosmologicalGrid::CosmologicalGrid,
-        ConvolvedDensity::ConvolvedDensity,
-        w0waCDMCosmology::w0waCDMCosmology)
+    ComputeWeightFunctionOverGrid(
+    GCWeightFunction::GCWeightFunction, AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    Bias::Bias, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmology)
 
-This function returns the source density for a given redshift ``z``.
+This function evaluates the Galaxy Clustering Weight Function over the ``z``
+grid and for all tomographic bins ``i``.
 """
 function ComputeWeightFunctionOverGrid(
     GCWeightFunction::GCWeightFunction, AnalitycalDensity::AnalitycalDensity,
@@ -31,13 +37,6 @@ function ComputeWeightFunctionOverGrid(
     w0waCDMCosmology::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
-    InstrumentResponse)
-    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
-    AnalitycalDensity, InstrumentResponse)
-    ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid, BackgroundQuantities,
-    w0waCDMCosmology)
-    ComputeBiasOverGrid(CosmologicalGrid, Bias, ConvolvedDensity)
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
             GCWeightFunction.WeightFunctionArray[idx_ZBinArray, idx_ZArray] =

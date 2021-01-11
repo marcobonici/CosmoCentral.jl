@@ -4,7 +4,7 @@
 This function returns the source density for a given redshift ``z``.
 """
 function ComputeDensityFunction(z::Float64, AnalitycalDensity::AnalitycalDensity)
-    return (z/AnalitycalDensity.Z0)^2*exp(-(z/AnalitycalDensity.Z0)^(3. / 2.))*
+    return ((z/AnalitycalDensity.Z0)^2)*exp(-(z/AnalitycalDensity.Z0)^(3. / 2.))*
     AnalitycalDensity.Normalization
 end
 
@@ -32,8 +32,8 @@ function ComputeInstrumentResponse(z::Float64, zp::Float64,
     prob_z =
     (1-InstrumentResponse.fout)/(sqrt(2*pi)*InstrumentResponse.σb*(1+z))*
     exp(-0.5*((z-InstrumentResponse.cb*zp-InstrumentResponse.zb)/
-    (InstrumentResponse.σb*(1+z)))^2)
-    +InstrumentResponse.fout/(sqrt(2*pi)*InstrumentResponse.σo*(1+z))*
+    (InstrumentResponse.σb*(1+z)))^2)+
+    InstrumentResponse.fout/(sqrt(2*pi)*InstrumentResponse.σo*(1+z))*
     exp(-0.5*((z-InstrumentResponse.co*zp-InstrumentResponse.zo)/
     (InstrumentResponse.σo*(1+z)))^2)
     return prob_z
@@ -63,12 +63,14 @@ This function normalizes ConvolvedDensity such that the integrals of the
 convolved densities are normalized to 1.
 """
 function NormalizeConvolvedDensityStruct(ConvolvedDensity::ConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse)
+    AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse,
+    CosmologicalGrid::CosmologicalGrid)
     for idx in 1:length(ConvolvedDensity.DensityNormalizationArray)
         int, err = QuadGK.quadgk(x -> ComputeConvolvedDensityFunction(x, idx,
         ConvolvedDensity, AnalitycalDensity, InstrumentResponse),
-        AnalitycalDensity.ZMin,
-        AnalitycalDensity.ZMax, rtol=1e-12)
+        first(CosmologicalGrid.ZArray),
+        last(CosmologicalGrid.ZArray), rtol=1e-12)
         ConvolvedDensity.DensityNormalizationArray[idx] /= int
     end
 end

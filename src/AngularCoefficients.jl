@@ -1,9 +1,13 @@
-abstract type AngularCoefficients end
+"""
+    ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
+    WeightFunctionA::GCWeightFunction, WeightFunctionB::GCWeightFunction,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    PowerSpectrum::PowerSpectrum)
 
-@kwdef mutable struct AngularCoefficientsStruct <: AngularCoefficients
-    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
-end
-
+This function evaluates the Angular Coefficients for all tomographic bins and
+multipole values.
+"""
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::GCWeightFunction, WeightFunctionB::GCWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
@@ -22,7 +26,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
                 PowerSpectrum.InterpolatedPowerSpectrum[idx_l,:]
                 AngularCoefficients.AngularCoefficientsArray[idx_l, idx_a,
                 idx_b] = NumericalIntegration.integrate(CosmologicalGrid.ZArray,
-                Integrand, TrapezoidalEvenFast())
+                Integrand, SimpsonEvenFast())
             end
         end
     end

@@ -14,12 +14,10 @@ abstract type InstrumentResponse end
 abstract type WeightFunction end
 abstract type GCWeightFunction <: WeightFunction end
 abstract type PowerSpectrum end
-
-
-
+abstract type AngularCoefficients end
 
 """
-    w0waCDMStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
+    w0waCDMCosmologyStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
     ΩB::Float64  = 0.05, ΩDE::Float64 = 0.68, Ωk::Float64  = 0.,
     Ωr::Float64  = 0., ns::Float64  = 0.96, Mν::Float64  = 0.06,
     σ8::Float64  = 0.816, H0::Float64  = 67.)
@@ -37,7 +35,7 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 
 - ``H_0``, the value of the Hubble paramater
 """
-@kwdef struct w0waCDMStruct <: w0waCDMCosmology
+@kwdef struct w0waCDMCosmologyStruct <: w0waCDMCosmology
     w0::Float64  = -1.
     wa::Float64  = 0.
     Mν::Float64  = 0.06 #neutrino mass in eV
@@ -70,7 +68,7 @@ end
     CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
     HZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
     rZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMStruct())
+    w0waCDMCosmology::w0waCDMCosmology = w0waCDMCosmologyStruct())
 
 This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
 """
@@ -80,11 +78,26 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
 end
 
 
+"""
+    PiecewiseBiasStruct(BiasArray::AbstractArray{Float64, 2} = ones(10, 300))
+
+
+This struct contains the array with the bias values for all tomographic bins and
+redshift values in the [`CosmologicalGridStruct`](@ref).
+"""
 @kwdef mutable struct PiecewiseBiasStruct <: PiecewiseBias
     BiasArray::AbstractArray{Float64, 2} =
     ones(10, 300)
 end
 
+"""
+    classyParamsStruct(classyParamsDict::Dict)
+
+
+This struct contains the dictionary with the classy parameters. For a detalied
+explanation of the parameters, please refer to the
+[CLASS website](http://class-code.net/)
+"""
 @kwdef mutable struct classyParamsStruct <: classyParams
     classyParamsDict::Dict = Dict("output" => "mPk",
         "non linear"=> "halofit",
@@ -96,7 +109,7 @@ end
         "n_s" => 0.96,
         "m_ncdm" => 0.06,
         "P_k_max_1/Mpc" => 50,
-        "z_max_pk" =>  4,
+        "z_max_pk" =>  5,
         "use_ppf" =>  "yes",
         "w0_fld" =>  -1.,
         "Omega_k" =>  0,
@@ -188,11 +201,23 @@ This struct contains all these parameters.
     fout::Float64 = 0.1
 end
 
+"""
+    GCWeightFunctionStruct()
+
+This struct contains the array with the Galaxy Clustering Weight function values
+for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
+"""
 @kwdef mutable struct GCWeightFunctionStruct <: GCWeightFunction
-    WeightFunctionArray::AbstractArray{Float64, 2} =
-    ones(10, 300)
+    WeightFunctionArray::AbstractArray{Float64, 2}
 end
 
+"""
+    PowerSpectrumStruct()
+
+This struct contains the array with the Linear and Nonlinear Power Spectrum
+evaluated on the ``k-z`` grid and the interpolated Nonlinear Power Spectrum on
+Limber ``k-z`` grid.
+"""
 @kwdef mutable struct PowerSpectrumStruct <: PowerSpectrum
     PowerSpectrumLinArray::AbstractArray{Float64, 2} =
     zeros(1000, 300)
@@ -200,4 +225,13 @@ end
     zeros(1000, 300)
     InterpolatedPowerSpectrum::AbstractArray{Float64, 2} =
     zeros(2991, 300)
+end
+
+"""
+    AngularCoefficientsStruct()
+
+This struct contains the array with the Angular Coefficients.
+"""
+@kwdef mutable struct AngularCoefficientsStruct <: AngularCoefficients
+    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
