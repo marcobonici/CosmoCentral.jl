@@ -6,6 +6,7 @@ using Parameters
 using NumericalIntegration
 using PyCall
 using Dierckx
+using HDF5
 numpy = pyimport("numpy")
 classy = pyimport("classy")
 
@@ -18,5 +19,6 @@ include("WeightFunctions.jl")
 include("BoltzmannSolver.jl")
 include("PowerSpectrum.jl")
 include("AngularCoefficients.jl")
+include("FileIO.jl")
 
 end # module
