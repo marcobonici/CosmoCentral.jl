@@ -235,3 +235,8 @@ This struct contains the array with the Angular Coefficients.
 @kwdef mutable struct AngularCoefficientsStruct <: AngularCoefficients
     AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
+
+abstract type InterpolationMethod end
+
+struct RectBivSplineDierckx <: InterpolationMethod end
+struct GriddedLinear <: InterpolationMethod end

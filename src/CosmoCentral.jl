@@ -4,6 +4,7 @@ using QuadGK
 using Base: @kwdef
 using Parameters
 using NumericalIntegration
+using Interpolations
 using PyCall
 using Dierckx
 using HDF5
