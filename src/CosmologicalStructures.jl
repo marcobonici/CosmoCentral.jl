@@ -240,3 +240,4 @@ abstract type InterpolationMethod end
 
 struct RectBivSplineDierckx <: InterpolationMethod end
 struct GriddedLinear <: InterpolationMethod end
+struct BSplineCubic <: InterpolationMethod end

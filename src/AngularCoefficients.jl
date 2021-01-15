@@ -27,6 +27,9 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
                 AngularCoefficients.AngularCoefficientsArray[idx_l, idx_a,
                 idx_b] = NumericalIntegration.integrate(CosmologicalGrid.ZArray,
                 Integrand, SimpsonEvenFast())
+                AngularCoefficients.AngularCoefficientsArray[idx_l, idx_b,
+                idx_a] = AngularCoefficients.AngularCoefficientsArray[idx_l,
+                idx_a, idx_b]
             end
         end
     end
