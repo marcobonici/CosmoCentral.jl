@@ -13,6 +13,7 @@ abstract type ConvolvedDensity <: AsbtractDensity end
 abstract type InstrumentResponse end
 abstract type WeightFunction end
 abstract type GCWeightFunction <: WeightFunction end
+abstract type WLWeightFunction <: WeightFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
 
@@ -210,6 +211,18 @@ for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@
 @kwdef mutable struct GCWeightFunctionStruct <: GCWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2}
 end
+
+"""
+    WLWeightFunctionStruct()
+
+This struct contains the array with the Weak Lensing Weight function values
+for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
+"""
+@kwdef mutable struct WLWeightFunctionStruct <: WLWeightFunction
+    WeightFunctionArray::AbstractArray{Float64, 2}
+    LensingEfficiencyArray::AbstractArray{Float64, 2}
+end
+
 
 """
     PowerSpectrumStruct()
