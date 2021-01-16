@@ -8,6 +8,7 @@ using Interpolations
 using PyCall
 using Dierckx
 using HDF5
+using LoopVectorization
 numpy = pyimport("numpy")
 classy = pyimport("classy")
 

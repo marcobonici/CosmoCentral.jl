@@ -1,9 +1,15 @@
+abstract type IntegrationMethod end
+
+struct NumericalIntegrationSimpson <: IntegrationMethod end
+struct CustomTrapz <: IntegrationMethod end
+
+
 """
     ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::GCWeightFunction, WeightFunctionB::GCWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
-    PowerSpectrum::PowerSpectrum)
+    PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
 multipole values.
@@ -12,7 +18,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
-    PowerSpectrum::PowerSpectrum)
+    PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     for idx_a in 1:size(AngularCoefficients.AngularCoefficientsArray, 2)
@@ -33,4 +39,30 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
             end
         end
     end
+end
+
+function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
+    WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    PowerSpectrum::PowerSpectrum, ::CustomTrapz)
+    c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
+                       #physical constants involved in calculations
+    Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray,1),
+    size(AngularCoefficients.AngularCoefficientsArray,2),
+    size(AngularCoefficients.AngularCoefficientsArray,3))
+    @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
+        j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
+        l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
+        for z ∈ axes(CosmologicalGrid.ZArray,1)
+            Integrand[l,i,j] += c_0 *
+            WeightFunctionA.WeightFunctionArray[i, z] *
+            WeightFunctionB.WeightFunctionArray[j, z] /
+            (BackgroundQuantities.HZArray[z] *
+            BackgroundQuantities.rZArray[z]^2) *
+            PowerSpectrum.InterpolatedPowerSpectrum[l,z]
+        end
+    end
+    Integrand .*= (last(CosmologicalGrid.ZArray)-first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
+    AngularCoefficients.AngularCoefficientsArray = Integrand
 end

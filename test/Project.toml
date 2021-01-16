@@ -2,6 +2,7 @@
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+LoopVectorization = "bdcacae8-1622-11e9-2a5c-532679323890"
 NumericalIntegration = "e7bfaba1-d571-5449-8927-abc22e82249b"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
