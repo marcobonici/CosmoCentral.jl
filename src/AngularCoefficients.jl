@@ -9,7 +9,7 @@ This function evaluates the Angular Coefficients for all tomographic bins and
 multipole values.
 """
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
-    WeightFunctionA::GCWeightFunction, WeightFunctionB::GCWeightFunction,
+    WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum)
