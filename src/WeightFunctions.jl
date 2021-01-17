@@ -96,6 +96,18 @@ function ComputeLensingEfficiencyOverGrid(
     end
 end
 
+function ComputeWeightFunction(z::Float64, i::Int64,
+    ConvolvedDensity::ConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
+    CosmologicalGrid::CosmologicalGrid, WLWeightFunction::WLWeightFunction)
+    c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
+                       #physical constants involved in calculations
+    return 1.5 * ComputeLensingEfficiency(z, i, ConvolvedDensity,
+    AnalitycalDensity,InstrumentResponse, w0waCDMCosmology, CosmologicalGrid,
+    WLWeightFunction) * (w0waCDMCosmology.H0/c_0)^2 * w0waCDMCosmology.ΩM *
+    (1. + z) * ComputeComovingDistance(z, w0waCDMCosmology)
+end
+
 
 function ComputeWeightFunctionOverGrid(
     WLWeightFunction::WLWeightFunction, AnalitycalDensity::AnalitycalDensity,

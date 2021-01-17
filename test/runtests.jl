@@ -1,19 +1,19 @@
-using CosmoCentral
-#include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
+#using CosmoCentral
+include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 using Test
 using QuadGK
 using NumericalIntegration
 using PyCall
+using Interpolations
 
 numpy = pyimport("numpy")
-classy = pyimport("classy")
 
 w0waCDMCosmology = CosmoCentral.w0waCDMCosmologyStruct()
 AnalitycalDensity = CosmoCentral.AnalitycalDensityStruct()
 InstrumentResponse = CosmoCentral.InstrumentResponseStruct()
 ConvolvedDensity = CosmoCentral.ConvolvedDensityStruct()
 CosmologicalGrid  = CosmoCentral.CosmologicalGridStruct(
-ZArray=Array(LinRange(0.001, 2.5, 300)))
+ZArray=Array(LinRange(0.001, 4.0, 500)))
 BackgroundQuantities = CosmoCentral.BackgroundQuantitiesStruct(HZArray=
 zeros(length(CosmologicalGrid.ZArray)),
 rZArray=zeros(length(CosmologicalGrid.ZArray)))
@@ -22,6 +22,12 @@ zeros(length(ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
 GCWeightFunction = CosmoCentral.GCWeightFunctionStruct(WeightFunctionArray =
 zeros(length(ConvolvedDensity.DensityNormalizationArray),
+length(CosmologicalGrid.ZArray)))
+WLWeightFunction = CosmoCentral.WLWeightFunctionStruct(WeightFunctionArray =
+zeros(length(ConvolvedDensity.DensityNormalizationArray),
+length(CosmologicalGrid.ZArray)),
+LensingEfficiencyArray = zeros(length(
+ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
 AngularCoefficients = CosmoCentral.AngularCoefficientsStruct(
 AngularCoefficientsArray = zeros(length(CosmologicalGrid.MultipolesArray),
@@ -119,47 +125,75 @@ end
 end
 
 @testset "Check the Weight function evaluation" begin
-    test_array = zeros(length(ConvolvedDensity.ZBinArray)-1,
+    test_gc = zeros(length(ConvolvedDensity.ZBinArray)-1,
+    length(CosmologicalGrid.ZArray))
+    test_le = zeros(length(ConvolvedDensity.ZBinArray)-1,
+    length(CosmologicalGrid.ZArray))
+    test_wl = zeros(length(ConvolvedDensity.ZBinArray)-1,
     length(CosmologicalGrid.ZArray))
     for (idxz, zvalue) in enumerate(CosmologicalGrid.ZArray)
         for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
-            test_array[idx_ZBinArray, idxz] =
+            test_gc[idx_ZBinArray, idxz] =
             CosmoCentral.ComputeWeightFunction(zvalue, idx_ZBinArray,
-        ConvolvedDensity, AnalitycalDensity,
-        InstrumentResponse, w0waCDMCosmology,
-        PiecewiseBias, GCWeightFunction)
+            ConvolvedDensity, AnalitycalDensity,
+            InstrumentResponse, w0waCDMCosmology,
+            PiecewiseBias, GCWeightFunction)
+            test_le[idx_ZBinArray, idxz] =
+            CosmoCentral.ComputeLensingEfficiency(zvalue, idx_ZBinArray,
+            ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+            w0waCDMCosmology, CosmologicalGrid, WLWeightFunction)
+            test_wl[idx_ZBinArray, idxz] =
+            CosmoCentral.ComputeWeightFunction(zvalue, idx_ZBinArray,
+                ConvolvedDensity, AnalitycalDensity,
+                InstrumentResponse, w0waCDMCosmology, CosmologicalGrid,
+                WLWeightFunction)
         end
     end
-CosmoCentral.ComputeWeightFunctionOverGrid(GCWeightFunction, AnalitycalDensity, InstrumentResponse, ConvolvedDensity, PiecewiseBias, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
-@test isapprox(test_array, GCWeightFunction.WeightFunctionArray, atol=1e-9)
+    CosmoCentral.ComputeWeightFunctionOverGrid(GCWeightFunction,
+    AnalitycalDensity, InstrumentResponse, ConvolvedDensity, PiecewiseBias,
+    CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+    CosmoCentral.ComputeLensingEfficiencyOverGrid(
+    WLWeightFunction, AnalitycalDensity,
+    InstrumentResponse, ConvolvedDensity,
+    CosmologicalGrid,
+    BackgroundQuantities,
+    w0waCDMCosmology)
+    CosmoCentral.ComputeWeightFunctionOverGrid(WLWeightFunction,
+    AnalitycalDensity, InstrumentResponse, ConvolvedDensity, CosmologicalGrid,
+    BackgroundQuantities, w0waCDMCosmology)
+    @test isapprox(test_gc, GCWeightFunction.WeightFunctionArray, rtol=1e-9)
+    @test isapprox(test_wl, WLWeightFunction.WeightFunctionArray, rtol=1e-9)
+    @test isapprox(test_le, WLWeightFunction.LensingEfficiencyArray, rtol=1e-9)
 end
 
 
 @testset "Check the Power Spectrum evaluated over the Limber Grid" begin
+    MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
+    PowerSpectrum, BackgroundQuantitiesLoaded, CosmologicalGrid =
+    CosmoCentral.ReadPowerSpectrumBackground("test/p_mm", MultipolesArray)
+    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
     classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
-    PowerSpectrum = CosmoCentral.PowerSpectrumStruct(PowerSpectrumLinArray =
-    zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray)),
-    PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
-    length(CosmologicalGrid.ZArray)),
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
-    length(CosmologicalGrid.ZArray)))
-    CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
+    CosmoCentral.ComputeLimberArray(CosmologicalGrid,
+    BackgroundQuantitiesLoaded)
     test_k_limber = (CosmologicalGrid.MultipolesArray[1]+0.5) /
-    BackgroundQuantities.rZArray[1]
+    BackgroundQuantitiesLoaded.rZArray[1]
     @test test_k_limber == CosmologicalGrid.KLimberArray[1, 1]
     test_Omega_cdm = w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
     w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2)
     @test test_Omega_cdm == classyParams.classyParamsDict["Omega_cdm"]
-    #CosmoCentral.EvaluatePowerSpectrum(classyParams, CosmologicalGrid,
-    #PowerSpectrum)
-    #CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
-    #BackgroundQuantities, PowerSpectrum)
-    #cosmo = classy.Class()
-    #cosmo.set(classyParams.classyParamsDict)
-    #cosmo.compute()
-    #println(cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1]))
-    #test_power_spectrum = cosmo.pk(test_k_limber, CosmologicalGrid.ZArray[1])
-    #println(test_power_spectrum)
-    #@test isapprox(test_power_spectrum,
-    #PowerSpectrum.InterpolatedPowerSpectrum[1, 1], atol=1e-7)
+    x = LinRange(log10(first(CosmologicalGrid.KArray)),
+    log10(last(CosmologicalGrid.KArray)), length(CosmologicalGrid.KArray))
+    y = LinRange(first(CosmologicalGrid.ZArray), last(CosmologicalGrid.ZArray),
+    length(CosmologicalGrid.ZArray))
+    InterpPmm = Interpolations.interpolate(
+    log10.(PowerSpectrum.PowerSpectrumNonlinArray),
+    BSpline(Cubic(Line(OnGrid()))))
+    InterpPmm = Interpolations.extrapolate(InterpPmm, Line())
+    test_power_spectrum = 10 .^InterpPmm(log10(CosmologicalGrid.KLimberArray[1, 1]),
+    CosmologicalGrid.ZArray[1])
+    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
+    @test isapprox(test_power_spectrum,
+    PowerSpectrum.InterpolatedPowerSpectrum[1, 1], rtol=1e-2)
 end

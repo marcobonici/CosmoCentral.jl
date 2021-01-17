@@ -144,7 +144,7 @@ The parameters contained in this struct are
 @kwdef mutable struct AnalitycalDensityStruct <: AnalitycalDensity
     Z0::Float64 = 0.9/sqrt(2.)
     ZMin::Float64 = 0.001
-    ZMax::Float64 = 2.5
+    ZMax::Float64 = 4.0
     SurfaceDensity::Float64 = 30.
     Normalization::Float64 = 1.
 end
