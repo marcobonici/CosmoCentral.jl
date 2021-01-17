@@ -170,7 +170,9 @@ end
 @testset "Check the Power Spectrum evaluated over the Limber Grid" begin
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantitiesLoaded, CosmologicalGrid =
-    CosmoCentral.ReadPowerSpectrumBackground("test/p_mm", MultipolesArray)
+    CosmoCentral.ReadPowerSpectrumBackground(
+    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
+    MultipolesArray)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
     classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
