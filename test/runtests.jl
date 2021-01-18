@@ -226,10 +226,10 @@ end
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrumGriddedLinear,
     CosmoCentral.GriddedLinear())
-    @test isapprox(PowerSpectrumDierckx.InterpolatedPowerSpectrum,
-    PowerSpectrum.InterpolatedPowerSpectrum, rtol=1e-4)
-    @test isapprox(PowerSpectrumGriddedLinear.InterpolatedPowerSpectrum,
-    PowerSpectrum.InterpolatedPowerSpectrum, rtol=1e-2)
+    @test isapprox(PowerSpectrumDierckx.InterpolatedPowerSpectrum[1, 1],
+    PowerSpectrum.InterpolatedPowerSpectrum[1, 1], rtol=1e-2)
+    @test isapprox(PowerSpectrumGriddedLinear.InterpolatedPowerSpectrum[1, 1],
+    PowerSpectrum.InterpolatedPowerSpectrum[1, 1], rtol=1e-2)
 end
 
 @testset "Test Angular coefficients evaluation" begin
