@@ -171,7 +171,7 @@ end
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantitiesLoaded, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(
-    "test/p_mm",
+    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
     MultipolesArray)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
