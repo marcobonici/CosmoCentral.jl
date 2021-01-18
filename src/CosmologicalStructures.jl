@@ -13,6 +13,7 @@ abstract type ConvolvedDensity <: AsbtractDensity end
 abstract type InstrumentResponse end
 abstract type WeightFunction end
 abstract type GCWeightFunction <: WeightFunction end
+abstract type WLWeightFunction <: WeightFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
 
@@ -143,7 +144,7 @@ The parameters contained in this struct are
 @kwdef mutable struct AnalitycalDensityStruct <: AnalitycalDensity
     Z0::Float64 = 0.9/sqrt(2.)
     ZMin::Float64 = 0.001
-    ZMax::Float64 = 2.5
+    ZMax::Float64 = 4.0
     SurfaceDensity::Float64 = 30.
     Normalization::Float64 = 1.
 end
@@ -212,6 +213,18 @@ for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@
 end
 
 """
+    WLWeightFunctionStruct()
+
+This struct contains the array with the Weak Lensing Weight function values
+for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
+"""
+@kwdef mutable struct WLWeightFunctionStruct <: WLWeightFunction
+    WeightFunctionArray::AbstractArray{Float64, 2}
+    LensingEfficiencyArray::AbstractArray{Float64, 2}
+end
+
+
+"""
     PowerSpectrumStruct()
 
 This struct contains the array with the Linear and Nonlinear Power Spectrum
@@ -235,3 +248,9 @@ This struct contains the array with the Angular Coefficients.
 @kwdef mutable struct AngularCoefficientsStruct <: AngularCoefficients
     AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
+
+abstract type InterpolationMethod end
+
+struct RectBivSplineDierckx <: InterpolationMethod end
+struct GriddedLinear <: InterpolationMethod end
+struct BSplineCubic <: InterpolationMethod end
