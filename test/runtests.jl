@@ -192,8 +192,8 @@ end
     log10.(PowerSpectrum.PowerSpectrumNonlinArray),
     BSpline(Cubic(Line(OnGrid()))))
     InterpPmm = Interpolations.extrapolate(InterpPmm, Line())
-    test_power_spectrum = 10 .^InterpPmm(log10(CosmologicalGrid.KLimberArray[1, 1]),
-    CosmologicalGrid.ZArray[1])
+    test_power_spectrum = 10 .^InterpPmm(log10(
+    CosmologicalGrid.KLimberArray[1, 1]), CosmologicalGrid.ZArray[1])
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
     @test isapprox(test_power_spectrum,
@@ -205,13 +205,31 @@ end
     "new_p_mm",
     MultipolesArray)
     @test isapprox(PowerSpectrum.PowerSpectrumNonlinArray,
-    NewPowerSpectrum.PowerSpectrumNonlinArray, rtol=1e-2)
+    NewPowerSpectrum.PowerSpectrumNonlinArray, rtol=1e-6)
     @test isapprox(PowerSpectrum.PowerSpectrumLinArray,
-    NewPowerSpectrum.PowerSpectrumLinArray, rtol=1e-2)
+    NewPowerSpectrum.PowerSpectrumLinArray, rtol=1e-6)
     @test isapprox(BackgroundQuantitiesLoaded.HZArray,
-    NewBackgroundQuantitiesLoaded.HZArray, rtol=1e-2)
+    NewBackgroundQuantitiesLoaded.HZArray, rtol=1e-6)
     @test isapprox(BackgroundQuantitiesLoaded.rZArray,
-    NewBackgroundQuantitiesLoaded.rZArray, rtol=1e-2)
+    NewBackgroundQuantitiesLoaded.rZArray, rtol=1e-6)
+    PowerSpectrumDierckx, BackgroundQuantitiesLoaded, CosmologicalGrid =
+    CosmoCentral.ReadPowerSpectrumBackground(
+    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
+    MultipolesArray)
+    PowerSpectrumGriddedLinear, BackgroundQuantitiesLoaded, CosmologicalGrid =
+    CosmoCentral.ReadPowerSpectrumBackground(
+    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
+    MultipolesArray)
+    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    BackgroundQuantitiesLoaded, PowerSpectrumDierckx,
+    CosmoCentral.RectBivSplineDierckx())
+    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    BackgroundQuantitiesLoaded, PowerSpectrumGriddedLinear,
+    CosmoCentral.GriddedLinear())
+    @test isapprox(PowerSpectrumDierckx.InterpolatedPowerSpectrum,
+    PowerSpectrum.InterpolatedPowerSpectrum, rtol=1e-4)
+    @test isapprox(PowerSpectrumGriddedLinear.InterpolatedPowerSpectrum,
+    PowerSpectrum.InterpolatedPowerSpectrum, rtol=1e-2)
 end
 
 @testset "Test Angular coefficients evaluation" begin
@@ -241,13 +259,4 @@ end
     "new_cl")
     @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
     AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
-    AngularCoefficientsSimps = CosmoCentral.AngularCoefficientsStruct(
-    AngularCoefficientsArray = zeros(length(CosmologicalGrid.MultipolesArray),
-    length(GCWeightFunction.WeightFunctionArray[:, 1]),
-    length(GCWeightFunction.WeightFunctionArray[:, 1])))
-    CosmoCentral.ComputeAngularCoefficients(AngularCoefficientsSimps,
-    GCWeightFunction, GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
-    CosmologicalGrid, PowerSpectrum, CosmoCentral.NumericalIntegrationSimpson())
-    @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
-    AngularCoefficientsSimps.AngularCoefficientsArray, rtol=1e-3)
 end
