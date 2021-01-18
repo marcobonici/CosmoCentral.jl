@@ -241,4 +241,13 @@ end
     "new_cl")
     @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
     AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
+    AngularCoefficientsSimps = CosmoCentral.AngularCoefficientsStruct(
+    AngularCoefficientsArray = zeros(length(CosmologicalGrid.MultipolesArray),
+    length(GCWeightFunction.WeightFunctionArray[:, 1]),
+    length(GCWeightFunction.WeightFunctionArray[:, 1])))
+    CosmoCentral.ComputeAngularCoefficients(AngularCoefficientsSimps,
+    GCWeightFunction, GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
+    CosmologicalGrid, PowerSpectrum, CosmoCentral.NumericalIntegrationSimpson())
+    @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
+    AngularCoefficientsSimps.AngularCoefficientsArray, rtol=1e-3)
 end
