@@ -220,4 +220,11 @@ end
     CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomTrapz())
     @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
     AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
+    CosmoCentral.WriteAngularCoefficients(AngularCoefficients, CosmologicalGrid,
+    GCWeightFunction, PiecewiseBias,
+    ConvolvedDensity, "cl")
+    AngularCoefficientsLoaded = CosmoCentral.ReadAngularCoefficients(
+    "cl")
+    @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
+    AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
 end
