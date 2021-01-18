@@ -11,6 +11,16 @@ function WriteAngularCoefficients(AngularCoefficients::AngularCoefficients,
     ConvolvedDensity.DensityNormalizationArray)
 end
 
+function ReadAngularCoefficients(Filename::String)
+    Filename *= ".h5"
+    file = HDF5.h5open(Filename, "r")
+    c_lij =
+    HDF5.read(file["cls"]["PhotometricGalaxy_PhotometricGalaxy"]["c_lij"])
+    AngularCoefficients = AngularCoefficientsStruct(AngularCoefficientsArray =
+    c_lij)
+    return AngularCoefficients
+end
+
 function WritePowerSpectrumBackground(PowerSpectrum::PowerSpectrum,
     BackgroundQuantities::BackgroundQuantities,
     CosmologicalGrid::CosmologicalGrid, Filename::String)
@@ -71,6 +81,26 @@ function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
     BackgroundQuantities = BackgroundQuantitiesStruct(HZArray =
     dimensionless_hubble_array*67,
     rZArray = dimensionless_comoving_distance_array*c_0/67)
+    CosmologicalGrid = CosmologicalGridStruct(ZArray = z_grid, KArray = k_grid,
+    MultipolesArray = MultipolesArray)
+    PowerSpectrum = PowerSpectrumStruct(PowerSpectrumLinArray = lin_p_mm_k_z,
+    PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray), length(CosmologicalGrid.ZArray)))
+    return PowerSpectrum, BackgroundQuantities, CosmologicalGrid
+end
+
+function ReadAngularCoefficients(Filename::String,
+    MultipolesArray::Vector{Float64})
+    Filename *= ".h5"
+    file = HDF5.h5open(Filename, "r")
+    nonlin_p_mm_k_z = HDF5.read(file["power_spectrum"]["nonlin_p_mm_k_z"])
+    lin_p_mm_k_z    = HDF5.read(file["power_spectrum"]["lin_p_mm_k_z"])
+    z_grid = HDF5.read(file["power_spectrum"]["z_grid"])
+    k_grid = HDF5.read(file["power_spectrum"]["k_grid"])
+    comoving_distance_array = HDF5.read(file["cosmology"]["comoving_distance_array"])
+    hubble_array = HDF5.read(file["cosmology"]["hubble_array"])
+    BackgroundQuantities = BackgroundQuantitiesStruct(HZArray = hubble_array,
+    rZArray = comoving_distance_array)
     CosmologicalGrid = CosmologicalGridStruct(ZArray = z_grid, KArray = k_grid,
     MultipolesArray = MultipolesArray)
     PowerSpectrum = PowerSpectrumStruct(PowerSpectrumLinArray = lin_p_mm_k_z,

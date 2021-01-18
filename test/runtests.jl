@@ -171,7 +171,7 @@ end
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantitiesLoaded, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(
-    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
+    "test/p_mm",
     MultipolesArray)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
@@ -198,4 +198,26 @@ end
     BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
     @test isapprox(test_power_spectrum,
     PowerSpectrum.InterpolatedPowerSpectrum[1, 1], rtol=1e-2)
+end
+
+@testset "Test Angular coefficients evaluation" begin
+    AngularCoefficientsLoaded = CosmoCentral.ReadAngularCoefficients(
+    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/cl")
+    MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
+    PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+    CosmoCentral.ReadPowerSpectrumBackground(
+    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
+    MultipolesArray)
+    CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
+    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+    AngularCoefficients = CosmoCentral.AngularCoefficientsStruct(
+    AngularCoefficientsArray = zeros(length(CosmologicalGrid.MultipolesArray),
+    length(GCWeightFunction.WeightFunctionArray[:, 1]),
+    length(GCWeightFunction.WeightFunctionArray[:, 1])))
+    CosmoCentral.ComputeAngularCoefficients(AngularCoefficients,
+    GCWeightFunction, GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
+    CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomTrapz())
+    @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
+    AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
 end
