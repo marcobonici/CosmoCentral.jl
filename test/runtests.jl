@@ -222,9 +222,9 @@ end
     AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
     CosmoCentral.WriteAngularCoefficients(AngularCoefficients, CosmologicalGrid,
     GCWeightFunction, PiecewiseBias,
-    ConvolvedDensity, "cl")
+    ConvolvedDensity, "new_cl")
     AngularCoefficientsLoaded = CosmoCentral.ReadAngularCoefficients(
-    "cl")
+    "new_cl")
     @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
     AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
 end
