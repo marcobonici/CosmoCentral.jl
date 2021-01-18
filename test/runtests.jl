@@ -221,11 +221,11 @@ end
     "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
     MultipolesArray)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
-    BackgroundQuantitiesLoaded, PowerSpectrumDierckx,
-    CosmoCentral.RectBivSplineDierckx())
-    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrumGriddedLinear,
     CosmoCentral.GriddedLinear())
+    CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+    BackgroundQuantitiesLoaded, PowerSpectrumDierckx,
+    CosmoCentral.RectBivSplineDierckx())
     @test isapprox(PowerSpectrumDierckx.InterpolatedPowerSpectrum[1, 1],
     PowerSpectrum.InterpolatedPowerSpectrum[1, 1], rtol=1e-2)
     @test isapprox(PowerSpectrumGriddedLinear.InterpolatedPowerSpectrum[1, 1],
