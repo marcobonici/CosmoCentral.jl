@@ -198,6 +198,20 @@ end
     BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
     @test isapprox(test_power_spectrum,
     PowerSpectrum.InterpolatedPowerSpectrum[1, 1], rtol=1e-2)
+    CosmoCentral.WritePowerSpectrumBackground(PowerSpectrum,
+    BackgroundQuantitiesLoaded, CosmologicalGrid, "new_p_mm")
+    NewPowerSpectrum, NewBackgroundQuantitiesLoaded, NewCosmologicalGrid =
+    CosmoCentral.ReadPowerSpectrumBackground(
+    "new_p_mm",
+    MultipolesArray)
+    @test isapprox(PowerSpectrum.PowerSpectrumNonlinArray,
+    NewPowerSpectrum.PowerSpectrumNonlinArray, rtol=1e-2)
+    @test isapprox(PowerSpectrum.PowerSpectrumLinArray,
+    NewPowerSpectrum.PowerSpectrumLinArray, rtol=1e-2)
+    @test isapprox(BackgroundQuantitiesLoaded.HZArray,
+    NewBackgroundQuantitiesLoaded.HZArray, rtol=1e-2)
+    @test isapprox(BackgroundQuantitiesLoaded.rZArray,
+    NewBackgroundQuantitiesLoaded.rZArray, rtol=1e-2)
 end
 
 @testset "Test Angular coefficients evaluation" begin
