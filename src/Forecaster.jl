@@ -89,26 +89,52 @@ function EvaluateAngularCoefficients(Cosmologies::Dict, PathInput::String,
     AnalitycalDensity, InstrumentResponse)
     for (key, value) in Cosmologies
         w0waCDMCosmology = value[1]
-        MultipolesArray = Array(LogSpaced(10., 3000., 100))
         PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
-        ReadPowerSpectrumBackground(PathInput*key*"/p_mm", MultipolesArray)
+        ReadPowerSpectrumBackground(PathInput*key*"/p_mm",
+        CosmologicalGrid.MultipolesArray)
+        GCWeightFunction = GCWeightFunctionStruct()
+        WLWeightFunction = WLWeightFunctionStruct()
         GCWeightFunction, PiecewiseBias =
         InstantiateComputeWeightFunctionOverGrid(AnalitycalDensity,
         InstrumentResponse, ConvolvedDensity, w0waCDMCosmology,
-        CosmologicalGrid, BackgroundQuantities)
+        CosmologicalGrid, BackgroundQuantities, GCWeightFunction)
         ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
+        WLWeightFunction = InstantiateComputeWeightFunctionOverGrid(
+        AnalitycalDensity, InstrumentResponse, ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        WLWeightFunction)
         InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
         BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
-        AngularCoefficients = AngularCoefficientsStruct(AngularCoefficientsArray
+        GCGCAngularCoefficients = GCGCAngularCoefficientsStruct(AngularCoefficientsArray
         = zeros(length(CosmologicalGrid.MultipolesArray),
         length(GCWeightFunction.WeightFunctionArray[:, 1]),
         length(GCWeightFunction.WeightFunctionArray[:, 1])))
-        ComputeAngularCoefficients(AngularCoefficients, GCWeightFunction,
+        ComputeAngularCoefficients(GCGCAngularCoefficients, GCWeightFunction,
         GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
         CosmologicalGrid, PowerSpectrum,
-        CosmoCentral.NumericalIntegrationSimpson())
-        WriteAngularCoefficients(AngularCoefficients, CosmologicalGrid,
+        CosmoCentral.CustomTrapz())
+        WriteAngularCoefficients(GCGCAngularCoefficients, CosmologicalGrid,
         GCWeightFunction, PiecewiseBias, ConvolvedDensity, PathOutput*key*"/cl")
+        WLWLAngularCoefficients = WLWLAngularCoefficientsStruct(AngularCoefficientsArray
+        = zeros(length(CosmologicalGrid.MultipolesArray),
+        length(WLWeightFunction.WeightFunctionArray[:, 1]),
+        length(WLWeightFunction.WeightFunctionArray[:, 1])))
+        ComputeAngularCoefficients(WLWLAngularCoefficients, WLWeightFunction,
+        WLWeightFunction, BackgroundQuantities, w0waCDMCosmology,
+        CosmologicalGrid, PowerSpectrum,
+        CosmoCentral.CustomTrapz())
+        WriteAngularCoefficients(WLWLAngularCoefficients, CosmologicalGrid,
+        WLWeightFunction, ConvolvedDensity, PathOutput*key*"/cl")
+        GCWLAngularCoefficients = GCWLAngularCoefficientsStruct(AngularCoefficientsArray
+        = zeros(length(CosmologicalGrid.MultipolesArray),
+        length(WLWeightFunction.WeightFunctionArray[:, 1]),
+        length(WLWeightFunction.WeightFunctionArray[:, 1])))
+        ComputeAngularCoefficients(GCWLAngularCoefficients, GCWeightFunction,
+        WLWeightFunction, BackgroundQuantities, w0waCDMCosmology,
+        CosmologicalGrid, PowerSpectrum,
+        CosmoCentral.CustomTrapz())
+        WriteAngularCoefficients(GCWLAngularCoefficients, CosmologicalGrid,
+        ConvolvedDensity, PathOutput*key*"/cl")
     end
 end
 
@@ -116,7 +142,8 @@ function InstantiateComputeWeightFunctionOverGrid(
     AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
-    BackgroundQuantities::BackgroundQuantities)
+    BackgroundQuantities::BackgroundQuantities,
+    GCWeightFunction::GCWeightFunction)
     PiecewiseBias = PiecewiseBiasStruct(BiasArray =
     zeros(length(ConvolvedDensity.DensityNormalizationArray),
     length(CosmologicalGrid.ZArray)))
@@ -128,4 +155,24 @@ function InstantiateComputeWeightFunctionOverGrid(
     InstrumentResponse, ConvolvedDensity, PiecewiseBias, CosmologicalGrid,
     BackgroundQuantities, w0waCDMCosmology)
     return GCWeightFunction, PiecewiseBias
+end
+
+function InstantiateComputeWeightFunctionOverGrid(
+    AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    WLWeightFunction::WLWeightFunction)
+    WLWeightFunction = WLWeightFunctionStruct(WeightFunctionArray =
+    zeros(length(ConvolvedDensity.DensityNormalizationArray),
+    length(CosmologicalGrid.ZArray)), LensingEfficiencyArray =
+    zeros(length(ConvolvedDensity.DensityNormalizationArray),
+    length(CosmologicalGrid.ZArray)))
+    ComputeLensingEfficiencyOverGridCustom(WLWeightFunction, AnalitycalDensity,
+    InstrumentResponse, ConvolvedDensity, CosmologicalGrid,
+    BackgroundQuantities, w0waCDMCosmology)
+    ComputeWeightFunctionOverGrid(WLWeightFunction, AnalitycalDensity,
+    InstrumentResponse, ConvolvedDensity, CosmologicalGrid,
+    BackgroundQuantities, w0waCDMCosmology)
+    return WLWeightFunction
 end
