@@ -234,20 +234,20 @@ end
     CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
-    AngularCoefficients = CosmoCentral.AngularCoefficientsStruct(
+    GCGCAngularCoefficients = CosmoCentral.GCGCAngularCoefficientsStruct(
     AngularCoefficientsArray = zeros(length(CosmologicalGrid.MultipolesArray),
     length(GCWeightFunction.WeightFunctionArray[:, 1]),
     length(GCWeightFunction.WeightFunctionArray[:, 1])))
-    CosmoCentral.ComputeAngularCoefficients(AngularCoefficients,
+    CosmoCentral.ComputeAngularCoefficients(GCGCAngularCoefficients,
     GCWeightFunction, GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
     CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomTrapz())
     @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
-    AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
-    CosmoCentral.WriteAngularCoefficients(AngularCoefficients, CosmologicalGrid,
+    GCGCAngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
+    CosmoCentral.WriteAngularCoefficients(GCGCAngularCoefficients, CosmologicalGrid,
     GCWeightFunction, PiecewiseBias,
     ConvolvedDensity, "new_cl")
-    AngularCoefficientsLoaded = CosmoCentral.ReadAngularCoefficients(
+    AngularCoefficientsReloaded = CosmoCentral.ReadAngularCoefficients(
     "new_cl")
-    @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
-    AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
+    @test isapprox(AngularCoefficientsReloaded.AngularCoefficientsArray,
+    GCGCAngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
 end
