@@ -46,6 +46,7 @@ function CreateCosmologies(DictCosmo::Dict, steps::Array)
 end
 
 function CreateDirectories(Cosmologies::Dict, path::String)
+    mkdir(path)
     mkdir(path*"PowerSpectrum")
     mkdir(path*"Angular")
     for (key, value) in Cosmologies
@@ -54,7 +55,7 @@ function CreateDirectories(Cosmologies::Dict, path::String)
     end
 end
 
-function EvaluatePowerSpectra(Cosmologies::Dict, path::String,
+function EvaluatePowerSpectra(Cosmologies::Dict, Path::String,
     CosmologicalGrid::CosmologicalGrid)
     for (key, value) in Cosmologies
         BackgroundQuantities = BackgroundQuantitiesStruct(
@@ -71,6 +72,60 @@ function EvaluatePowerSpectra(Cosmologies::Dict, path::String,
         CosmologicalGrid.MultipolesArray), length(CosmologicalGrid.ZArray)))
         EvaluatePowerSpectrum(ClassyParams, CosmologicalGrid, PowerSpectrum)
         WritePowerSpectrumBackground(PowerSpectrum, BackgroundQuantities,
-        CosmologicalGrid, path*key*"/p_mm")
+        CosmologicalGrid, Path*key*"/p_mm")
     end
+end
+
+function EvaluateAngularCoefficients(Cosmologies::Dict, PathInput::String,
+    PathOutput::String, CosmologicalGrid::CosmologicalGrid)
+    AnalitycalDensity = AnalitycalDensityStruct()
+    NormalizeAnalitycalDensityStruct(AnalitycalDensity)
+    InstrumentResponse = InstrumentResponseStruct()
+    ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse, CosmologicalGrid)
+    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
+    AnalitycalDensity, InstrumentResponse)
+    for (key, value) in Cosmologies
+        w0waCDMCosmology = value[1]
+        MultipolesArray = Array(LogSpaced(10., 3000., 100))
+        PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+        ReadPowerSpectrumBackground(PathInput*key*"/p_mm", MultipolesArray)
+        GCWeightFunction, PiecewiseBias =
+        InstantiateComputeWeightFunctionOverGrid(AnalitycalDensity,
+        InstrumentResponse, ConvolvedDensity, w0waCDMCosmology,
+        CosmologicalGrid, BackgroundQuantities)
+        ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
+        InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+        BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+        AngularCoefficients = AngularCoefficientsStruct(AngularCoefficientsArray
+        = zeros(length(CosmologicalGrid.MultipolesArray),
+        length(GCWeightFunction.WeightFunctionArray[:, 1]),
+        length(GCWeightFunction.WeightFunctionArray[:, 1])))
+        ComputeAngularCoefficients(AngularCoefficients, GCWeightFunction,
+        GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
+        CosmologicalGrid, PowerSpectrum,
+        CosmoCentral.NumericalIntegrationSimpson())
+        WriteAngularCoefficients(AngularCoefficients, CosmologicalGrid,
+        GCWeightFunction, PiecewiseBias, ConvolvedDensity, PathOutput*key*"/cl")
+    end
+end
+
+function InstantiateComputeWeightFunctionOverGrid(
+    AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities)
+    PiecewiseBias = PiecewiseBiasStruct(BiasArray =
+    zeros(length(ConvolvedDensity.DensityNormalizationArray),
+    length(CosmologicalGrid.ZArray)))
+    ComputeBiasOverGrid(CosmologicalGrid, PiecewiseBias, ConvolvedDensity)
+    GCWeightFunction = GCWeightFunctionStruct(WeightFunctionArray =
+    zeros(length(ConvolvedDensity.DensityNormalizationArray),
+    length(CosmologicalGrid.ZArray)))
+    ComputeWeightFunctionOverGrid(GCWeightFunction, AnalitycalDensity,
+    InstrumentResponse, ConvolvedDensity, PiecewiseBias, CosmologicalGrid,
+    BackgroundQuantities, w0waCDMCosmology)
+    return GCWeightFunction, PiecewiseBias
 end
