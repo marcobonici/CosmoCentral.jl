@@ -60,13 +60,14 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     ConvolvedDensity::ConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid, WLWeightFunction::WLWeightFunction)
-    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(x, i,
-    ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
+    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
+    x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
     (1. - CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology)/
     CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology)), z,
     last(CosmologicalGrid.ZArray) , rtol=1e-12)
     return int
 end
+
 
 """
     ComputeWeightFunctionOverGrid(
@@ -94,6 +95,28 @@ function ComputeLensingEfficiencyOverGrid(
             WLWeightFunction)
         end
     end
+end
+
+function ComputeLensingEfficiencyOverGridCustom(
+    WLWeightFunction::WLWeightFunction, AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmology)
+    WLWeightFunction.LensingEfficiencyArray .*= 0
+    for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
+        for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
+            for idx_ZArrayInt in idx_ZArray:length(CosmologicalGrid.ZArray)
+                WLWeightFunction.LensingEfficiencyArray[idx_ZBinArray,
+                idx_ZArray] += ConvolvedDensity.DensityGridArray[idx_ZBinArray,
+                idx_ZArrayInt] * (1 - BackgroundQuantities.rZArray[idx_ZArray] /
+                BackgroundQuantities.rZArray[idx_ZArrayInt])
+            end
+        end
+    end
+    WLWeightFunction.LensingEfficiencyArray .*=
+    (last(CosmologicalGrid.ZArray)-first(CosmologicalGrid.ZArray))/
+    (length(CosmologicalGrid.ZArray)-1)
 end
 
 function ComputeWeightFunction(z::Float64, i::Int64,
