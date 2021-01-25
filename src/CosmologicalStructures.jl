@@ -16,6 +16,9 @@ abstract type GCWeightFunction <: WeightFunction end
 abstract type WLWeightFunction <: WeightFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
+abstract type GCGCAngularCoefficients <: AngularCoefficients end
+abstract type GCWLAngularCoefficients <: AngularCoefficients end
+abstract type WLWLAngularCoefficients <: AngularCoefficients end
 
 """
     w0waCDMCosmologyStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -209,7 +212,7 @@ This struct contains the array with the Galaxy Clustering Weight function values
 for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
 """
 @kwdef mutable struct GCWeightFunctionStruct <: GCWeightFunction
-    WeightFunctionArray::AbstractArray{Float64, 2}
+    WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
 end
 
 """
@@ -219,8 +222,8 @@ This struct contains the array with the Weak Lensing Weight function values
 for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
 """
 @kwdef mutable struct WLWeightFunctionStruct <: WLWeightFunction
-    WeightFunctionArray::AbstractArray{Float64, 2}
-    LensingEfficiencyArray::AbstractArray{Float64, 2}
+    WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
+    LensingEfficiencyArray::AbstractArray{Float64, 2} = zeros(10, 500)
 end
 
 
@@ -246,6 +249,19 @@ end
 This struct contains the array with the Angular Coefficients.
 """
 @kwdef mutable struct AngularCoefficientsStruct <: AngularCoefficients
+    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+end
+
+
+@kwdef mutable struct GCGCAngularCoefficientsStruct <: GCGCAngularCoefficients
+    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+end
+
+@kwdef mutable struct WLWLAngularCoefficientsStruct <: WLWLAngularCoefficients
+    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+end
+
+@kwdef mutable struct GCWLAngularCoefficientsStruct <: GCWLAngularCoefficients
     AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 

@@ -22,5 +22,6 @@ include("BoltzmannSolver.jl")
 include("PowerSpectrum.jl")
 include("AngularCoefficients.jl")
 include("FileIO.jl")
+include("Forecaster.jl")
 
 end # module
