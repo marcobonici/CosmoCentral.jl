@@ -31,3 +31,17 @@ function BinSearch(x::Float64, Array::Vector{Float64})
     end
     return idx
 end
+
+function CustomRegression(x::Vector{Float64}, y::Vector{Float64})
+    x_mean = mean(x)
+    y_mean = mean(y)
+    beta = 0
+    den = 0
+    for i in 1:length(x)
+        beta += (x[i]-x_mean)*(y[i]-y_mean)
+        den  += (x[i]-x_mean)^2
+    end
+    beta /= den
+    alpha = y_mean - beta* x_mean
+    return alpha, beta
+end

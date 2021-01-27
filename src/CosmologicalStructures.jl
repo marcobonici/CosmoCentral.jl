@@ -16,6 +16,7 @@ abstract type GCWeightFunction <: WeightFunction end
 abstract type WLWeightFunction <: WeightFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
+abstract type DerivativeAngularCoefficients end
 abstract type GCGCAngularCoefficients <: AngularCoefficients end
 abstract type GCWLAngularCoefficients <: AngularCoefficients end
 abstract type WLWLAngularCoefficients <: AngularCoefficients end
@@ -250,6 +251,10 @@ This struct contains the array with the Angular Coefficients.
 """
 @kwdef mutable struct AngularCoefficientsStruct <: AngularCoefficients
     AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+end
+
+@kwdef mutable struct DerivativeAngularCoefficientsStruct <: DerivativeAngularCoefficients
+    DerivativeAngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
 

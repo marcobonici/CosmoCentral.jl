@@ -9,6 +9,7 @@ using PyCall
 using Dierckx
 using HDF5
 using LoopVectorization
+using Statistics
 numpy = pyimport("numpy")
 classy = pyimport("classy")
 
@@ -23,5 +24,6 @@ include("PowerSpectrum.jl")
 include("AngularCoefficients.jl")
 include("FileIO.jl")
 include("Forecaster.jl")
+include("Derivator.jl")
 
 end # module

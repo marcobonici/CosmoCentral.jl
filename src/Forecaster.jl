@@ -23,7 +23,7 @@ function CreateCosmologies(DictCosmo::Dict, steps::Array)
                 Ωr = CopyDictCosmo["Ωr"][1], ns = CopyDictCosmo["ns"][1],
                 σ8 = CopyDictCosmo["σ8"][1])
                 MyDict["dvar_"*key*"_step_p_"*string(index)] = [w0waCDMCosmology]
-                myvalue = IncrementedValue(value[1], mystep)
+                myvalue = IncrementedValue(value[1], -mystep)
                 CopyDictCosmo[key] = [myvalue]
                 w0waCDMCosmology = CosmoCentral.w0waCDMCosmologyStruct(w0 =
                 CopyDictCosmo["w0"][1], wa = CopyDictCosmo["wa"][1],
@@ -175,4 +175,49 @@ function InstantiateComputeWeightFunctionOverGrid(
     InstrumentResponse, ConvolvedDensity, CosmologicalGrid,
     BackgroundQuantities, w0waCDMCosmology)
     return WLWeightFunction
+end
+
+function EvaluateDerivativeAngularCoefficients(DictCosmo::Dict, Path::String,
+    steps::Array)
+    CentralCosmologyCL = ReadAngularCoefficients(
+    Path*"/Angular/dvar_central_step_0/cl")
+    AngularCoefficientsArray = zeros(size(CentralCosmologyCL.AngularCoefficientsArray, 1),
+    size(CentralCosmologyCL.AngularCoefficientsArray, 2),
+    size(CentralCosmologyCL.AngularCoefficientsArray, 3),
+    2*length(steps)+1)
+    DerivativeArray = similar(CentralCosmologyCL.AngularCoefficientsArray)
+    AngularCoefficientsArray[:, :, :, length(steps) + 1] .=
+    CentralCosmologyCL.AngularCoefficientsArray[:,:,:]
+    stepvalues = zeros(2*length(steps)+1)
+    AngularDerivatives = zeros(size(AngularCoefficientsArray, 1),
+    size(AngularCoefficientsArray, 2), size(AngularCoefficientsArray, 3))
+    for (key, value) in DictCosmo
+        if value[2] == "present"
+            stepvalues[length(steps) + 1] = value[1]
+            for (index, mystep) in enumerate(steps)
+                AngularCoefficientsMinus = ReadAngularCoefficients(
+                Path*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl")
+                AngularCoefficientsPlus = ReadAngularCoefficients(
+                Path*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl")
+                AngularCoefficientsArray[:, :, :, length(steps) + 1 - index] .=
+                AngularCoefficientsMinus.AngularCoefficientsArray
+                AngularCoefficientsArray[:, :, :, length(steps) + 1 + index] .=
+                AngularCoefficientsPlus.AngularCoefficientsArray
+                stepvalues[length(steps) + 1 - index] =
+                IncrementedValue(value[1], -mystep)
+                stepvalues[length(steps) + 1 + index] =
+                IncrementedValue(value[1],  mystep)
+            end
+            for idx_a in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 2)
+                for idx_b in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 3)
+                    for idx_l in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 1)
+                        y = AngularCoefficientsArray[idx_l, idx_a, idx_b, :]
+                        der = SteMDerivative(stepvalues, y)
+                        AngularDerivatives[idx_l, idx_a, idx_b] = der
+                    end
+                end
+            end
+        end
+    end
+    return AngularDerivatives
 end
