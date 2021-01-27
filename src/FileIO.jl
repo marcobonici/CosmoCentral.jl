@@ -38,6 +38,12 @@ function ReadAngularCoefficients(Filename::String)
     return AngularCoefficients
 end
 
+function WriteDerivativeCoefficients(DerivativeArray::AbstractArray{Float64, 3},
+    Filename::String)
+    h5write(Filename*".h5", "dcls/PhotometricGalaxy_PhotometricGalaxy/dc_lij",
+    DerivativeArray)
+end
+
 function WritePowerSpectrumBackground(PowerSpectrum::PowerSpectrum,
     BackgroundQuantities::BackgroundQuantities,
     CosmologicalGrid::CosmologicalGrid, Filename::String)

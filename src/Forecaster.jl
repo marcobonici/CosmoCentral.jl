@@ -55,6 +55,15 @@ function CreateDirectories(Cosmologies::Dict, path::String)
     end
 end
 
+function CreateDirectoriesDerivatives(DictCosmo::Dict, path::String)
+    mkdir(path*"Derivative/")
+    for (key, value) in DictCosmo
+        if value[2] == "present"
+            mkdir(path*"Derivative/"*key)
+        end
+    end
+end
+
 function EvaluatePowerSpectra(Cosmologies::Dict, Path::String,
     CosmologicalGrid::CosmologicalGrid)
     for (key, value) in Cosmologies
@@ -217,7 +226,8 @@ function EvaluateDerivativeAngularCoefficients(DictCosmo::Dict, Path::String,
                     end
                 end
             end
+            WriteDerivativeCoefficients(AngularDerivatives,
+            Path*"/Derivative/"*key*"/"*key)
         end
     end
-    return AngularDerivatives
 end
