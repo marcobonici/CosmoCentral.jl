@@ -3,7 +3,7 @@
 
 This function returns the source density for a given redshift ``z``.
 """
-function ComputeDensityFunction(z::Float64, AnalitycalDensity::AnalitycalDensity)
+function ComputeDensityFunction(z::Float64, AnalitycalDensity::AnalitycalDensityStruct)
     return ((z/AnalitycalDensity.Z0)^2)*exp(-(z/AnalitycalDensity.Z0)^(3. / 2.))*
     AnalitycalDensity.Normalization
 end
@@ -14,7 +14,7 @@ end
 This function normalize AnalitycalDensityStruct in order to have the correct
 value of the surface density once integrated.
 """
-function NormalizeAnalitycalDensityStruct(AnalitycalDensity::AnalitycalDensity)
+function NormalizeAnalitycalDensityStruct(AnalitycalDensity::AnalitycalDensityStruct)
     int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, AnalitycalDensity),
     AnalitycalDensity.ZMin, AnalitycalDensity.ZMax, rtol=1e-12)
     AnalitycalDensity.Normalization *= (AnalitycalDensity.SurfaceDensity/int)
@@ -46,7 +46,7 @@ This function computes the Convolved density function for a single bin at a
 given redshift ``z``.
 """
 function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
-    ConvolvedDensity::ConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
+    ConvolvedDensity::AsbtractConvolvedDensity, AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse)
     int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
     InstrumentResponse),
@@ -62,8 +62,8 @@ end
 This function normalizes ConvolvedDensity such that the integrals of the
 convolved densities are normalized to 1.
 """
-function NormalizeConvolvedDensityStruct(ConvolvedDensity::ConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity,
+function NormalizeConvolvedDensityStruct(ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse,
     CosmologicalGrid::CosmologicalGrid)
     for idx in 1:length(ConvolvedDensity.DensityNormalizationArray)
@@ -82,16 +82,16 @@ This function computes the convolved density function for all tomographic bins
 on the ``z``-grid provided by CosmologicalGrid.
 """
 function ComputeConvolvedDensityFunctionGrid(CosmologicalGrid::CosmologicalGrid,
-    ConvolvedDensityStruct::ConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse)
-    ConvolvedDensityStruct.DensityGridArray = zeros(Float64,length(ConvolvedDensityStruct.ZBinArray)-1,
+    ConvolvedDensity.DensityGridArray = zeros(Float64,length(ConvolvedDensity.ZBinArray)-1,
     length(CosmologicalGrid.ZArray))
-    for idx_ZBinArray in 1:length(ConvolvedDensityStruct.ZBinArray)-1
+    for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
-            ConvolvedDensityStruct.DensityGridArray[idx_ZBinArray, idx_ZArray] =
+            ConvolvedDensity.DensityGridArray[idx_ZBinArray, idx_ZArray] =
             ComputeConvolvedDensityFunction(CosmologicalGrid.ZArray[idx_ZArray],
-            idx_ZBinArray, ConvolvedDensityStruct, AnalitycalDensity,
+            idx_ZBinArray, ConvolvedDensity, AnalitycalDensity,
             InstrumentResponse)
         end
     end

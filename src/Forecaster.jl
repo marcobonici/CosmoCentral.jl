@@ -148,8 +148,8 @@ function EvaluateAngularCoefficients(Cosmologies::Dict, PathInput::String,
 end
 
 function InstantiateComputeWeightFunctionOverGrid(
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse, ConvolvedDensity::AsbtractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     GCWeightFunction::GCWeightFunction)
@@ -167,8 +167,8 @@ function InstantiateComputeWeightFunctionOverGrid(
 end
 
 function InstantiateComputeWeightFunctionOverGrid(
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse, ConvolvedDensity::AsbtractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     WLWeightFunction::WLWeightFunction)

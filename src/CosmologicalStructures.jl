@@ -8,8 +8,7 @@ abstract type PiecewiseBias <: Bias end
 abstract type BoltzmannSolverParams end
 abstract type classyParams <: BoltzmannSolverParams end
 abstract type AsbtractDensity end
-abstract type AnalitycalDensity <: AsbtractDensity end
-abstract type ConvolvedDensity <: AsbtractDensity end
+abstract type AsbtractConvolvedDensity end
 abstract type InstrumentResponse end
 abstract type WeightFunction end
 abstract type GCWeightFunction <: WeightFunction end
@@ -145,7 +144,7 @@ The parameters contained in this struct are
 - surfacedensity , the value of the galaxy source density integrated between ``z_{min}`` and ``z_{max}``
 - normalization, the value of parameter which multiplies the source dennsity in order to match the correct surface density
 """
-@kwdef mutable struct AnalitycalDensityStruct <: AnalitycalDensity
+@kwdef mutable struct AnalitycalDensityStruct <: AsbtractDensity
     Z0::Float64 = 0.9/sqrt(2.)
     ZMin::Float64 = 0.001
     ZMax::Float64 = 4.0
@@ -172,7 +171,7 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
 \\left(z_{\\mathrm{p}} \\mid z\\right)}
 ```
 """
-@kwdef mutable struct ConvolvedDensityStruct <: ConvolvedDensity
+@kwdef mutable struct ConvolvedDensityStruct <: AsbtractConvolvedDensity
     ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
     0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
     DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)

@@ -7,7 +7,8 @@ This function returns the Galaxy Clustering Weight function for a given redshift
 ``z`` and tomographic bin ``i``.
 """
 function ComputeWeightFunction(z::Float64, i::Int64,
-    ConvolvedDensity::ConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
     Bias::Bias, GCWeightFunction::GCWeightFunction)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
@@ -30,8 +31,9 @@ This function evaluates the Galaxy Clustering Weight Function over the ``z``
 grid and for all tomographic bins ``i``.
 """
 function ComputeWeightFunctionOverGrid(
-    GCWeightFunction::GCWeightFunction, AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    GCWeightFunction::GCWeightFunction, AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse,
+    ConvolvedDensity::AsbtractConvolvedDensity,
     Bias::Bias, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology)
@@ -57,7 +59,8 @@ This function returns the Galaxy Clustering Weight function for a given redshift
 ``z`` and tomographic bin ``i``.
 """
 function ComputeLensingEfficiency(z::Float64, i::Int64,
-    ConvolvedDensity::ConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid, WLWeightFunction::WLWeightFunction)
     int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
@@ -81,8 +84,9 @@ This function evaluates the Galaxy Clustering Weight Function over the ``z``
 grid and for all tomographic bins ``i``.
 """
 function ComputeLensingEfficiencyOverGrid(
-    WLWeightFunction::WLWeightFunction, AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    WLWeightFunction::WLWeightFunction, AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse,
+    ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology)
@@ -98,8 +102,9 @@ function ComputeLensingEfficiencyOverGrid(
 end
 
 function ComputeLensingEfficiencyOverGridCustom(
-    WLWeightFunction::WLWeightFunction, AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    WLWeightFunction::WLWeightFunction, AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse,
+    ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology)
@@ -120,7 +125,8 @@ function ComputeLensingEfficiencyOverGridCustom(
 end
 
 function ComputeWeightFunction(z::Float64, i::Int64,
-    ConvolvedDensity::ConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid, WLWeightFunction::WLWeightFunction)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
@@ -133,8 +139,9 @@ end
 
 
 function ComputeWeightFunctionOverGrid(
-    WLWeightFunction::WLWeightFunction, AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
+    WLWeightFunction::WLWeightFunction, AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse,
+    ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology)

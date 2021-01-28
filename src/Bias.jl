@@ -7,7 +7,7 @@ redshift.
 
 """
 function ComputeBias(z::Float64, PiecewiseBias::PiecewiseBias,
-    ConvolvedDensity::ConvolvedDensity)
+    ConvolvedDensity::AsbtractConvolvedDensity)
     idx = BinSearch(z, ConvolvedDensity.ZBinArray)
     bias = sqrt(1+(ConvolvedDensity.ZBinArray[idx]+
     ConvolvedDensity.ZBinArray[idx+1])/2)
@@ -23,7 +23,7 @@ cosmological redshift grid.
 
 """
 function ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
-    PiecewiseBias::PiecewiseBias, ConvolvedDensity::ConvolvedDensity)
+    PiecewiseBias::PiecewiseBias, ConvolvedDensity::AsbtractConvolvedDensity)
     for (zidx, zvalue) in enumerate(CosmologicalGrid.ZArray)
         PiecewiseBias.BiasArray[:, zidx] .=
         ComputeBias(zvalue, PiecewiseBias, ConvolvedDensity)
