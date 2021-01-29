@@ -150,7 +150,7 @@ end
 function InstantiateComputeWeightFunctionOverGrid(
     AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse, ConvolvedDensity::AsbtractConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     GCWeightFunction::GCWeightFunction)
     PiecewiseBias = PiecewiseBiasStruct(BiasArray =
@@ -169,7 +169,7 @@ end
 function InstantiateComputeWeightFunctionOverGrid(
     AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse, ConvolvedDensity::AsbtractConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     WLWeightFunction::WLWeightFunction)
     WLWeightFunction = WLWeightFunctionStruct(WeightFunctionArray =

@@ -1,5 +1,4 @@
 abstract type AbstractCosmology end
-abstract type w0waCDMCosmology <: AbstractCosmology end
 abstract type CosmologicalGrid end
 abstract type AngularCoefficientsGrid end
 abstract type BackgroundQuantities end
@@ -39,7 +38,7 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 
 - ``H_0``, the value of the Hubble paramater
 """
-@kwdef struct w0waCDMCosmologyStruct <: w0waCDMCosmology
+@kwdef struct w0waCDMCosmologyStruct <: AbstractCosmology
     w0::Float64  = -1.
     wa::Float64  = 0.
     Mν::Float64  = 0.06 #neutrino mass in eV

@@ -8,7 +8,7 @@ struct CustomTrapz <: IntegrationMethod end
     ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::GCWeightFunction, WeightFunctionB::GCWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
@@ -17,7 +17,7 @@ multipole values.
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
@@ -44,7 +44,7 @@ end
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::CustomTrapz)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations

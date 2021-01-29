@@ -1,7 +1,7 @@
 """
     ComputeWeightFunction(z::Float64, i::Int64,
         ConvolvedDensity::ConvolvedDensity,
-        w0waCDMCosmology::w0waCDMCosmology)
+        w0waCDMCosmology::w0waCDMCosmologyStruct)
 
 This function returns the Galaxy Clustering Weight function for a given redshift
 ``z`` and tomographic bin ``i``.
@@ -9,7 +9,8 @@ This function returns the Galaxy Clustering Weight function for a given redshift
 function ComputeWeightFunction(z::Float64, i::Int64,
     ConvolvedDensity::AsbtractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
+    InstrumentResponse::InstrumentResponse,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
     Bias::Bias, GCWeightFunction::GCWeightFunction)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
@@ -25,7 +26,7 @@ end
     InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
     Bias::Bias, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology)
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
 
 This function evaluates the Galaxy Clustering Weight Function over the ``z``
 grid and for all tomographic bins ``i``.
@@ -36,7 +37,7 @@ function ComputeWeightFunctionOverGrid(
     ConvolvedDensity::AsbtractConvolvedDensity,
     Bias::Bias, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology)
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
@@ -53,7 +54,7 @@ end
 """
     ComputeWeightFunction(z::Float64, i::Int64,
         ConvolvedDensity::ConvolvedDensity,
-        w0waCDMCosmology::w0waCDMCosmology)
+        w0waCDMCosmology::w0waCDMCosmologyStruct)
 
 This function returns the Galaxy Clustering Weight function for a given redshift
 ``z`` and tomographic bin ``i``.
@@ -61,7 +62,8 @@ This function returns the Galaxy Clustering Weight function for a given redshift
 function ComputeLensingEfficiency(z::Float64, i::Int64,
     ConvolvedDensity::AsbtractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
+    InstrumentResponse::InstrumentResponse,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
     CosmologicalGrid::CosmologicalGrid, WLWeightFunction::WLWeightFunction)
     int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
@@ -78,7 +80,7 @@ end
     InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
     Bias::Bias, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology)
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
 
 This function evaluates the Galaxy Clustering Weight Function over the ``z``
 grid and for all tomographic bins ``i``.
@@ -89,7 +91,7 @@ function ComputeLensingEfficiencyOverGrid(
     ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology)
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
             WLWeightFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray] =
@@ -107,7 +109,7 @@ function ComputeLensingEfficiencyOverGridCustom(
     ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology)
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
     WLWeightFunction.LensingEfficiencyArray .*= 0
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
@@ -127,7 +129,8 @@ end
 function ComputeWeightFunction(z::Float64, i::Int64,
     ConvolvedDensity::AsbtractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse, w0waCDMCosmology::w0waCDMCosmology,
+    InstrumentResponse::InstrumentResponse,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
     CosmologicalGrid::CosmologicalGrid, WLWeightFunction::WLWeightFunction)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
@@ -144,7 +147,7 @@ function ComputeWeightFunctionOverGrid(
     ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology)
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
