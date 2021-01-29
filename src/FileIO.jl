@@ -1,12 +1,12 @@
 function WriteAngularCoefficients(AngularCoefficients::GCGCAngularCoefficients,
     CosmologicalGrid::CosmologicalGrid,
     GCWeightFunction::GCWeightFunctionStruct,
-    Bias::Bias, ConvolvedDensity::AsbtractConvolvedDensity, Filename::String)
+    ConvolvedDensity::AsbtractConvolvedDensity, Filename::String)
     h5write(Filename*".h5", "cls/PhotometricGalaxy_PhotometricGalaxy/c_lij",
     AngularCoefficients.AngularCoefficientsArray)
     h5write(Filename*".h5",
     "weight_functions/PhotometricGalaxy/bias/b_i_z",
-    Bias.BiasArray)
+    GCWeightFunction.BiasArray)
     h5write(Filename*".h5",
     "weight_functions/PhotometricGalaxy/density/norm_density_iz",
     ConvolvedDensity.DensityNormalizationArray)
@@ -110,6 +110,7 @@ function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
     MultipolesArray = MultipolesArray)
     PowerSpectrum = PowerSpectrumStruct(PowerSpectrumLinArray = lin_p_mm_k_z,
     PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray), length(CosmologicalGrid.ZArray)))
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
+    length(CosmologicalGrid.ZArray)))
     return PowerSpectrum, BackgroundQuantities, CosmologicalGrid
 end

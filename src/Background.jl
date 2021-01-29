@@ -1,5 +1,6 @@
 """
-    ComputeAdimensionalHubbleFactor(z::Float64, params::w0waCDMCosmologyStruct)
+    ComputeAdimensionalHubbleFactor(z::Float64,
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
 
 This function, given the value of the cosmological parameters, evaluate the
 Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies.
@@ -24,7 +25,8 @@ function ComputeAdimensionalHubbleFactor(z::Float64,
 end
 
 """
-    ComputeHubbleFactor(z::Float64, params::w0waCDMCosmologyStruct)
+    ComputeHubbleFactor(z::Float64,
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
 
 This function, given the value of the cosmological parameters, evaluate the
 Hubble Factor for ``w_0 w_a``CDM cosmologies, whose expression is given by
@@ -42,7 +44,7 @@ function ComputeHubbleFactor(z::Float64,
 end
 
 """
-    ComputeComovingDistance(z::Float64, params::w0waCDMCosmology)
+    ComputeComovingDistance(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
 
 This function, given the value of the cosmological parameters, evaluate the
 Comoving Distance. It is evaluated as:
@@ -61,8 +63,8 @@ end
 
 """
     ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
-        BackgroundQuantities::BackgroundQuantities,
-        w0waCDMCosmology::w0waCDMCosmology)
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
 
 This function evaluate the Hubble factor and the comoving distance over the
 [`CosmologicalGridStruct`](@ref).

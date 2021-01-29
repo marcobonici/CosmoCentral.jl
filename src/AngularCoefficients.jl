@@ -10,7 +10,7 @@ struct CustomTrapz <: IntegrationMethod end
     WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
-    PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
+    PowerSpectrum::PowerSpectrum, ::IntegrationMethod)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
 multipole values.

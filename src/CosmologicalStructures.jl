@@ -2,7 +2,7 @@ abstract type AbstractCosmology end
 abstract type CosmologicalGrid end
 abstract type AngularCoefficientsGrid end
 abstract type BackgroundQuantities end
-abstract type Bias end
+#abstract type Bias end
 abstract type BoltzmannSolverParams end
 #abstract type classyParams <: BoltzmannSolverParams end
 abstract type AsbtractDensity end
@@ -15,6 +15,8 @@ abstract type DerivativeAngularCoefficients end
 abstract type GCGCAngularCoefficients <: AngularCoefficients end
 abstract type GCWLAngularCoefficients <: AngularCoefficients end
 abstract type WLWLAngularCoefficients <: AngularCoefficients end
+abstract type AbstractBias end
+struct PiecewiseBiasStruct <: AbstractBias end
 
 """
     w0waCDMCosmologyStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -78,17 +80,17 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
 end
 
 
-"""
-    PiecewiseBiasStruct(BiasArray::AbstractArray{Float64, 2} = ones(10, 300))
-
-
-This struct contains the array with the bias values for all tomographic bins and
-redshift values in the [`CosmologicalGridStruct`](@ref).
-"""
-@kwdef mutable struct PiecewiseBiasStruct <: Bias
-    BiasArray::AbstractArray{Float64, 2} =
-    ones(10, 300)
-end
+#"""
+#    PiecewiseBiasStruct(BiasArray::AbstractArray{Float64, 2} = ones(10, 300))
+#
+#
+#This struct contains the array with the bias values for all tomographic bins and
+#redshift values in the [`CosmologicalGridStruct`](@ref).
+#"""
+#@kwdef mutable struct PiecewiseBiasStruct <: Bias
+#    BiasArray::AbstractArray{Float64, 2} =
+#    ones(10, 300)
+#end
 
 """
     classyParamsStruct(classyParamsDict::Dict)
@@ -209,6 +211,8 @@ for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@
 """
 @kwdef mutable struct GCWeightFunctionStruct <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
+    BiasArray::AbstractArray{Float64, 2} = zeros(10, 500)
+    BiasKind::AbstractBias = PiecewiseBiasStruct()
 end
 
 """
