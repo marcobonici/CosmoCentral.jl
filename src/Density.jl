@@ -1,20 +1,23 @@
 """
-    ComputeDensityFunction(z::Float64, AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct())
+    ComputeDensityFunction(z::Float64,
+    AnalitycalDensity::AnalitycalDensityStruct)
 
 This function returns the source density for a given redshift ``z``.
 """
-function ComputeDensityFunction(z::Float64, AnalitycalDensity::AnalitycalDensityStruct)
+function ComputeDensityFunction(z::Float64,
+    AnalitycalDensity::AnalitycalDensityStruct)
     return ((z/AnalitycalDensity.Z0)^2)*exp(-(z/AnalitycalDensity.Z0)^(3. / 2.))*
     AnalitycalDensity.Normalization
 end
 
 """
-    NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensity)
+    NormalizeAnalitycalDensityStruct(densityparameters::AnalitycalDensityStruct)
 
 This function normalize AnalitycalDensityStruct in order to have the correct
 value of the surface density once integrated.
 """
-function NormalizeAnalitycalDensityStruct(AnalitycalDensity::AnalitycalDensityStruct)
+function NormalizeAnalitycalDensityStruct(
+    AnalitycalDensity::AnalitycalDensityStruct)
     int, err = QuadGK.quadgk(x -> ComputeDensityFunction(x, AnalitycalDensity),
     AnalitycalDensity.ZMin, AnalitycalDensity.ZMax, rtol=1e-12)
     AnalitycalDensity.Normalization *= (AnalitycalDensity.SurfaceDensity/int)
@@ -22,7 +25,8 @@ end
 
 
 """
-    ComputeInstrumentResponse(z::Float64, zp::Float64, instrumentresponse::InstrumentResponse)
+    ComputeInstrumentResponse(z::Float64, zp::Float64,
+    InstrumentResponse::InstrumentResponse)
 
 This function computes the probability that we actually measure a redshift
 ``z_p`` if the real redshift is ``z``.
@@ -40,13 +44,17 @@ function ComputeInstrumentResponse(z::Float64, zp::Float64,
 end
 
 """
-    ComputeConvolvedDensityFunction(z::Float64, i::Int64, convolveddensity::ConvolvedDensity)
+    ComputeConvolvedDensityFunction(z::Float64, i::Int64,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse)
 
 This function computes the Convolved density function for a single bin at a
 given redshift ``z``.
 """
 function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
-    ConvolvedDensity::AsbtractConvolvedDensity, AnalitycalDensity::AnalitycalDensityStruct,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse)
     int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
     InstrumentResponse),
@@ -57,7 +65,10 @@ function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
 end
 
 """
-    NormalizeConvolvedDensityStruct(convolveddensity::ConvolvedDensity)
+    NormalizeConvolvedDensityStruct(ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse,
+    CosmologicalGrid::CosmologicalGrid)
 
 This function normalizes ConvolvedDensity such that the integrals of the
 convolved densities are normalized to 1.
@@ -76,7 +87,10 @@ function NormalizeConvolvedDensityStruct(ConvolvedDensity::AsbtractConvolvedDens
 end
 
 """
-    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid::CosmologicalGrid, ConvolvedDensityStruct::ConvolvedDensity)
+    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid::CosmologicalGrid,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse)
 
 This function computes the convolved density function for all tomographic bins
 on the ``z``-grid provided by CosmologicalGrid.

@@ -16,16 +16,15 @@ end
 
 """
     ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
-    GCWeightFunction::GCWeightFunctionStruct,
-    PiecewiseBias::PiecewiseBiasStruct, ConvolvedDensity::ConvolvedDensity)
+    GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
+    ConvolvedDensity::AsbtractConvolvedDensity)
 
 This function evaluate the piecewise bias, given by ``\\sqrt{1+z}``, over the
 cosmological redshift grid.
 
 """
 function ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
-    GCWeightFunction::GCWeightFunctionStruct,
-    Bias::AbstractBias,
+    GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
     ConvolvedDensity::AsbtractConvolvedDensity)
     for (zidx, zvalue) in enumerate(CosmologicalGrid.ZArray)
         GCWeightFunction.BiasArray[:, zidx] .=

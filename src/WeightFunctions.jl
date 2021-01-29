@@ -32,8 +32,6 @@ This function evaluates the Galaxy Clustering Weight Function over the ``z``
 grid and for all tomographic bins ``i``.
 """
 function ComputeWeightFunctionOverGrid(GCWeightFunction::GCWeightFunctionStruct,
-    AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse,
     ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
@@ -108,8 +106,6 @@ end
 
 function ComputeLensingEfficiencyOverGridCustom(
     WLWeightFunction::WLWeightFunctionStruct,
-    AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse,
     ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
@@ -147,8 +143,7 @@ end
 
 
 function ComputeWeightFunctionOverGrid(
-    WLWeightFunction::WLWeightFunctionStruct, AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse,
+    WLWeightFunction::WLWeightFunctionStruct,
     ConvolvedDensity::AsbtractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,

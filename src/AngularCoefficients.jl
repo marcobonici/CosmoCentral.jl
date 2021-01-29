@@ -51,9 +51,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     PowerSpectrum::PowerSpectrum, ::CustomTrapz)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray,1),
-    size(AngularCoefficients.AngularCoefficientsArray,2),
-    size(AngularCoefficients.AngularCoefficientsArray,3))
+    Integrand = similar(AngularCoefficients.AngularCoefficientsArray) .*0
     @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
         j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
         l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
