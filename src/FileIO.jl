@@ -1,5 +1,6 @@
 function WriteAngularCoefficients(AngularCoefficients::GCGCAngularCoefficients,
-    CosmologicalGrid::CosmologicalGrid, GCWeightFunction::WeightFunction,
+    CosmologicalGrid::CosmologicalGrid,
+    GCWeightFunction::GCWeightFunctionStruct,
     Bias::Bias, ConvolvedDensity::AsbtractConvolvedDensity, Filename::String)
     h5write(Filename*".h5", "cls/PhotometricGalaxy_PhotometricGalaxy/c_lij",
     AngularCoefficients.AngularCoefficientsArray)
@@ -12,7 +13,8 @@ function WriteAngularCoefficients(AngularCoefficients::GCGCAngularCoefficients,
 end
 
 function WriteAngularCoefficients(AngularCoefficients::WLWLAngularCoefficients,
-    CosmologicalGrid::CosmologicalGrid, WLWeightFunction::WeightFunction,
+    CosmologicalGrid::CosmologicalGrid,
+    WLWeightFunction::WLWeightFunctionStruct,
     ConvolvedDensity::AsbtractConvolvedDensity, Filename::String)
     h5write(Filename*".h5", "cls/WeakLensing_WeakLensing/c_lij",
     AngularCoefficients.AngularCoefficientsArray)

@@ -3,15 +3,12 @@ abstract type CosmologicalGrid end
 abstract type AngularCoefficientsGrid end
 abstract type BackgroundQuantities end
 abstract type Bias end
-abstract type PiecewiseBias <: Bias end
 abstract type BoltzmannSolverParams end
-abstract type classyParams <: BoltzmannSolverParams end
+#abstract type classyParams <: BoltzmannSolverParams end
 abstract type AsbtractDensity end
 abstract type AsbtractConvolvedDensity end
 abstract type InstrumentResponse end
-abstract type WeightFunction end
-abstract type GCWeightFunction <: WeightFunction end
-abstract type WLWeightFunction <: WeightFunction end
+abstract type AbstractWeightFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
 abstract type DerivativeAngularCoefficients end
@@ -88,7 +85,7 @@ end
 This struct contains the array with the bias values for all tomographic bins and
 redshift values in the [`CosmologicalGridStruct`](@ref).
 """
-@kwdef mutable struct PiecewiseBiasStruct <: PiecewiseBias
+@kwdef mutable struct PiecewiseBiasStruct <: Bias
     BiasArray::AbstractArray{Float64, 2} =
     ones(10, 300)
 end
@@ -101,7 +98,7 @@ This struct contains the dictionary with the classy parameters. For a detalied
 explanation of the parameters, please refer to the
 [CLASS website](http://class-code.net/)
 """
-@kwdef mutable struct classyParamsStruct <: classyParams
+@kwdef mutable struct classyParamsStruct <: BoltzmannSolverParams
     classyParamsDict::Dict = Dict("output" => "mPk",
         "non linear"=> "halofit",
         "Omega_b"=> 0.05,
@@ -210,7 +207,7 @@ end
 This struct contains the array with the Galaxy Clustering Weight function values
 for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
 """
-@kwdef mutable struct GCWeightFunctionStruct <: GCWeightFunction
+@kwdef mutable struct GCWeightFunctionStruct <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
 end
 
@@ -220,7 +217,7 @@ end
 This struct contains the array with the Weak Lensing Weight function values
 for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
 """
-@kwdef mutable struct WLWeightFunctionStruct <: WLWeightFunction
+@kwdef mutable struct WLWeightFunctionStruct <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
     LensingEfficiencyArray::AbstractArray{Float64, 2} = zeros(10, 500)
 end

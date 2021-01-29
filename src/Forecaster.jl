@@ -152,7 +152,7 @@ function InstantiateComputeWeightFunctionOverGrid(
     InstrumentResponse::InstrumentResponse, ConvolvedDensity::AsbtractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    GCWeightFunction::GCWeightFunction)
+    GCWeightFunction::GCWeightFunctionStruct)
     PiecewiseBias = PiecewiseBiasStruct(BiasArray =
     zeros(length(ConvolvedDensity.DensityNormalizationArray),
     length(CosmologicalGrid.ZArray)))
@@ -171,7 +171,7 @@ function InstantiateComputeWeightFunctionOverGrid(
     InstrumentResponse::InstrumentResponse, ConvolvedDensity::AsbtractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    WLWeightFunction::WLWeightFunction)
+    WLWeightFunction::WLWeightFunctionStruct)
     WLWeightFunction = WLWeightFunctionStruct(WeightFunctionArray =
     zeros(length(ConvolvedDensity.DensityNormalizationArray),
     length(CosmologicalGrid.ZArray)), LensingEfficiencyArray =

@@ -50,12 +50,13 @@ Comoving Distance. It is evaluated as:
 r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dz'}{E(z')}
 ```
 """
-function ComputeComovingDistance(z::Float64, w0waCDMCosmology::w0waCDMCosmologyStruct)
+function ComputeComovingDistance(z::Float64,
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     integral, err = QuadGK.quadgk(x -> 1 /
     ComputeAdimensionalHubbleFactor(x,w0waCDMCosmology), 0, z, rtol=1e-12)
-     return integral*c_0/w0waCDMCosmology.H0
+    return integral*c_0/w0waCDMCosmology.H0
 end
 
 """

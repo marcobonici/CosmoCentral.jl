@@ -6,7 +6,8 @@ struct CustomTrapz <: IntegrationMethod end
 
 """
     ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
-    WeightFunctionA::GCWeightFunction, WeightFunctionB::GCWeightFunction,
+    WeightFunctionA::AbstractWeightFunction,
+    WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
@@ -15,7 +16,8 @@ This function evaluates the Angular Coefficients for all tomographic bins and
 multipole values.
 """
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
-    WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
+    WeightFunctionA::AbstractWeightFunction,
+    WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
@@ -42,7 +44,8 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
 end
 
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
-    WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
+    WeightFunctionA::AbstractWeightFunction,
+    WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::CustomTrapz)

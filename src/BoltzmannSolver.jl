@@ -32,13 +32,13 @@ end
 
 
 """
-    EvaluatePowerSpectrum(classyParams:: classyParams,
+    EvaluatePowerSpectrum(classyParams:: classyParamsStruct,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum)
 
 This function runs classy to evaluate the Matter Power Spectrum over the ``k-z``
 grid specified in [`CosmologicalGridStruct`](@ref)
 """
-function EvaluatePowerSpectrum(classyParams:: classyParams,
+function EvaluatePowerSpectrum(classyParams:: classyParamsStruct,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum)
     cosmo = classy.Class()
     cosmo.set(classyParams.classyParamsDict)
