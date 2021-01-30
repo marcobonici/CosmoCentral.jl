@@ -10,6 +10,7 @@ using Dierckx
 using HDF5
 using LoopVectorization
 using Statistics
+using JSON
 numpy = pyimport("numpy")
 classy = pyimport("classy")
 

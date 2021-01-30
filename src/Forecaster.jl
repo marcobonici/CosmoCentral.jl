@@ -156,9 +156,9 @@ function InstantiateComputeWeightFunctionOverGrid(
     #PiecewiseBias = PiecewiseBiasStruct(BiasArray =
     #zeros(length(ConvolvedDensity.DensityNormalizationArray),
     #length(CosmologicalGrid.ZArray)))
-    GCWeightFunction = GCWeightFunctionStruct(WeightFunctionArray =
-    zeros(length(ConvolvedDensity.DensityNormalizationArray),
-    length(CosmologicalGrid.ZArray)))
+    #GCWeightFunction = GCWeightFunctionStruct(WeightFunctionArray =
+    #zeros(length(ConvolvedDensity.DensityNormalizationArray),
+    #length(CosmologicalGrid.ZArray)))
     ComputeBiasOverGrid(CosmologicalGrid, GCWeightFunction,
     GCWeightFunction.BiasKind,
     ConvolvedDensity)
@@ -226,5 +226,108 @@ function EvaluateDerivativeAngularCoefficients(DictCosmo::Dict, Path::String,
             WriteDerivativeCoefficients(AngularDerivatives,
             Path*"/Derivative/"*key*"/"*key)
         end
+    end
+end
+
+function InstantiateWL(DictInput::Dict)
+    WLWeightFunction = WLWeightFunctionStruct()
+    return WLWeightFunction
+end
+
+function InstantiateGC(DictInput::Dict)
+    GCWeightFunction = GCWeightFunctionStruct()
+    InstantiateBias(DictInput, GCWeightFunction)
+    return GCWeightFunction
+end
+
+function InstantiateBias(DictInput::Dict,
+    GCWeightFunction::GCWeightFunctionStruct)
+    if DictInput["PhotometricGalaxy"]["Bias"] == "PiecewiseBias"
+        GCWeightFunction.BiasKind = PiecewiseBiasStruct()
+    else
+        println("Bias must be correctly specified!")
+    end
+end
+
+function InitializeProbes(DictInput::Dict,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities)
+    DictProbes = Dict()
+    if DictInput["Lensing"]["present"]
+        WLWeightFunction = InstantiateWL(DictInput::Dict)
+        WLWeightFunction = InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        WLWeightFunction)
+        push!(DictProbes, "Lensing" => WLWeightFunction)
+    end
+    if DictInput["PhotometricGalaxy"]["present"]
+        GCWeightFunction = InstantiateGC(DictInput::Dict)
+        GCWeightFunction =
+        InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        GCWeightFunction)
+        push!(DictProbes, "PhotometricGalaxy" => GCWeightFunction)
+    end
+    return DictProbes
+end
+
+function InitializeComputeAngularCoefficients(ProbesDict::Dict,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum,
+    PathOutput::String, key::String)
+    ListProbes = []
+    ListCoefficients = []
+    for (key, value) in ProbesDict
+        push!(ListProbes, key)
+    end
+    for key_A in ListProbes
+        for key_B in ListProbes
+            if key_B*"_"*key_A in ListCoefficients
+            else
+                push!(ListCoefficients, key_A*"_"*key_B)
+                AngularCoefficients = AngularCoefficientsStruct(
+                AngularCoefficientsArray
+                = zeros(length(CosmologicalGrid.MultipolesArray),
+                length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
+                length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
+                ComputeAngularCoefficients(AngularCoefficients,
+                ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
+                w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
+                CosmoCentral.CustomTrapz())
+                WriteAngularCoefficients(key_B*"_"*key_A,
+                AngularCoefficients, PathOutput*key*"/cl")
+            end
+        end
+    end
+end
+
+function EvaluateAngularCoefficients(Cosmologies::Dict, PathInput::String,
+    PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
+    ProbesDict = JSON.parsefile(PathConfig)
+    AnalitycalDensity = AnalitycalDensityStruct()
+    NormalizeAnalitycalDensityStruct(AnalitycalDensity)
+    InstrumentResponse = InstrumentResponseStruct()
+    ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse, CosmologicalGrid)
+    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
+    AnalitycalDensity, InstrumentResponse)
+    for (key, value) in Cosmologies
+        w0waCDMCosmology = value[1]
+        PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+        ReadPowerSpectrumBackground(PathInput*key*"/p_mm",
+        CosmologicalGrid.MultipolesArray)
+        CosmologicalGrid.MultipolesArray[1,1]
+        DictProbes = InitializeProbes(ProbesDict, ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
+        ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
+        InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+        BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+        InitializeComputeAngularCoefficients(DictProbes, BackgroundQuantities,
+        w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutput, key)
     end
 end

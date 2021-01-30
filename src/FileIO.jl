@@ -23,6 +23,12 @@ function WriteAngularCoefficients(AngularCoefficients::WLWLAngularCoefficients,
     ConvolvedDensity.DensityNormalizationArray)
 end
 
+function WriteAngularCoefficients(Key::String,
+    AngularCoefficients::AngularCoefficientsStruct, Filename::String)
+    h5write(Filename*".h5", "cls/"*Key*"/c_lij",
+    AngularCoefficients.AngularCoefficientsArray)
+end
+
 function WriteAngularCoefficients(AngularCoefficients::GCWLAngularCoefficients,
     CosmologicalGrid::CosmologicalGrid, ConvolvedDensity::AsbtractConvolvedDensity,
     Filename::String)

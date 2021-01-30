@@ -1,8 +1,6 @@
 abstract type IntegrationMethod end
-
 struct NumericalIntegrationSimpson <: IntegrationMethod end
 struct CustomTrapz <: IntegrationMethod end
-
 
 """
     ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
@@ -64,6 +62,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
             PowerSpectrum.InterpolatedPowerSpectrum[l,z]
         end
     end
-    Integrand .*= (last(CosmologicalGrid.ZArray)-first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
+    Integrand .*= (last(CosmologicalGrid.ZArray)-
+    first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
     AngularCoefficients.AngularCoefficientsArray = Integrand
 end
