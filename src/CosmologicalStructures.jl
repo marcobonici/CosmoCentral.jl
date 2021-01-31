@@ -10,9 +10,6 @@ abstract type AbstractWeightFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
 abstract type DerivativeAngularCoefficients end
-#abstract type GCGCAngularCoefficients <: AngularCoefficients end
-#abstract type GCWLAngularCoefficients <: AngularCoefficients end
-#abstract type WLWLAngularCoefficients <: AngularCoefficients end
 abstract type AbstractBias end
 struct PiecewiseBiasStruct <: AbstractBias end
 

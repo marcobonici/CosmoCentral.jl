@@ -1,6 +1,6 @@
-function WriteAngularCoefficients(Key::String,
+function WriteAngularCoefficients(Probes::String,
     AngularCoefficients::AngularCoefficientsStruct, Filename::String)
-    h5write(Filename*".h5", "cls/"*Key*"/c_lij",
+    h5write(Filename*".h5", "cls/"*Probes*"/c_lij",
     AngularCoefficients.AngularCoefficientsArray)
 end
 
@@ -14,9 +14,25 @@ function ReadAngularCoefficients(Filename::String)
     return AngularCoefficients
 end
 
+function ReadAngularCoefficients(Filename::String, Probes::String)
+    Filename *= ".h5"
+    file = HDF5.h5open(Filename, "r")
+    c_lij =
+    HDF5.read(file["cls"][Probes]["c_lij"])
+    AngularCoefficients = AngularCoefficientsStruct(AngularCoefficientsArray =
+    c_lij)
+    return AngularCoefficients
+end
+
 function WriteDerivativeCoefficients(DerivativeArray::AbstractArray{Float64, 3},
     Filename::String)
     h5write(Filename*".h5", "dcls/PhotometricGalaxy_PhotometricGalaxy/dc_lij",
+    DerivativeArray)
+end
+
+function WriteDerivativeCoefficients(DerivativeArray::AbstractArray{Float64, 3},
+    Filename::String, Probes::String)
+    h5write(Filename*".h5", "dcls/"*Probes*"/dc_lij",
     DerivativeArray)
 end
 
@@ -62,7 +78,8 @@ function ReadPowerSpectrumBackground(Filename::String,
     MultipolesArray = MultipolesArray)
     PowerSpectrum = PowerSpectrumStruct(PowerSpectrumLinArray = lin_p_mm_k_z,
     PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray), length(CosmologicalGrid.ZArray)))
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
+    length(CosmologicalGrid.ZArray)))
     return PowerSpectrum, BackgroundQuantities, CosmologicalGrid
 end
 

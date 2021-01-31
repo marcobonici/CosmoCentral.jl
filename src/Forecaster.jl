@@ -45,18 +45,15 @@ function CreateCosmologies(DictCosmo::Dict, steps::Array)
     return MyDict
 end
 
-function CreateDirectories(Cosmologies::Dict, path::String)
+function CreateDirectories(Cosmologies::Dict, DictCosmo::Dict, path::String)
     mkdir(path)
     mkdir(path*"PowerSpectrum")
     mkdir(path*"Angular")
-    for (key, value) in Cosmologies
-    mkdir(path*"Angular/"*key)
-    mkdir(path*"PowerSpectrum/"*key)
-    end
-end
-
-function CreateDirectoriesDerivatives(DictCosmo::Dict, path::String)
     mkdir(path*"Derivative/")
+    for (key, value) in Cosmologies
+        mkdir(path*"Angular/"*key)
+        mkdir(path*"PowerSpectrum/"*key)
+    end
     for (key, value) in DictCosmo
         if value[2] == "present"
             mkdir(path*"Derivative/"*key)
@@ -110,34 +107,34 @@ function InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity::AsbtractConv
 end
 
 function EvaluateDerivativeAngularCoefficients(DictCosmo::Dict, Path::String,
-    steps::Array)
+    Steps::Array)
     CentralCosmologyCL = ReadAngularCoefficients(
     Path*"/Angular/dvar_central_step_0/cl")
     AngularCoefficientsArray = zeros(size(CentralCosmologyCL.AngularCoefficientsArray, 1),
     size(CentralCosmologyCL.AngularCoefficientsArray, 2),
     size(CentralCosmologyCL.AngularCoefficientsArray, 3),
-    2*length(steps)+1)
+    2*length(Steps)+1)
     DerivativeArray = similar(CentralCosmologyCL.AngularCoefficientsArray)
-    AngularCoefficientsArray[:, :, :, length(steps) + 1] .=
+    AngularCoefficientsArray[:, :, :, length(Steps) + 1] .=
     CentralCosmologyCL.AngularCoefficientsArray[:,:,:]
-    stepvalues = zeros(2*length(steps)+1)
+    stepvalues = zeros(2*length(Steps)+1)
     AngularDerivatives = zeros(size(AngularCoefficientsArray, 1),
     size(AngularCoefficientsArray, 2), size(AngularCoefficientsArray, 3))
     for (key, value) in DictCosmo
         if value[2] == "present"
-            stepvalues[length(steps) + 1] = value[1]
-            for (index, mystep) in enumerate(steps)
+            stepvalues[length(Steps) + 1] = value[1]
+            for (index, mystep) in enumerate(Steps)
                 AngularCoefficientsMinus = ReadAngularCoefficients(
                 Path*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl")
                 AngularCoefficientsPlus = ReadAngularCoefficients(
                 Path*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl")
-                AngularCoefficientsArray[:, :, :, length(steps) + 1 - index] .=
+                AngularCoefficientsArray[:, :, :, length(Steps) + 1 - index] .=
                 AngularCoefficientsMinus.AngularCoefficientsArray
-                AngularCoefficientsArray[:, :, :, length(steps) + 1 + index] .=
+                AngularCoefficientsArray[:, :, :, length(Steps) + 1 + index] .=
                 AngularCoefficientsPlus.AngularCoefficientsArray
-                stepvalues[length(steps) + 1 - index] =
+                stepvalues[length(Steps) + 1 - index] =
                 IncrementedValue(value[1], -mystep)
-                stepvalues[length(steps) + 1 + index] =
+                stepvalues[length(Steps) + 1 + index] =
                 IncrementedValue(value[1],  mystep)
             end
             for idx_a in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 2)
@@ -154,6 +151,61 @@ function EvaluateDerivativeAngularCoefficients(DictCosmo::Dict, Path::String,
         end
     end
 end
+
+function EvaluateDerivativeAngularCoefficientsNew(DictCosmo::Dict,
+    PathInput::String, PathConfig::String, Steps::Array)
+    ProbesDict = JSON.parsefile(PathConfig)
+    CoefficientsArray = GetProbesArray(ProbesDict)
+    for Coefficient in CoefficientsArray
+        CentralCosmologyCL = ReadAngularCoefficients(
+        PathInput*"/Angular/dvar_central_step_0/cl", Coefficient)
+        AngularCoefficientsArray = zeros(size(CentralCosmologyCL.AngularCoefficientsArray, 1),
+        size(CentralCosmologyCL.AngularCoefficientsArray, 2),
+        size(CentralCosmologyCL.AngularCoefficientsArray, 3),
+        2*length(Steps)+1)
+        DerivativeArray = similar(CentralCosmologyCL.AngularCoefficientsArray)
+        AngularCoefficientsArray[:, :, :, length(Steps) + 1] .=
+        CentralCosmologyCL.AngularCoefficientsArray[:,:,:]
+        stepvalues = zeros(2*length(Steps)+1)
+        AngularDerivatives = zeros(size(AngularCoefficientsArray, 1),
+        size(AngularCoefficientsArray, 2), size(AngularCoefficientsArray, 3))
+        for (key, value) in DictCosmo
+            if value[2] == "present"
+                stepvalues[length(Steps) + 1] = value[1]
+                for (index, mystep) in enumerate(Steps)
+                    AngularCoefficientsMinus = ReadAngularCoefficients(
+                    PathInput*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl",
+                    Coefficient)
+                    AngularCoefficientsPlus = ReadAngularCoefficients(
+                    PathInput*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl",
+                    Coefficient)
+                    AngularCoefficientsArray[:, :, :, length(Steps) + 1 - index] .=
+                    AngularCoefficientsMinus.AngularCoefficientsArray
+                    AngularCoefficientsArray[:, :, :, length(Steps) + 1 + index] .=
+                    AngularCoefficientsPlus.AngularCoefficientsArray
+                    stepvalues[length(Steps) + 1 - index] =
+                    IncrementedValue(value[1], -mystep)
+                    stepvalues[length(Steps) + 1 + index] =
+                    IncrementedValue(value[1],  mystep)
+                end
+                for idx_a in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 2)
+                    for idx_b in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 3)
+                        for idx_l in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 1)
+                            y = AngularCoefficientsArray[idx_l, idx_a, idx_b, :]
+                            der = SteMDerivative(stepvalues, y)
+                            AngularDerivatives[idx_l, idx_a, idx_b] = der
+                        end
+                    end
+                end
+                WriteDerivativeCoefficients(AngularDerivatives,
+                PathInput*"/Derivative/"*key*"/"*key, Coefficient)
+            end
+        end
+    end
+end
+
+
+
 
 function InstantiateWL(DictInput::Dict)
     WLWeightFunction = WLWeightFunctionStruct()
@@ -199,21 +251,43 @@ function InitializeProbes(DictInput::Dict,
     return DictProbes
 end
 
+function GetProbesArray(DictInput::Dict)
+    ProbesArray = []
+    CoefficientsArray = []
+    if DictInput["Lensing"]["present"]
+        push!(ProbesArray, "Lensing")
+    end
+    if DictInput["PhotometricGalaxy"]["present"]
+        push!(ProbesArray, "PhotometricGalaxy")
+    end
+    sort!(ProbesArray)
+    for key_A in ProbesArray
+        for key_B in ProbesArray
+            if key_B*"_"*key_A in CoefficientsArray
+            else
+                push!(CoefficientsArray, key_A*"_"*key_B)
+            end
+        end
+    end
+    return CoefficientsArray
+end
+
 function InitializeComputeAngularCoefficients(ProbesDict::Dict,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmologyStruct,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum,
     PathOutput::String, key::String)
-    ListProbes = []
-    ListCoefficients = []
+    ProbesArray = []
+    CoefficientsArray = []
     for (key, value) in ProbesDict
-        push!(ListProbes, key)
+        push!(ProbesArray, key)
     end
-    for key_A in ListProbes
-        for key_B in ListProbes
-            if key_B*"_"*key_A in ListCoefficients
+    sort!(ProbesArray)
+    for key_A in ProbesArray
+        for key_B in ProbesArray
+            if key_B*"_"*key_A in CoefficientsArray
             else
-                push!(ListCoefficients, key_A*"_"*key_B)
+                push!(CoefficientsArray, key_A*"_"*key_B)
                 AngularCoefficients = AngularCoefficientsStruct(
                 AngularCoefficientsArray
                 = zeros(length(CosmologicalGrid.MultipolesArray),
@@ -223,7 +297,7 @@ function InitializeComputeAngularCoefficients(ProbesDict::Dict,
                 ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
                 w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
                 CosmoCentral.CustomTrapz())
-                WriteAngularCoefficients(key_B*"_"*key_A,
+                WriteAngularCoefficients(key_A*"_"*key_B,
                 AngularCoefficients, PathOutput*key*"/cl")
             end
         end

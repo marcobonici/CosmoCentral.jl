@@ -8,10 +8,12 @@ struct CustomTrapz <: IntegrationMethod end
     WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
-    PowerSpectrum::PowerSpectrum, ::IntegrationMethod)
+    PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
-multipole values.
+multipole values. In order to evaluate the numerical integrals, it is used the
+Simpson numerical method from
+[NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl)
 """
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::AbstractWeightFunction,
@@ -41,6 +43,18 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     end
 end
 
+"""
+    ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
+    WeightFunctionA::AbstractWeightFunction,
+    WeightFunctionB::AbstractWeightFunction,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
+    PowerSpectrum::PowerSpectrum, ::CustomTrapz)
+
+This function evaluates the Angular Coefficients for all tomographic bins and
+multipole values. In order to evaluate the numerical integrals, it has been
+implemented the trapezoidal rule.
+"""
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::AbstractWeightFunction,
     WeightFunctionB::AbstractWeightFunction,

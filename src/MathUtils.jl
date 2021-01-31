@@ -11,12 +11,11 @@ function LogSpaced(min::Float64, max::Float64, n::Int64)
     return exp10.(logarray)
 end
 
-
 """
     BinSearch(x::Float64, Array::Vector{Float64})
 
 Given a value ``z`` and an Array, determines the couple of array elements where
-``z`` lies and returns the index correspondin to the first value.
+``z`` lies and returns the index corresponding to the first value.
 """
 function BinSearch(x::Float64, Array::Vector{Float64})
     idx = 1
@@ -32,16 +31,22 @@ function BinSearch(x::Float64, Array::Vector{Float64})
     return idx
 end
 
+"""
+    CustomRegression(x::Vector{Float64}, y::Vector{Float64})
+
+Given two arrays ``x`` and ``y``, performs the linear regression and returns the
+coefficients ``c`` and ``m``.
+"""
 function CustomRegression(x::Vector{Float64}, y::Vector{Float64})
     x_mean = mean(x)
     y_mean = mean(y)
-    beta = 0
+    m = 0
     den = 0
     for i in 1:length(x)
-        beta += (x[i]-x_mean)*(y[i]-y_mean)
+        m += (x[i]-x_mean)*(y[i]-y_mean)
         den  += (x[i]-x_mean)^2
     end
-    beta /= den
-    alpha = y_mean - beta* x_mean
-    return alpha, beta
+    m /= den
+    c = y_mean - m* x_mean
+    return c, m
 end

@@ -1,3 +1,17 @@
+"""
+    SteMDerivative(x::Vector{Float64}, y::Vector{Float64})
+
+This function evaluates the numerical derivative according to the SteM
+algorithm, [Camera et al. 2017](https://arxiv.org/abs/1606.03451):
+
+- a linear regression over ``x`` and ``y`` is performed
+
+- if the points obtained with the fit are close enough (less than 0.01 relative
+difference) the linear ansatz is satisfied and the slope gives the derivative
+
+- if the linear ansatz is not satisfied, the external couple of points and the
+linear regression is performed again till the linear ansatz is satisfied
+"""
 function SteMDerivative(x::Vector{Float64}, y::Vector{Float64})
     x_copy = deepcopy(x)
     y_copy = deepcopy(y)

@@ -1,6 +1,6 @@
 {
   "Lensing": {
-    "present": true
+    "present": false
   },
   "PhotometricGalaxy":{
     "present": true,

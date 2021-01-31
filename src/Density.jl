@@ -67,16 +67,15 @@ end
 """
     NormalizeConvolvedDensityStruct(ConvolvedDensity::AsbtractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse,
-    CosmologicalGrid::CosmologicalGrid)
+    InstrumentResponse::InstrumentResponse, CosmologicalGrid::CosmologicalGrid)
 
 This function normalizes ConvolvedDensity such that the integrals of the
 convolved densities are normalized to 1.
 """
-function NormalizeConvolvedDensityStruct(ConvolvedDensity::AsbtractConvolvedDensity,
+function NormalizeConvolvedDensityStruct(
+    ConvolvedDensity::AsbtractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse,
-    CosmologicalGrid::CosmologicalGrid)
+    InstrumentResponse::InstrumentResponse, CosmologicalGrid::CosmologicalGrid)
     for idx in 1:length(ConvolvedDensity.DensityNormalizationArray)
         int, err = QuadGK.quadgk(x -> ComputeConvolvedDensityFunction(x, idx,
         ConvolvedDensity, AnalitycalDensity, InstrumentResponse),

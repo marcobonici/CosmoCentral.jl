@@ -17,9 +17,6 @@ ZArray=Array(LinRange(0.001, 4.0, 500)))
 BackgroundQuantities = CosmoCentral.BackgroundQuantitiesStruct(HZArray=
 zeros(length(CosmologicalGrid.ZArray)),
 rZArray=zeros(length(CosmologicalGrid.ZArray)))
-#PiecewiseBias = CosmoCentral.PiecewiseBiasStruct(BiasArray =
-#zeros(length(ConvolvedDensity.DensityNormalizationArray),
-#length(CosmologicalGrid.ZArray)))
 GCWeightFunction = CosmoCentral.GCWeightFunctionStruct(WeightFunctionArray =
 zeros(length(ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
@@ -96,18 +93,20 @@ end
     @test isapprox(test_array, ConvolvedDensity.DensityGridArray, atol=1e-12)
 end
 
-@testset "Check the LogSpace function against the Python equivalent" begin
+@testset "Check the functions defined in MathUtils" begin
     minarray = 1e-5
     maxarray = 10.
     n = 100
     benchmark_numpy = numpy.logspace(log10(minarray), log10(maxarray), n)
     test_logspace = CosmoCentral.LogSpaced(minarray, maxarray, n)
     @test isapprox(benchmark_numpy, test_logspace, atol=1e-12)
-end
-
-@testset "Check the Binsearch function" begin
     array = [1.,2.,3.]
     @test 1 == CosmoCentral.BinSearch(1.5, array)
+    x = LinRange(0., 10., 100)
+    y = 11.2 .*x .+0.4
+    c, m = CosmoCentral.CustomRegression(x, y)
+    @test isapprox(c, 0.4, atol=1e-12)
+    @test isapprox(m, 11.2, atol=1e-12)
 end
 
 @testset "Check the Piecewise bias evaluation" begin

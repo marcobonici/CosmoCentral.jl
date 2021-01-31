@@ -19,9 +19,7 @@ end
     GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
     ConvolvedDensity::AsbtractConvolvedDensity)
 
-This function evaluate the piecewise bias, given by ``\\sqrt{1+z}``, over the
-cosmological redshift grid.
-
+This function evaluate the bias, over the cosmological redshift grid.
 """
 function ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
     GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
