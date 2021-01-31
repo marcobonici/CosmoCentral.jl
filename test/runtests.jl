@@ -229,7 +229,7 @@ end
 
 @testset "Test Angular coefficients evaluation" begin
     AngularCoefficientsLoaded = CosmoCentral.ReadAngularCoefficients(
-    "/home/mbonici/Desktop/CosmoCentral.jl/test/cl")
+    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/cl")
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(
