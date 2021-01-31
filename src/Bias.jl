@@ -1,13 +1,13 @@
 """
-    ComputeBias(z::Float64, PiecewiseBias::PiecewiseBias,
-    ConvolvedDensity::ConvolvedDensity)
+    ComputeBias(z::Float64, ::PiecewiseBiasStruct,
+    ConvolvedDensity::AsbtractConvolvedDensity)
 
 This function evaluate the piecewise bias, given by ``\\sqrt{1+z}``, for a given
 redshift.
 
 """
-function ComputeBias(z::Float64, PiecewiseBias::PiecewiseBias,
-    ConvolvedDensity::ConvolvedDensity)
+function ComputeBias(z::Float64, ::PiecewiseBiasStruct,
+    ConvolvedDensity::AsbtractConvolvedDensity)
     idx = BinSearch(z, ConvolvedDensity.ZBinArray)
     bias = sqrt(1+(ConvolvedDensity.ZBinArray[idx]+
     ConvolvedDensity.ZBinArray[idx+1])/2)
@@ -16,16 +16,16 @@ end
 
 """
     ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
-    PiecewiseBias::PiecewiseBias, ConvolvedDensity::ConvolvedDensity)
+    GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
+    ConvolvedDensity::AsbtractConvolvedDensity)
 
-This function evaluate the piecewise bias, given by ``\\sqrt{1+z}``, over the
-cosmological redshift grid.
-
+This function evaluate the bias, over the cosmological redshift grid.
 """
 function ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
-    PiecewiseBias::PiecewiseBias, ConvolvedDensity::ConvolvedDensity)
+    GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
+    ConvolvedDensity::AsbtractConvolvedDensity)
     for (zidx, zvalue) in enumerate(CosmologicalGrid.ZArray)
-        PiecewiseBias.BiasArray[:, zidx] .=
-        ComputeBias(zvalue, PiecewiseBias, ConvolvedDensity)
+        GCWeightFunction.BiasArray[:, zidx] .=
+        ComputeBias(zvalue, Bias, ConvolvedDensity)
     end
 end

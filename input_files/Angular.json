@@ -1,0 +1,9 @@
+{
+  "Lensing": {
+    "present": false
+  },
+  "PhotometricGalaxy":{
+    "present": true,
+    "Bias" : "PiecewiseBias"
+  }
+}

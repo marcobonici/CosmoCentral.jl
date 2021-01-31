@@ -1,23 +1,25 @@
 abstract type IntegrationMethod end
-
 struct NumericalIntegrationSimpson <: IntegrationMethod end
 struct CustomTrapz <: IntegrationMethod end
 
-
 """
     ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
-    WeightFunctionA::GCWeightFunction, WeightFunctionB::GCWeightFunction,
+    WeightFunctionA::AbstractWeightFunction,
+    WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
-multipole values.
+multipole values. In order to evaluate the numerical integrals, it is used the
+Simpson numerical method from
+[NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl)
 """
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
-    WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
+    WeightFunctionA::AbstractWeightFunction,
+    WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::NumericalIntegrationSimpson)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
@@ -41,16 +43,27 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     end
 end
 
-function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
-    WeightFunctionA::WeightFunction, WeightFunctionB::WeightFunction,
+"""
+    ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
+    WeightFunctionA::AbstractWeightFunction,
+    WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
+    PowerSpectrum::PowerSpectrum, ::CustomTrapz)
+
+This function evaluates the Angular Coefficients for all tomographic bins and
+multipole values. In order to evaluate the numerical integrals, it has been
+implemented the trapezoidal rule.
+"""
+function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
+    WeightFunctionA::AbstractWeightFunction,
+    WeightFunctionB::AbstractWeightFunction,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum, ::CustomTrapz)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray,1),
-    size(AngularCoefficients.AngularCoefficientsArray,2),
-    size(AngularCoefficients.AngularCoefficientsArray,3))
+    Integrand = similar(AngularCoefficients.AngularCoefficientsArray) .*0
     @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
         j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
         l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
@@ -63,6 +76,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
             PowerSpectrum.InterpolatedPowerSpectrum[l,z]
         end
     end
-    Integrand .*= (last(CosmologicalGrid.ZArray)-first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
+    Integrand .*= (last(CosmologicalGrid.ZArray)-
+    first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
     AngularCoefficients.AngularCoefficientsArray = Integrand
 end
