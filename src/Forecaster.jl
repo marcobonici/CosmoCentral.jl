@@ -23,7 +23,7 @@ function CreateCosmologies(DictCosmo::Dict, steps::Array)
                 Ωr = CopyDictCosmo["Ωr"][1], ns = CopyDictCosmo["ns"][1],
                 σ8 = CopyDictCosmo["σ8"][1])
                 MyDict["dvar_"*key*"_step_p_"*string(index)] = [w0waCDMCosmology]
-                myvalue = IncrementedValue(value[1], mystep)
+                myvalue = IncrementedValue(value[1], -mystep)
                 CopyDictCosmo[key] = [myvalue]
                 w0waCDMCosmology = CosmoCentral.w0waCDMCosmologyStruct(w0 =
                 CopyDictCosmo["w0"][1], wa = CopyDictCosmo["wa"][1],
@@ -45,13 +45,19 @@ function CreateCosmologies(DictCosmo::Dict, steps::Array)
     return MyDict
 end
 
-function CreateDirectories(Cosmologies::Dict, path::String)
+function CreateDirectories(Cosmologies::Dict, DictCosmo::Dict, path::String)
     mkdir(path)
     mkdir(path*"PowerSpectrum")
     mkdir(path*"Angular")
+    mkdir(path*"Derivative/")
     for (key, value) in Cosmologies
-    mkdir(path*"Angular/"*key)
-    mkdir(path*"PowerSpectrum/"*key)
+        mkdir(path*"Angular/"*key)
+        mkdir(path*"PowerSpectrum/"*key)
+    end
+    for (key, value) in DictCosmo
+        if value[2] == "present"
+            mkdir(path*"Derivative/"*key)
+        end
     end
 end
 
@@ -76,8 +82,231 @@ function EvaluatePowerSpectra(Cosmologies::Dict, Path::String,
     end
 end
 
+function InstantiateComputeWeightFunctionOverGrid(
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    GCWeightFunction::GCWeightFunctionStruct)
+    ComputeBiasOverGrid(CosmologicalGrid, GCWeightFunction,
+    GCWeightFunction.BiasKind,
+    ConvolvedDensity)
+    ComputeWeightFunctionOverGrid(GCWeightFunction, ConvolvedDensity,
+    CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+    return GCWeightFunction
+end
+
+function InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity::AsbtractConvolvedDensity,
+    w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    WLWeightFunction::WLWeightFunctionStruct)
+    ComputeLensingEfficiencyOverGridCustom(WLWeightFunction, ConvolvedDensity,
+    CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+    ComputeWeightFunctionOverGrid(WLWeightFunction, ConvolvedDensity,
+    CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+    return WLWeightFunction
+end
+
+function EvaluateDerivativeAngularCoefficients(DictCosmo::Dict, Path::String,
+    Steps::Array)
+    CentralCosmologyCL = ReadAngularCoefficients(
+    Path*"/Angular/dvar_central_step_0/cl")
+    AngularCoefficientsArray = zeros(size(CentralCosmologyCL.AngularCoefficientsArray, 1),
+    size(CentralCosmologyCL.AngularCoefficientsArray, 2),
+    size(CentralCosmologyCL.AngularCoefficientsArray, 3),
+    2*length(Steps)+1)
+    DerivativeArray = similar(CentralCosmologyCL.AngularCoefficientsArray)
+    AngularCoefficientsArray[:, :, :, length(Steps) + 1] .=
+    CentralCosmologyCL.AngularCoefficientsArray[:,:,:]
+    stepvalues = zeros(2*length(Steps)+1)
+    AngularDerivatives = zeros(size(AngularCoefficientsArray, 1),
+    size(AngularCoefficientsArray, 2), size(AngularCoefficientsArray, 3))
+    for (key, value) in DictCosmo
+        if value[2] == "present"
+            stepvalues[length(Steps) + 1] = value[1]
+            for (index, mystep) in enumerate(Steps)
+                AngularCoefficientsMinus = ReadAngularCoefficients(
+                Path*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl")
+                AngularCoefficientsPlus = ReadAngularCoefficients(
+                Path*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl")
+                AngularCoefficientsArray[:, :, :, length(Steps) + 1 - index] .=
+                AngularCoefficientsMinus.AngularCoefficientsArray
+                AngularCoefficientsArray[:, :, :, length(Steps) + 1 + index] .=
+                AngularCoefficientsPlus.AngularCoefficientsArray
+                stepvalues[length(Steps) + 1 - index] =
+                IncrementedValue(value[1], -mystep)
+                stepvalues[length(Steps) + 1 + index] =
+                IncrementedValue(value[1],  mystep)
+            end
+            for idx_a in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 2)
+                for idx_b in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 3)
+                    for idx_l in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 1)
+                        y = AngularCoefficientsArray[idx_l, idx_a, idx_b, :]
+                        der = SteMDerivative(stepvalues, y)
+                        AngularDerivatives[idx_l, idx_a, idx_b] = der
+                    end
+                end
+            end
+            WriteDerivativeCoefficients(AngularDerivatives,
+            Path*"/Derivative/"*key*"/"*key)
+        end
+    end
+end
+
+function EvaluateDerivativeAngularCoefficientsNew(DictCosmo::Dict,
+    PathInput::String, PathConfig::String, Steps::Array)
+    ProbesDict = JSON.parsefile(PathConfig)
+    CoefficientsArray = GetProbesArray(ProbesDict)
+    for Coefficient in CoefficientsArray
+        CentralCosmologyCL = ReadAngularCoefficients(
+        PathInput*"/Angular/dvar_central_step_0/cl", Coefficient)
+        AngularCoefficientsArray = zeros(size(CentralCosmologyCL.AngularCoefficientsArray, 1),
+        size(CentralCosmologyCL.AngularCoefficientsArray, 2),
+        size(CentralCosmologyCL.AngularCoefficientsArray, 3),
+        2*length(Steps)+1)
+        DerivativeArray = similar(CentralCosmologyCL.AngularCoefficientsArray)
+        AngularCoefficientsArray[:, :, :, length(Steps) + 1] .=
+        CentralCosmologyCL.AngularCoefficientsArray[:,:,:]
+        stepvalues = zeros(2*length(Steps)+1)
+        AngularDerivatives = zeros(size(AngularCoefficientsArray, 1),
+        size(AngularCoefficientsArray, 2), size(AngularCoefficientsArray, 3))
+        for (key, value) in DictCosmo
+            if value[2] == "present"
+                stepvalues[length(Steps) + 1] = value[1]
+                for (index, mystep) in enumerate(Steps)
+                    AngularCoefficientsMinus = ReadAngularCoefficients(
+                    PathInput*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl",
+                    Coefficient)
+                    AngularCoefficientsPlus = ReadAngularCoefficients(
+                    PathInput*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl",
+                    Coefficient)
+                    AngularCoefficientsArray[:, :, :, length(Steps) + 1 - index] .=
+                    AngularCoefficientsMinus.AngularCoefficientsArray
+                    AngularCoefficientsArray[:, :, :, length(Steps) + 1 + index] .=
+                    AngularCoefficientsPlus.AngularCoefficientsArray
+                    stepvalues[length(Steps) + 1 - index] =
+                    IncrementedValue(value[1], -mystep)
+                    stepvalues[length(Steps) + 1 + index] =
+                    IncrementedValue(value[1],  mystep)
+                end
+                for idx_a in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 2)
+                    for idx_b in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 3)
+                        for idx_l in 1:size(CentralCosmologyCL.AngularCoefficientsArray, 1)
+                            y = AngularCoefficientsArray[idx_l, idx_a, idx_b, :]
+                            der = SteMDerivative(stepvalues, y)
+                            AngularDerivatives[idx_l, idx_a, idx_b] = der
+                        end
+                    end
+                end
+                WriteDerivativeCoefficients(AngularDerivatives,
+                PathInput*"/Derivative/"*key*"/"*key, Coefficient)
+            end
+        end
+    end
+end
+
+
+
+
+function InstantiateWL(DictInput::Dict)
+    WLWeightFunction = WLWeightFunctionStruct()
+    return WLWeightFunction
+end
+
+function InstantiateGC(DictInput::Dict)
+    GCWeightFunction = GCWeightFunctionStruct()
+    InstantiateBias(DictInput, GCWeightFunction)
+    return GCWeightFunction
+end
+
+function InstantiateBias(DictInput::Dict,
+    GCWeightFunction::GCWeightFunctionStruct)
+    if DictInput["PhotometricGalaxy"]["Bias"] == "PiecewiseBias"
+        GCWeightFunction.BiasKind = PiecewiseBiasStruct()
+    else
+        println("Bias must be correctly specified!")
+    end
+end
+
+function InitializeProbes(DictInput::Dict,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities)
+    DictProbes = Dict()
+    if DictInput["Lensing"]["present"]
+        WLWeightFunction = InstantiateWL(DictInput::Dict)
+        WLWeightFunction = InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        WLWeightFunction)
+        push!(DictProbes, "Lensing" => WLWeightFunction)
+    end
+    if DictInput["PhotometricGalaxy"]["present"]
+        GCWeightFunction = InstantiateGC(DictInput::Dict)
+        GCWeightFunction =
+        InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        GCWeightFunction)
+        push!(DictProbes, "PhotometricGalaxy" => GCWeightFunction)
+    end
+    return DictProbes
+end
+
+function GetProbesArray(DictInput::Dict)
+    ProbesArray = []
+    CoefficientsArray = []
+    if DictInput["Lensing"]["present"]
+        push!(ProbesArray, "Lensing")
+    end
+    if DictInput["PhotometricGalaxy"]["present"]
+        push!(ProbesArray, "PhotometricGalaxy")
+    end
+    sort!(ProbesArray)
+    for key_A in ProbesArray
+        for key_B in ProbesArray
+            if key_B*"_"*key_A in CoefficientsArray
+            else
+                push!(CoefficientsArray, key_A*"_"*key_B)
+            end
+        end
+    end
+    return CoefficientsArray
+end
+
+function InitializeComputeAngularCoefficients(ProbesDict::Dict,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum,
+    PathOutput::String, key::String)
+    ProbesArray = []
+    CoefficientsArray = []
+    for (key, value) in ProbesDict
+        push!(ProbesArray, key)
+    end
+    sort!(ProbesArray)
+    for key_A in ProbesArray
+        for key_B in ProbesArray
+            if key_B*"_"*key_A in CoefficientsArray
+            else
+                push!(CoefficientsArray, key_A*"_"*key_B)
+                AngularCoefficients = AngularCoefficientsStruct(
+                AngularCoefficientsArray
+                = zeros(length(CosmologicalGrid.MultipolesArray),
+                length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
+                length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
+                ComputeAngularCoefficients(AngularCoefficients,
+                ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
+                w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
+                CosmoCentral.CustomTrapz())
+                WriteAngularCoefficients(key_A*"_"*key_B,
+                AngularCoefficients, PathOutput*key*"/cl")
+            end
+        end
+    end
+end
+
 function EvaluateAngularCoefficients(Cosmologies::Dict, PathInput::String,
-    PathOutput::String, CosmologicalGrid::CosmologicalGrid)
+    PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
+    ProbesDict = JSON.parsefile(PathConfig)
     AnalitycalDensity = AnalitycalDensityStruct()
     NormalizeAnalitycalDensityStruct(AnalitycalDensity)
     InstrumentResponse = InstrumentResponseStruct()
@@ -92,87 +321,13 @@ function EvaluateAngularCoefficients(Cosmologies::Dict, PathInput::String,
         PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
         ReadPowerSpectrumBackground(PathInput*key*"/p_mm",
         CosmologicalGrid.MultipolesArray)
-        GCWeightFunction = GCWeightFunctionStruct()
-        WLWeightFunction = WLWeightFunctionStruct()
-        GCWeightFunction, PiecewiseBias =
-        InstantiateComputeWeightFunctionOverGrid(AnalitycalDensity,
-        InstrumentResponse, ConvolvedDensity, w0waCDMCosmology,
-        CosmologicalGrid, BackgroundQuantities, GCWeightFunction)
+        CosmologicalGrid.MultipolesArray[1,1]
+        DictProbes = InitializeProbes(ProbesDict, ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
         ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
-        WLWeightFunction = InstantiateComputeWeightFunctionOverGrid(
-        AnalitycalDensity, InstrumentResponse, ConvolvedDensity,
-        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
-        WLWeightFunction)
         InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
         BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
-        GCGCAngularCoefficients = GCGCAngularCoefficientsStruct(AngularCoefficientsArray
-        = zeros(length(CosmologicalGrid.MultipolesArray),
-        length(GCWeightFunction.WeightFunctionArray[:, 1]),
-        length(GCWeightFunction.WeightFunctionArray[:, 1])))
-        ComputeAngularCoefficients(GCGCAngularCoefficients, GCWeightFunction,
-        GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
-        CosmologicalGrid, PowerSpectrum,
-        CosmoCentral.CustomTrapz())
-        WriteAngularCoefficients(GCGCAngularCoefficients, CosmologicalGrid,
-        GCWeightFunction, PiecewiseBias, ConvolvedDensity, PathOutput*key*"/cl")
-        WLWLAngularCoefficients = WLWLAngularCoefficientsStruct(AngularCoefficientsArray
-        = zeros(length(CosmologicalGrid.MultipolesArray),
-        length(WLWeightFunction.WeightFunctionArray[:, 1]),
-        length(WLWeightFunction.WeightFunctionArray[:, 1])))
-        ComputeAngularCoefficients(WLWLAngularCoefficients, WLWeightFunction,
-        WLWeightFunction, BackgroundQuantities, w0waCDMCosmology,
-        CosmologicalGrid, PowerSpectrum,
-        CosmoCentral.CustomTrapz())
-        WriteAngularCoefficients(WLWLAngularCoefficients, CosmologicalGrid,
-        WLWeightFunction, ConvolvedDensity, PathOutput*key*"/cl")
-        GCWLAngularCoefficients = GCWLAngularCoefficientsStruct(AngularCoefficientsArray
-        = zeros(length(CosmologicalGrid.MultipolesArray),
-        length(WLWeightFunction.WeightFunctionArray[:, 1]),
-        length(WLWeightFunction.WeightFunctionArray[:, 1])))
-        ComputeAngularCoefficients(GCWLAngularCoefficients, GCWeightFunction,
-        WLWeightFunction, BackgroundQuantities, w0waCDMCosmology,
-        CosmologicalGrid, PowerSpectrum,
-        CosmoCentral.CustomTrapz())
-        WriteAngularCoefficients(GCWLAngularCoefficients, CosmologicalGrid,
-        ConvolvedDensity, PathOutput*key*"/cl")
+        InitializeComputeAngularCoefficients(DictProbes, BackgroundQuantities,
+        w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutput, key)
     end
-end
-
-function InstantiateComputeWeightFunctionOverGrid(
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
-    BackgroundQuantities::BackgroundQuantities,
-    GCWeightFunction::GCWeightFunction)
-    PiecewiseBias = PiecewiseBiasStruct(BiasArray =
-    zeros(length(ConvolvedDensity.DensityNormalizationArray),
-    length(CosmologicalGrid.ZArray)))
-    ComputeBiasOverGrid(CosmologicalGrid, PiecewiseBias, ConvolvedDensity)
-    GCWeightFunction = GCWeightFunctionStruct(WeightFunctionArray =
-    zeros(length(ConvolvedDensity.DensityNormalizationArray),
-    length(CosmologicalGrid.ZArray)))
-    ComputeWeightFunctionOverGrid(GCWeightFunction, AnalitycalDensity,
-    InstrumentResponse, ConvolvedDensity, PiecewiseBias, CosmologicalGrid,
-    BackgroundQuantities, w0waCDMCosmology)
-    return GCWeightFunction, PiecewiseBias
-end
-
-function InstantiateComputeWeightFunctionOverGrid(
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, ConvolvedDensity::ConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
-    BackgroundQuantities::BackgroundQuantities,
-    WLWeightFunction::WLWeightFunction)
-    WLWeightFunction = WLWeightFunctionStruct(WeightFunctionArray =
-    zeros(length(ConvolvedDensity.DensityNormalizationArray),
-    length(CosmologicalGrid.ZArray)), LensingEfficiencyArray =
-    zeros(length(ConvolvedDensity.DensityNormalizationArray),
-    length(CosmologicalGrid.ZArray)))
-    ComputeLensingEfficiencyOverGridCustom(WLWeightFunction, AnalitycalDensity,
-    InstrumentResponse, ConvolvedDensity, CosmologicalGrid,
-    BackgroundQuantities, w0waCDMCosmology)
-    ComputeWeightFunctionOverGrid(WLWeightFunction, AnalitycalDensity,
-    InstrumentResponse, ConvolvedDensity, CosmologicalGrid,
-    BackgroundQuantities, w0waCDMCosmology)
-    return WLWeightFunction
 end

@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
-          version: '1.4'
+          version: '1.5'
       - run: >
           sudo apt-get install --no-install-recommends gfortran python3-setuptools python3-wheel
           && pip3 install numpy && pip3 install Cython && pip3 install classy
