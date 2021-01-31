@@ -102,7 +102,7 @@ end
     @test isapprox(benchmark_numpy, test_logspace, atol=1e-12)
     array = [1.,2.,3.]
     @test 1 == CosmoCentral.BinSearch(1.5, array)
-    x = LinRange(0., 10., 100)
+    x = Array(LinRange(0., 10., 100))
     y = 11.2 .*x .+0.4
     c, m = CosmoCentral.CustomRegression(x, y)
     @test isapprox(c, 0.4, atol=1e-12)
