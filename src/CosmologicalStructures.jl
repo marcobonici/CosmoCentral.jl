@@ -2,9 +2,7 @@ abstract type AbstractCosmology end
 abstract type CosmologicalGrid end
 abstract type AngularCoefficientsGrid end
 abstract type BackgroundQuantities end
-#abstract type Bias end
 abstract type BoltzmannSolverParams end
-#abstract type classyParams <: BoltzmannSolverParams end
 abstract type AsbtractDensity end
 abstract type AsbtractConvolvedDensity end
 abstract type InstrumentResponse end
@@ -12,9 +10,9 @@ abstract type AbstractWeightFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
 abstract type DerivativeAngularCoefficients end
-abstract type GCGCAngularCoefficients <: AngularCoefficients end
-abstract type GCWLAngularCoefficients <: AngularCoefficients end
-abstract type WLWLAngularCoefficients <: AngularCoefficients end
+#abstract type GCGCAngularCoefficients <: AngularCoefficients end
+#abstract type GCWLAngularCoefficients <: AngularCoefficients end
+#abstract type WLWLAngularCoefficients <: AngularCoefficients end
 abstract type AbstractBias end
 struct PiecewiseBiasStruct <: AbstractBias end
 
@@ -78,19 +76,6 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
     HZArray::Vector{Float64} = zeros(300)
     rZArray::Vector{Float64} = zeros(300)
 end
-
-
-#"""
-#    PiecewiseBiasStruct(BiasArray::AbstractArray{Float64, 2} = ones(10, 300))
-#
-#
-#This struct contains the array with the bias values for all tomographic bins and
-#redshift values in the [`CosmologicalGridStruct`](@ref).
-#"""
-#@kwdef mutable struct PiecewiseBiasStruct <: Bias
-#    BiasArray::AbstractArray{Float64, 2} =
-#    ones(10, 300)
-#end
 
 """
     classyParamsStruct(classyParamsDict::Dict)
@@ -254,19 +239,6 @@ end
 
 @kwdef mutable struct DerivativeAngularCoefficientsStruct <: DerivativeAngularCoefficients
     DerivativeAngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
-end
-
-
-@kwdef mutable struct GCGCAngularCoefficientsStruct <: GCGCAngularCoefficients
-    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
-end
-
-@kwdef mutable struct WLWLAngularCoefficientsStruct <: WLWLAngularCoefficients
-    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
-end
-
-@kwdef mutable struct GCWLAngularCoefficientsStruct <: GCWLAngularCoefficients
-    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
 abstract type InterpolationMethod end

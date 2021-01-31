@@ -17,9 +17,9 @@ ZArray=Array(LinRange(0.001, 4.0, 500)))
 BackgroundQuantities = CosmoCentral.BackgroundQuantitiesStruct(HZArray=
 zeros(length(CosmologicalGrid.ZArray)),
 rZArray=zeros(length(CosmologicalGrid.ZArray)))
-PiecewiseBias = CosmoCentral.PiecewiseBiasStruct(BiasArray =
-zeros(length(ConvolvedDensity.DensityNormalizationArray),
-length(CosmologicalGrid.ZArray)))
+#PiecewiseBias = CosmoCentral.PiecewiseBiasStruct(BiasArray =
+#zeros(length(ConvolvedDensity.DensityNormalizationArray),
+#length(CosmologicalGrid.ZArray)))
 GCWeightFunction = CosmoCentral.GCWeightFunctionStruct(WeightFunctionArray =
 zeros(length(ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
@@ -113,15 +113,16 @@ end
 @testset "Check the Piecewise bias evaluation" begin
     z = 0.4
     test_array = zeros(length(CosmologicalGrid.ZArray))
-    bias = CosmoCentral.ComputeBias(z, PiecewiseBias, ConvolvedDensity)
+    bias = CosmoCentral.ComputeBias(z, GCWeightFunction.BiasKind,
+    ConvolvedDensity)
     @test isapprox(1.0997727037892875, bias, atol=1e-12)
     for (idxz, zvalue) in enumerate(CosmologicalGrid.ZArray)
-        test_array[idxz] = CosmoCentral.ComputeBias(zvalue, PiecewiseBias,
-        ConvolvedDensity)
+        test_array[idxz] = CosmoCentral.ComputeBias(zvalue,
+        GCWeightFunction.BiasKind, ConvolvedDensity)
     end
-    CosmoCentral.ComputeBiasOverGrid(CosmologicalGrid, PiecewiseBias,
-    ConvolvedDensity)
-    @test isapprox(test_array, PiecewiseBias.BiasArray[1,:], atol=1e-12)
+    CosmoCentral.ComputeBiasOverGrid(CosmologicalGrid,
+        GCWeightFunction, GCWeightFunction.BiasKind, ConvolvedDensity)
+    @test isapprox(test_array, GCWeightFunction.BiasArray[1,:], atol=1e-10)
 end
 
 @testset "Check the Weight function evaluation" begin
@@ -135,9 +136,8 @@ end
         for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
             test_gc[idx_ZBinArray, idxz] =
             CosmoCentral.ComputeWeightFunction(zvalue, idx_ZBinArray,
-            ConvolvedDensity, AnalitycalDensity,
-            InstrumentResponse, w0waCDMCosmology,
-            PiecewiseBias, GCWeightFunction)
+            ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+            w0waCDMCosmology, GCWeightFunction)
             test_le[idx_ZBinArray, idxz] =
             CosmoCentral.ComputeLensingEfficiency(zvalue, idx_ZBinArray,
             ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
@@ -150,8 +150,10 @@ end
         end
     end
     CosmoCentral.ComputeWeightFunctionOverGrid(GCWeightFunction,
-    AnalitycalDensity, InstrumentResponse, ConvolvedDensity, PiecewiseBias,
-    CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+        ConvolvedDensity,
+        CosmologicalGrid,
+        BackgroundQuantities,
+        w0waCDMCosmology)
     CosmoCentral.ComputeLensingEfficiencyOverGrid(
     WLWeightFunction, AnalitycalDensity,
     InstrumentResponse, ConvolvedDensity,
@@ -159,8 +161,10 @@ end
     BackgroundQuantities,
     w0waCDMCosmology)
     CosmoCentral.ComputeWeightFunctionOverGrid(WLWeightFunction,
-    AnalitycalDensity, InstrumentResponse, ConvolvedDensity, CosmologicalGrid,
-    BackgroundQuantities, w0waCDMCosmology)
+        ConvolvedDensity,
+        CosmologicalGrid,
+        BackgroundQuantities,
+        w0waCDMCosmology)
     @test isapprox(test_gc, GCWeightFunction.WeightFunctionArray, rtol=1e-9)
     @test isapprox(test_wl, WLWeightFunction.WeightFunctionArray, rtol=1e-9)
     @test isapprox(test_le, WLWeightFunction.LensingEfficiencyArray, rtol=1e-9)
@@ -225,7 +229,7 @@ end
 
 @testset "Test Angular coefficients evaluation" begin
     AngularCoefficientsLoaded = CosmoCentral.ReadAngularCoefficients(
-    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/cl")
+    "/home/mbonici/Desktop/CosmoCentral.jl/test/cl")
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(
@@ -234,20 +238,19 @@ end
     CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
-    GCGCAngularCoefficients = CosmoCentral.GCGCAngularCoefficientsStruct(
+    AngularCoefficients = CosmoCentral.AngularCoefficientsStruct(
     AngularCoefficientsArray = zeros(length(CosmologicalGrid.MultipolesArray),
     length(GCWeightFunction.WeightFunctionArray[:, 1]),
     length(GCWeightFunction.WeightFunctionArray[:, 1])))
-    CosmoCentral.ComputeAngularCoefficients(GCGCAngularCoefficients,
+    CosmoCentral.ComputeAngularCoefficients(AngularCoefficients,
     GCWeightFunction, GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
     CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomTrapz())
     @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
-    GCGCAngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
-    CosmoCentral.WriteAngularCoefficients(GCGCAngularCoefficients, CosmologicalGrid,
-    GCWeightFunction, PiecewiseBias,
-    ConvolvedDensity, "new_cl")
+    AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
+    CosmoCentral.WriteAngularCoefficients("PhotometricGalaxy_PhotometricGalaxy",
+    AngularCoefficients, "new_cl")
     AngularCoefficientsReloaded = CosmoCentral.ReadAngularCoefficients(
     "new_cl")
     @test isapprox(AngularCoefficientsReloaded.AngularCoefficientsArray,
-    GCGCAngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
+    AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
 end
