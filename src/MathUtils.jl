@@ -35,7 +35,7 @@ end
     CustomRegression(x::Vector{Float64}, y::Vector{Float64})
 
 Given two arrays ``x`` and ``y``, performs the linear regression and returns the
-coefficients ``c`` and ``m``.
+coefficients ``c`` and ``m`` of the fitted line.
 """
 function CustomRegression(x::Vector{Float64}, y::Vector{Float64})
     x_mean = mean(x)

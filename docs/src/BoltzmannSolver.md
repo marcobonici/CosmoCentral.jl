@@ -15,6 +15,7 @@ We plan to include other Boltzmann solvers in the future.
 CosmoCentral.PowerSpectrumStruct
 CosmoCentral.ComputeLimberArray
 CosmoCentral.InterpolateAndEvaluatePowerSpectrum
+CosmoCentral.InterpolationMethod
 ```
 
 ## classy

@@ -61,22 +61,19 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
 end
 
 """
-    BackgroundQuantitiesStruct(
-    CosmologicalGrid::CosmologicalGrid = CosmologicalGridStruct()
-    HZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    rZArray::Vector{Float64} = zeros(length(CosmologicalGrid.ZArray))
-    w0waCDMCosmology::w0waCDMCosmology = w0waCDMCosmologyStruct())
+    BackgroundQuantitiesStruct(HZArray::Vector{Float64},
+    rZArray::Vector{Float64})
 
-This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
+This struct contains the arrays with the values of the Hubble parameter ``H(z)``
+and the comoving distance ``r(z)``.
 """
 @kwdef struct BackgroundQuantitiesStruct <: BackgroundQuantities
-    HZArray::Vector{Float64} = zeros(300)
-    rZArray::Vector{Float64} = zeros(300)
+    HZArray::Vector{Float64} = zeros(500)
+    rZArray::Vector{Float64} = zeros(500)
 end
 
 """
     classyParamsStruct(classyParamsDict::Dict)
-
 
 This struct contains the dictionary with the classy parameters. For a detalied
 explanation of the parameters, please refer to the
@@ -188,8 +185,9 @@ end
 """
     GCWeightFunctionStruct()
 
-This struct contains the array with the Galaxy Clustering Weight function values
-for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
+This struct contains the array with the Galaxy Bias Galaxy Clustering Weight
+Function values for all tomographic bins and redshift values in the
+    [`CosmologicalGridStruct`](@ref).
 """
 @kwdef mutable struct GCWeightFunctionStruct <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
@@ -200,8 +198,9 @@ end
 """
     WLWeightFunctionStruct()
 
-This struct contains the array with the Weak Lensing Weight function values
-for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
+This struct contains the array with the Lensing Efficiency and Weak Lensing
+Weight Function values for all tomographic bins and redshift values in the
+[`CosmologicalGridStruct`](@ref)
 """
 @kwdef mutable struct WLWeightFunctionStruct <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
@@ -238,6 +237,18 @@ end
     DerivativeAngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
+"""
+    InterpolationMethod
+
+This type is used to specify the method to interpolate the Power Spectrum;
+actually are included:
+
+- Dierckx.jl, the Julia wrapper for the Fortran library Dierckx
+
+- GriddedLinear, from Interpolations.jl
+
+- BSpliceCubic (recommended for its speed and accuracy), from Interpolations.jl
+"""
 abstract type InterpolationMethod end
 
 struct RectBivSplineDierckx <: InterpolationMethod end

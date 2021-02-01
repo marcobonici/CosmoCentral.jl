@@ -6,4 +6,5 @@ listed here.
 ```@docs
 CosmoCentral.LogSpaced
 CosmoCentral.BinSearch
+CosmoCentral.CustomRegression
 ```

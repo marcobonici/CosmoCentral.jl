@@ -18,6 +18,7 @@ makedocs(
         "Boltzmann Solver" => "BoltzmannSolver.md",
         "Weight Functions" => "WeightFunction.md",
         "Angular Coefficients" => "AngularCoefficients.md",
+        "Derivatives" => "Derivatives.md",
         "Cosmological Structure" => "CosmologicalStructure.md",
         "Math Utils" => "MathUtils.md"
     ]

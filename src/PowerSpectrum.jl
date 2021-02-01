@@ -18,7 +18,8 @@ end
 
 """
     InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
-    BackgroundQuantities::BackgroundQuantities, PowerSpectrum::PowerSpectrum)
+    BackgroundQuantities::BackgroundQuantities, PowerSpectrum::PowerSpectrum,
+    ::InterpolationMethod)
 
 This function interpolates the Power Spectrum on the ``k-z`` grid and evaluates
 it on the Limber grid.

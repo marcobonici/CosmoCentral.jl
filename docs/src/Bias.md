@@ -1,5 +1,5 @@
 ```@setup tutorial
-using Plots, CosmoCentral
+using Plots CosmoCentral
 pyplot()
 import PyPlot
 ```
@@ -28,22 +28,23 @@ b(z)= \sqrt{1+\bar{z}}
 
 where ``\bar{z}`` is the redshift value in the center of the tomographic bin
 where the redshift ``z`` lies.
-The bias here is initialized and plotted.
+The PiecewiseBias here is plotted.
 ```@example tutorial
 CosmologicalGrid = CosmoCentral.CosmologicalGridStruct(
-        ZArray = LinRange(0.001, 2.5, 300))
+        ZArray = LinRange(0.001, 2.5, 500))
 ConvolvedDensity = CosmoCentral.ConvolvedDensityStruct(DensityGridArray =
         ones(10, length(CosmologicalGrid.ZArray)))
-Bias = CosmoCentral.PiecewiseBiasStruct(
-        BiasArray = zeros(length(ConvolvedDensity.DensityNormalizationArray),
+GCWeightFunction = CosmoCentral.GCWeightFunctionStruct(WeightFunctionArray=
+        zeros(length(ConvolvedDensity.DensityGridArray[1,:]),
         length(CosmologicalGrid.ZArray)))
-CosmoCentral.ComputeBiasOverGrid(CosmologicalGrid, Bias, ConvolvedDensity)
-x = CosmologicalGrid.ZArray; y = Bias.BiasArray[1, :];
+CosmoCentral.ComputeBiasOverGrid(CosmologicalGrid, GCWeightFunction,
+GCWeightFunction.BiasKind,
+ConvolvedDensity)
+x = CosmologicalGrid.ZArray; y = GCWeightFunction.BiasArray[1, :];
 plot(x, y, label = "Bias", xlabel="z")
 ```
 
 ```@docs
-CosmoCentral.PiecewiseBiasStruct
 CosmoCentral.ComputeBias
 CosmoCentral.ComputeBiasOverGrid
 ```
