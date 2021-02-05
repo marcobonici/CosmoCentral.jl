@@ -36,6 +36,15 @@ function WriteDerivativeCoefficients(DerivativeArray::AbstractArray{Float64, 3},
     DerivativeArray)
 end
 
+
+"""
+    WritePowerSpectrumBackground(PowerSpectrum::PowerSpectrum,
+    BackgroundQuantities::BackgroundQuantities,
+    CosmologicalGrid::CosmologicalGrid, Filename::String)
+
+This function writes the Power Spectrum, the Background quantities and the
+Cosmological Grid in a HDF5 file.
+"""
 function WritePowerSpectrumBackground(PowerSpectrum::PowerSpectrum,
     BackgroundQuantities::BackgroundQuantities,
     CosmologicalGrid::CosmologicalGrid, Filename::String)
@@ -62,6 +71,13 @@ function WritePowerSpectrumBackground(PowerSpectrum::PowerSpectrum,
     PowerSpectrum.PowerSpectrumNonlinArray)
 end
 
+"""
+    ReadPowerSpectrumBackground(Filename::String,
+    MultipolesArray::Vector{Float64})
+
+This function reads the Power Spectrum, the Background quantities and the
+Cosmological Grid from a HDF5 file.
+"""
 function ReadPowerSpectrumBackground(Filename::String,
     MultipolesArray::Vector{Float64})
     Filename *= ".h5"
