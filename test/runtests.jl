@@ -251,5 +251,5 @@ end
     AngularCoefficientsReloaded = CosmoCentral.ReadAngularCoefficients(
     "new_cl")
     @test isapprox(AngularCoefficientsReloaded.AngularCoefficientsArray,
-    AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
+    AngularCoefficients.AngularCoefficientsArray, rtol=1e-5)
 end
