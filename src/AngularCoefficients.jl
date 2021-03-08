@@ -64,6 +64,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     Integrand = similar(AngularCoefficients.AngularCoefficientsArray) .*0
+    Simpson_weights = SimpsonWeightArray(length(CosmologicalGrid.ZArray))
     @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
         j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
         l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
@@ -73,7 +74,8 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
             WeightFunctionB.WeightFunctionArray[j, z] /
             (BackgroundQuantities.HZArray[z] *
             BackgroundQuantities.rZArray[z]^2) *
-            PowerSpectrum.InterpolatedPowerSpectrum[l,z]
+            PowerSpectrum.InterpolatedPowerSpectrum[l,z] *
+            Simpson_weights[z]
         end
     end
     Integrand .*= (last(CosmologicalGrid.ZArray)-
