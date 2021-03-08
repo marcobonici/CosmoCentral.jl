@@ -127,13 +127,7 @@ function ComputeLensingEfficiencyOverGridCustom(
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmologyStruct)
     WLWeightFunction.LensingEfficiencyArray .*= 0
-    elimination_matrix = zeros(length(CosmologicalGrid.ZArray),
-    length(CosmologicalGrid.ZArray))
-    for i in 1:length(CosmologicalGrid.ZArray)
-        for j in i:length(CosmologicalGrid.ZArray)
-            elimination_matrix[i,j] = 1
-        end
-    end
+    Weight_Matrix = SimpsonWeightMatrix(length(CosmologicalGrid.ZArray))
     @avx for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
             for idx_ZArrayInt in 1:length(CosmologicalGrid.ZArray)
@@ -141,7 +135,7 @@ function ComputeLensingEfficiencyOverGridCustom(
                 idx_ZArray] += ConvolvedDensity.DensityGridArray[idx_ZBinArray,
                 idx_ZArrayInt] * (1 - BackgroundQuantities.rZArray[idx_ZArray] /
                 BackgroundQuantities.rZArray[idx_ZArrayInt]) *
-                elimination_matrix[idx_ZArray, idx_ZArrayInt]
+                Weight_Matrix[idx_ZArray, idx_ZArrayInt]
             end
         end
     end
