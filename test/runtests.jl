@@ -245,7 +245,7 @@ end
     GCWeightFunction, GCWeightFunction, BackgroundQuantities, w0waCDMCosmology,
     CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomTrapz())
     @test isapprox(AngularCoefficientsLoaded.AngularCoefficientsArray,
-    AngularCoefficients.AngularCoefficientsArray, rtol=1e-9)
+    AngularCoefficients.AngularCoefficientsArray, rtol=1e-5)
     CosmoCentral.WriteAngularCoefficients("PhotometricGalaxy_PhotometricGalaxy",
     AngularCoefficients, "new_cl")
     AngularCoefficientsReloaded = CosmoCentral.ReadAngularCoefficients(
