@@ -11,6 +11,7 @@ using HDF5
 using LoopVectorization
 using Statistics
 using JSON
+using JSON3
 numpy = pyimport("numpy")
 classy = pyimport("classy")
 

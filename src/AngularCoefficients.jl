@@ -81,4 +81,10 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     Integrand .*= (last(CosmologicalGrid.ZArray)-
     first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
     AngularCoefficients.AngularCoefficientsArray = Integrand
+    if any(isnan,Integrand)
+        println(w0waCDMCosmology)
+        throw("There is a NaN in the array you evaluated!")
+    else
+        println("Bella!")
+    end
 end

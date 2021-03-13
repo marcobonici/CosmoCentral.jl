@@ -4,6 +4,22 @@ function WriteAngularCoefficients(Probes::String,
     AngularCoefficients.AngularCoefficientsArray)
 end
 
+function WriteCosmology(Cosmology::w0waCDMCosmologyStruct, Filename::String)
+    CosmoDict = Dict{String,Float64}()
+    CosmoDict["w0"]  = Cosmology.w0
+    CosmoDict["wa"]  = Cosmology.wa
+    CosmoDict["Mν"]  = Cosmology.Mν
+    CosmoDict["H0"]  = Cosmology.H0
+    CosmoDict["ΩM"]  = Cosmology.ΩM
+    CosmoDict["ΩB"]  = Cosmology.ΩB
+    CosmoDict["ΩDE"] = Cosmology.ΩDE
+    CosmoDict["Ωk"]  = Cosmology.Ωk
+    CosmoDict["Ωr"]  = Cosmology.Ωr
+    CosmoDict["ns"]  = Cosmology.ns
+    CosmoDict["σ8"]  = Cosmology.σ8
+    JSON3.write(Filename*"/cosmology.json", CosmoDict)
+end
+
 function ReadAngularCoefficients(Filename::String)
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
