@@ -63,20 +63,31 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     PowerSpectrum::PowerSpectrum, ::CustomTrapz)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    Integrand = similar(AngularCoefficients.AngularCoefficientsArray) .*0
-    @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
-        j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
-        l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
-        for z ∈ axes(CosmologicalGrid.ZArray,1)
-            Integrand[l,i,j] += c_0 *
-            WeightFunctionA.WeightFunctionArray[i, z] *
-            WeightFunctionB.WeightFunctionArray[j, z] /
-            (BackgroundQuantities.HZArray[z] *
-            BackgroundQuantities.rZArray[z]^2) *
-            PowerSpectrum.InterpolatedPowerSpectrum[l,z]
+    check = true
+    while check == true
+        Integrand = similar(AngularCoefficients.AngularCoefficientsArray) .*0
+        Simpson_weights = SimpsonWeightArray(length(CosmologicalGrid.ZArray))
+        @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
+            j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
+            l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
+            for z ∈ axes(CosmologicalGrid.ZArray,1)
+                Integrand[l,i,j] += c_0 *
+                WeightFunctionA.WeightFunctionArray[i, z] *
+                WeightFunctionB.WeightFunctionArray[j, z] /
+                (BackgroundQuantities.HZArray[z] *
+                BackgroundQuantities.rZArray[z]^2) *
+                PowerSpectrum.InterpolatedPowerSpectrum[l,z] *
+                Simpson_weights[z]
+            end
+        end
+        Integrand .*= (last(CosmologicalGrid.ZArray)-
+        first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
+        AngularCoefficients.AngularCoefficientsArray = Integrand
+        if any(isnan,Integrand)
+            println("There is a problem, we need to evaluate the coefficients
+            for this cosmology again!!",w0waCDMCosmology)
+        else
+            check = false
         end
     end
-    Integrand .*= (last(CosmologicalGrid.ZArray)-
-    first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
-    AngularCoefficients.AngularCoefficientsArray = Integrand
 end

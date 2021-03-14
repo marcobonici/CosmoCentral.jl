@@ -50,3 +50,53 @@ function CustomRegression(x::Vector{Float64}, y::Vector{Float64})
     c = y_mean - m* x_mean
     return c, m
 end
+
+"""
+    SimpsonWeightArray(n::Int64)
+
+This function evaluates an array with the Simpson weight, for Simpson
+Integration
+"""
+function SimpsonWeightArray(n::Int64)
+    number_intervals = floor((n-1)/2)
+    weight_array = zeros(n)
+    if n == number_intervals*2+1
+        for i in 1:number_intervals
+            weight_array[Int((i-1)*2+1)] += 1/3
+            weight_array[Int((i-1)*2+2)] += 4/3
+            weight_array[Int((i-1)*2+3)] += 1/3
+        end
+    else
+        weight_array[1] += 0.5
+        weight_array[2] += 0.5
+        for i in 1:number_intervals
+            weight_array[Int((i-1)*2+1)+1] += 1/3
+            weight_array[Int((i-1)*2+2)+1] += 4/3
+            weight_array[Int((i-1)*2+3)+1] += 1/3
+        end
+        weight_array[length(weight_array)]   += 0.5
+        weight_array[length(weight_array)-1] += 0.5
+        for i in 1:number_intervals
+            weight_array[Int((i-1)*2+1)] += 1/3
+            weight_array[Int((i-1)*2+2)] += 4/3
+            weight_array[Int((i-1)*2+3)] += 1/3
+        end
+        weight_array ./= 2
+    end
+    return weight_array
+end
+
+"""
+    SimpsonWeightMatrix(n::Int64)
+
+This function evaluates an array with the Simpson weight, for Simpson
+Integration of the Lensing Efficiency
+"""
+function SimpsonWeightMatrix(n::Int64)
+    number_intervals = floor((n-1)/2)
+    weight_matrix = zeros(n, n)
+    for i in 1:n
+        weight_matrix[i,i:n] = SimpsonWeightArray(n-i+1)
+    end
+    return weight_matrix
+end

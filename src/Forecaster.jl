@@ -299,6 +299,7 @@ function InitializeComputeAngularCoefficients(ProbesDict::Dict,
                 CosmoCentral.CustomTrapz())
                 WriteAngularCoefficients(key_A*"_"*key_B,
                 AngularCoefficients, PathOutput*key*"/cl")
+                WriteCosmology(w0waCDMCosmology, PathOutput*key)
             end
         end
     end
