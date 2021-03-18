@@ -79,6 +79,7 @@ function EvaluatePowerSpectra(Cosmologies::Dict, Path::String,
         EvaluatePowerSpectrum(ClassyParams, CosmologicalGrid, PowerSpectrum)
         WritePowerSpectrumBackground(PowerSpectrum, BackgroundQuantities,
         CosmologicalGrid, Path*key*"/p_mm")
+        WriteCosmology(w0waCDMCosmology, PathOutput*key)
     end
 end
 
@@ -95,8 +96,10 @@ function InstantiateComputeWeightFunctionOverGrid(
     return GCWeightFunction
 end
 
-function InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity::AsbtractConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
+function InstantiateComputeWeightFunctionOverGrid(
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     WLWeightFunction::WLWeightFunctionStruct)
     ComputeLensingEfficiencyOverGridCustom(WLWeightFunction, ConvolvedDensity,
