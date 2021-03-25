@@ -43,6 +43,17 @@ function GL(Ell::Float64, ZArray::Vector{ComplexF64})
     return GL
 end
 
+function GL1(Ell::Float64, ZArray::Vector{ComplexF64})
+    GL1 = -2 .^(ZArray .- 1) * (z_array -1) .* GMVals(Ell+0.5, ZArray .- 2.5)
+    return GL1
+end
+
+function GL2(Ell::Float64, ZArray::Vector{ComplexF64})
+    GL2 = 2 .^ (ZArray .- 2) .* (ZArray .- 2) .* (ZArray .- 1) .*
+	GMVals(Ell+0.5, ZArray .- 3.5)
+    return GL
+end
+
 function LogExtrap(X::Vector{Float64}, NExtrapLow::Int64, NExtrapHigh::Int64)
     DLnXLow = log(X[2]/X[1])
     DLnXHigh= log(reverse(X)[1]/reverse(X)[2])
@@ -84,10 +95,48 @@ function EvaluateFFTLog(FFTLog::FFTLog, Ell::Vector{Float64})
     ZAr = FFTLog.ν .+ im .* FFTLog.ηM
     YArray = zeros(length(Ell), length(FFTLog.XArray))
     HMArray = zeros(ComplexF64, length(Ell), length(FFTLog.CM))
-    FYArray = zeros(ComplexF64, length(Ell), length(FFTLog.XArray))
+    FYArray = zeros(length(Ell), length(FFTLog.XArray))
     @inbounds for myl in 1:length(Ell)
         YArray[myl,:] = (Ell[myl] + 1) ./ reverse(FFTLog.XArray)
         HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^ (-im .*FFTLog.ηM) .* GL(Ell[myl], ZAr)
+        FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]), length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
+    end
+    return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
+end
+
+function EvaluateFFTLogDJ(FFTLog::FFTLog, Ell::Vector{Float64})
+    FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
+    FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
+    ZeroPad!(FFTLog)
+    GetCM!(FFTLog)
+    EvaluateηM!(FFTLog)
+    X0 = FFTLog.XArray[1]
+    ZAr = FFTLog.ν .+ im .* FFTLog.ηM
+    YArray = zeros(length(Ell), length(FFTLog.XArray))
+    HMArray = zeros(ComplexF64, length(Ell), length(FFTLog.CM))
+    FYArray = zeros(length(Ell), length(FFTLog.XArray))
+    @inbounds for myl in 1:length(Ell)
+        YArray[myl,:] = (Ell[myl] + 1) ./ reverse(FFTLog.XArray)
+        HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^ (-im .*FFTLog.ηM) .* GL1(Ell[myl], ZAr)
+        FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]), length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
+    end
+    return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
+end
+
+function EvaluateFFTLogDDJ(FFTLog::FFTLog, Ell::Vector{Float64})
+    FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
+    FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
+    ZeroPad!(FFTLog)
+    GetCM!(FFTLog)
+    EvaluateηM!(FFTLog)
+    X0 = FFTLog.XArray[1]
+    ZAr = FFTLog.ν .+ im .* FFTLog.ηM
+    YArray = zeros(length(Ell), length(FFTLog.XArray))
+    HMArray = zeros(ComplexF64, length(Ell), length(FFTLog.CM))
+    FYArray = zeros(length(Ell), length(FFTLog.XArray))
+    @inbounds for myl in 1:length(Ell)
+        YArray[myl,:] = (Ell[myl] + 1) ./ reverse(FFTLog.XArray)
+        HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^ (-im .*FFTLog.ηM) .* GL2(Ell[myl], ZAr)
         FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]), length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
     end
     return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
