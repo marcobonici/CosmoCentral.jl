@@ -3,14 +3,16 @@ function CWindow(N::Vector{Float64}, NCut::Int64)
     NR = filter(x->x>=NRight, N)
     ThetaRight = (last(N).-NR) ./ (last(N) - NRight - 1)
     W = ones(length(N))
-    W[findall(x->x>=NRight, N)] = ThetaRight .- 1 ./ (2*π) .* sin.(2 .* π .* ThetaRight)
+    W[findall(x->x>=NRight, N)] = ThetaRight .- 1 ./ (2*π) .* sin.(2 .* π .*
+	ThetaRight)
     return W
 end
 
 function GetCM!(FFTLog::FFTLog)
     FFTLog.CM = FFTW.rfft(FFTLog.FXArray .* FFTLog.XArray .^ (-FFTLog.ν))
-    FFTLog.M = Array(0:length(FFTLog.XArray)/2) #M should start from 0 or 1? And when should it end?
-    FFTLog.CM = FFTLog.CM .* CWindow(FFTLog.M, floor(Int, FFTLog.CWindowWidth*FFTLog.N/2))
+    FFTLog.M = Array(0:length(FFTLog.XArray)/2)
+    FFTLog.CM = FFTLog.CM .* CWindow(FFTLog.M, floor(Int,
+	FFTLog.CWindowWidth*FFTLog.N/2))
 end
 
 function EvaluateηM!(FFTLog::FFTLog)
@@ -32,9 +34,14 @@ function GMVals(Mu::Float64, Q::Array{Complex{Float64},1})
     QGood = filter(x->abs.(imag(x)) .+ abs(Mu) .<=cut && x != Mu + 1 ,Q)
     AlphaPlus  = (Mu .+1 .+ QGood) ./2
     AlphaMinus = (Mu .+1 .- QGood) ./2
-    GM[findall(x->abs.(imag(x)) .+ abs(Mu) .<=cut && x != Mu + 1 , Q)] .= SpecialFunctions.gamma.(AlphaPlus) ./ SpecialFunctions.gamma.(AlphaMinus)
-    GM[findall(x->abs.(imag(x))+abs(Mu) .> cut && x != Mu + 1 , Q)] = exp.(  (AsymPlus .- 0.5) .* log.(AsymPlus) .- (AsymMinus .- 0.5) .* log.(AsymMinus)  .-
-    AsymQ .+ 1/12 .* (1 ./AsymPlus .- 1 ./ AsymMinus) .+ 1/360 .* (1 ./AsymMinus .^3 .- 1 ./AsymPlus .^3) +1/1260 .* (1 ./AsymPlus .^ 5  .- 1 ./AsymMinus .^ 5)    )
+    GM[findall(x->abs.(imag(x)) .+ abs(Mu) .<=cut && x != Mu + 1 , Q)] .=
+	SpecialFunctions.gamma.(AlphaPlus) ./ SpecialFunctions.gamma.(AlphaMinus)
+    GM[findall(x->abs.(imag(x))+abs(Mu) .> cut && x != Mu + 1 , Q)] = exp.(
+	(AsymPlus .- 0.5) .* log.(AsymPlus) .- (AsymMinus .- 0.5) .*
+	log.(AsymMinus) .-
+	AsymQ .+ 1/12 .* (1 ./AsymPlus .- 1 ./ AsymMinus) .+ 1/360 .* (1 ./
+	AsymMinus .^3 .- 1 ./AsymPlus .^3) +1/1260 .* (1 ./AsymPlus .^ 5  .- 1 ./
+	AsymMinus .^ 5) )
     return GM
 end
 
@@ -86,8 +93,10 @@ function CheckNumberElements!(FFTLog::FFTLog)
 end
 
 function EvaluateFFTLog(FFTLog::FFTLog, Ell::Vector{Float64})
-    FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
-    FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
+    FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow,
+	FFTLog.NExtrapHigh)
+    FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow,
+	FFTLog.NExtrapHigh)
     ZeroPad!(FFTLog)
     GetCM!(FFTLog)
     EvaluateηM!(FFTLog)
@@ -98,15 +107,21 @@ function EvaluateFFTLog(FFTLog::FFTLog, Ell::Vector{Float64})
     FYArray = zeros(length(Ell), length(FFTLog.XArray))
     @inbounds for myl in 1:length(Ell)
         YArray[myl,:] = (Ell[myl] + 1) ./ reverse(FFTLog.XArray)
-        HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^ (-im .*FFTLog.ηM) .* GL(Ell[myl], ZAr)
-        FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]), length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
+        HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^
+		(-im .*FFTLog.ηM) .* GL(Ell[myl], ZAr)
+        FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]),
+		length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
     end
-    return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
+    return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+
+	FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+
+	1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
 end
 
 function EvaluateFFTLogDJ(FFTLog::FFTLog, Ell::Vector{Float64})
-    FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
-    FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
+    FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow,
+	FFTLog.NExtrapHigh)
+    FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow,
+	FFTLog.NExtrapHigh)
     ZeroPad!(FFTLog)
     GetCM!(FFTLog)
     EvaluateηM!(FFTLog)
@@ -117,15 +132,21 @@ function EvaluateFFTLogDJ(FFTLog::FFTLog, Ell::Vector{Float64})
     FYArray = zeros(length(Ell), length(FFTLog.XArray))
     @inbounds for myl in 1:length(Ell)
         YArray[myl,:] = (Ell[myl] + 1) ./ reverse(FFTLog.XArray)
-        HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^ (-im .*FFTLog.ηM) .* GL1(Ell[myl], ZAr)
-        FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]), length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
+        HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^
+		(-im .*FFTLog.ηM) .* GL1(Ell[myl], ZAr)
+        FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]),
+		length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
     end
-    return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
+    return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+
+	FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+
+	1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
 end
 
 function EvaluateFFTLogDDJ(FFTLog::FFTLog, Ell::Vector{Float64})
-    FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
-    FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow, FFTLog.NExtrapHigh)
+    FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow,
+	FFTLog.NExtrapHigh)
+    FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow,
+	FFTLog.NExtrapHigh)
     ZeroPad!(FFTLog)
     GetCM!(FFTLog)
     EvaluateηM!(FFTLog)
@@ -136,8 +157,12 @@ function EvaluateFFTLogDDJ(FFTLog::FFTLog, Ell::Vector{Float64})
     FYArray = zeros(length(Ell), length(FFTLog.XArray))
     @inbounds for myl in 1:length(Ell)
         YArray[myl,:] = (Ell[myl] + 1) ./ reverse(FFTLog.XArray)
-        HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^ (-im .*FFTLog.ηM) .* GL2(Ell[myl], ZAr)
-        FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]), length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
+        HMArray[myl,:]  = FFTLog.CM .* (FFTLog.XArray[1] .* YArray[myl,1] ) .^
+		(-im .*FFTLog.ηM) .* GL2(Ell[myl], ZAr)
+        FYArray[myl,:] = FFTW.irfft(conj(HMArray[myl,:]),
+		length(FFTLog.XArray)) .* YArray[myl,:] .^ (-FFTLog.ν) .* sqrt(π) ./4
     end
-    return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
+    return YArray[:,FFTLog.NExtrapLow+FFTLog.NPad+1:FFTLog.NExtrapLow+
+	FFTLog.NPad+FFTLog.OriginalLenght], FYArray[:,FFTLog.NExtrapLow+FFTLog.NPad+
+	1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
 end

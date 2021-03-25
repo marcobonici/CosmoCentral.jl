@@ -79,3 +79,41 @@ function ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
         CosmologicalGrid.ZArray[idx_ZArray], w0waCDMCosmology)
     end
 end
+
+function ComputeLogSpacedχGrid(CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities)
+    Zχ = Dierckx.Spline1D(BackgroundQuantities.rZArray, CosmologicalGrid.ZArray)
+    χArray = CosmoCentral.LogSpaced(BackgroundQuantities.rZArray[1],
+    last(BackgroundQuantities.rZArray), length(BackgroundQuantities.rZArray))
+    CosmologicalGrid.ZArray = Zχ.(χArray)
+end
+
+function ComputeBackgroundQuantitiesOverLogSpacedχGrid(
+    CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid, BackgroundQuantities,
+    w0waCDMCosmology)
+    ComputeLogSpacedχGrid(CosmologicalGrid, BackgroundQuantities)
+    ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid, BackgroundQuantities,
+    w0waCDMCosmology)
+end
+
+function ComputeLnSpacedχGrid(CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities)
+    Zχ = Dierckx.Spline1D(BackgroundQuantities.rZArray, CosmologicalGrid.ZArray)
+    χArray = CosmoCentral.LnSpaced(BackgroundQuantities.rZArray[1],
+    last(BackgroundQuantities.rZArray), length(BackgroundQuantities.rZArray))
+    CosmologicalGrid.ZArray = Zχ.(χArray)
+end
+
+function ComputeBackgroundQuantitiesOverLnSpacedχGrid(
+    CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid, BackgroundQuantities,
+    w0waCDMCosmology)
+    ComputeLnSpacedχGrid(CosmologicalGrid, BackgroundQuantities)
+    ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid, BackgroundQuantities,
+    w0waCDMCosmology)
+end
