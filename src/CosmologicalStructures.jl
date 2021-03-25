@@ -12,6 +12,7 @@ abstract type AngularCoefficients end
 abstract type DerivativeAngularCoefficients end
 abstract type AbstractBias end
 struct PiecewiseBiasStruct <: AbstractBias end
+abstract type FFTLog end
 
 """
     w0waCDMCosmologyStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -254,3 +255,19 @@ abstract type InterpolationMethod end
 struct RectBivSplineDierckx <: InterpolationMethod end
 struct GriddedLinear <: InterpolationMethod end
 struct BSplineCubic <: InterpolationMethod end
+
+@kwdef mutable struct FFTLogStruct <: FFTLog
+    XArray::Vector{Float64}
+    DLnX::Float64 = log(XArray[2]/XArray[1])
+    FXArray::Vector{Float64}
+    OriginalLenght::Int64 = length(XArray)
+    ν::Float64 = 1.01
+    NExtrapLow::Int64 = 0
+    NExtrapHigh::Int64 = 0
+    CWindowWidth::Float64 = 0.25
+    NPad::Int64 = 0
+    N::Int64 = OriginalLenght+NExtrapHigh+NExtrapLow+2*NPad
+    M::Vector{Float64} = zeros(N)
+    CM::Vector{ComplexF64} = zeros(N)
+    ηM::Vector{Float64} = zeros(N)
+end

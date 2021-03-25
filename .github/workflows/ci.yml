@@ -4,11 +4,12 @@ on:
     branches:
       - main
       - develop
+      - beyond_limber
   push:
     branches:
       - main
       - develop
-      - refactoring
+      - beyond_limber
     tags: '*'
 jobs:
   test:
@@ -18,7 +19,8 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.5' # Replace this with the minimum Julia version that your package supports. E.g. if your package requires Julia 1.5 or higher, change this to '1.5'.
+          - '1.5'
+          - '1.0' # Replace this with the minimum Julia version that your package supports. E.g. if your package requires Julia 1.5 or higher, change this to '1.5'.
         os:
           - ubuntu-latest
         arch:

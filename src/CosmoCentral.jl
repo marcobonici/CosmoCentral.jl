@@ -12,6 +12,8 @@ using LoopVectorization
 using Statistics
 using JSON
 using JSON3
+using FFTW
+using SpecialFunctions
 using LatinHypercubeSampling
 numpy = pyimport("numpy")
 classy = pyimport("classy")
@@ -29,5 +31,6 @@ include("FileIO.jl")
 include("Forecaster.jl")
 include("Derivator.jl")
 include("LHSampler.jl")
+include("FFTLog.jl")
 
 end # module
