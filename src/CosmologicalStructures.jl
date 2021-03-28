@@ -7,6 +7,7 @@ abstract type AsbtractDensity end
 abstract type AsbtractConvolvedDensity end
 abstract type InstrumentResponse end
 abstract type AbstractWeightFunction end
+abstract type AbstractTransferFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
 abstract type DerivativeAngularCoefficients end
@@ -192,7 +193,7 @@ Function values for all tomographic bins and redshift values in the
 """
 @kwdef mutable struct GCWeightFunctionStruct <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
-    BiasArray::AbstractArray{Float64, 2} = zeros(10, 500)
+    BiasArray::AbstractArray{Float64, 2} = zeros(size(WeightFunctionArray))
     BiasKind::AbstractBias = PiecewiseBiasStruct()
 end
 
@@ -217,12 +218,11 @@ evaluated on the ``k-z`` grid and the interpolated Nonlinear Power Spectrum on
 Limber ``k-z`` grid.
 """
 @kwdef mutable struct PowerSpectrumStruct <: PowerSpectrum
-    PowerSpectrumLinArray::AbstractArray{Float64, 2} =
-    zeros(1000, 300)
-    PowerSpectrumNonlinArray::AbstractArray{Float64, 2} =
-    zeros(1000, 300)
-    InterpolatedPowerSpectrum::AbstractArray{Float64, 2} =
-    zeros(2991, 300)
+    PowerSpectrumLinArray::AbstractArray{Float64, 2} = zeros(1000, 300)
+    PowerSpectrumNonlinArray::AbstractArray{Float64, 2} = zeros(1000, 300)
+    InterpolatedPowerSpectrum::AbstractArray{Float64, 2} = zeros(2991, 300)
+    GrowthFactor::AbstractArray{Float64, 1} = zeros(
+    length(PowerSpectrumLinArray[:,1]))
 end
 
 """
@@ -265,9 +265,21 @@ struct BSplineCubic <: InterpolationMethod end
     NExtrapLow::Int64 = 0
     NExtrapHigh::Int64 = 0
     CWindowWidth::Float64 = 0.25
-    NPad::Int64 = 0
+    NPad::Int64 = 500
     N::Int64 = OriginalLenght+NExtrapHigh+NExtrapLow+2*NPad
     M::Vector{Float64} = zeros(N)
     CM::Vector{ComplexF64} = zeros(N)
     ηM::Vector{Float64} = zeros(N)
+end
+
+"""
+    κTransferFunctionStruct()
+
+This struct contains the array with the Lensing Efficiency and Weak Lensing
+Weight Function values for all tomographic bins and redshift values in the
+[`CosmologicalGridStruct`](@ref)
+"""
+@kwdef mutable struct κTransferFunctionStruct <: AbstractWeightFunction
+    WLWeightFunction::WLWeightFunctionStruct = WLWeightFunctionStruct
+    TransferFunctionArray::AbstractArray{Float64, 3} = zeros(10, 100, 1000)
 end

@@ -32,5 +32,6 @@ include("Forecaster.jl")
 include("Derivator.jl")
 include("LHSampler.jl")
 include("FFTLog.jl")
+include("TransferFunctions.jl")
 
 end # module
