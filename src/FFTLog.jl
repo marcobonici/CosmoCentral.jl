@@ -1,3 +1,9 @@
+"""
+    CWindow(N::Vector{Float64}, NCut::Int64)
+
+This function evaluates the smoothing window function as defined
+[in Eq. (C.1) of this paper](https://arxiv.org/abs/1603.04826).
+"""
 function CWindow(N::Vector{Float64}, NCut::Int64)
     NRight = last(N) - NCut
     NR = filter(x->x>=NRight, N)
