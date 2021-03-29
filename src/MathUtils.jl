@@ -138,7 +138,7 @@ function UnevenTrapzWeightArray(InputArray::Vector{Float64})
     return WeightArray
 end
 
-function UnevenTrapzWeightMatrix(InputMatrix::Vector{Float64, 2})
+function UnevenTrapzWeightMatrix(InputMatrix::AbstractArray{Float64, 2})
     WeightMatrix = zeros(size(InputMatrix))
     for lidx in 1:length(WeightMatrix[:,1])
         WeightMatrix[lidx,:] = UnevenTrapzWeightArray(InputMatrix[lidx,:])
