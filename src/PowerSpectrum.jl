@@ -79,9 +79,9 @@ function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
 end
 
 function ExtractGrowthFactor(PowerSpectrum::PowerSpectrum)
-    for zidx in 1::length(PowerSpectrum.GrowthFactor)
+    for zidx in 1:length(PowerSpectrum.GrowthFactor)
         PowerSpectrum.GrowthFactor[zidx] =
-        sqrt(PowerSpectrum.PowerSpectrumLinArray[1,zidx]/
+        sqrt(PowerSpectrum.PowerSpectrumLinArray[1,zidx]./
         PowerSpectrum.PowerSpectrumLinArray[1,1])
     end
 end

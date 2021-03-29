@@ -282,7 +282,7 @@ This struct contains the array with the Lensing Efficiency and Weak Lensing
 Weight Function values for all tomographic bins and redshift values in the
 [`CosmologicalGridStruct`](@ref)
 """
-@kwdef mutable struct κTransferFunctionStruct <: AbstractWeightFunction
+@kwdef mutable struct κTransferFunctionStruct <: AbstractTransferFunction
     WLWeightFunction::WLWeightFunctionStruct = WLWeightFunctionStruct
     TransferFunctionArray::AbstractArray{Float64, 3} = zeros(10, 100, 1000)
 end
