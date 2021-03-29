@@ -120,9 +120,28 @@ end
 This function evaluates the n-th discrete difference of a given 1-D array.
 """
 function Difference(InputArray::Vector{Float64})
-    OutputArray = zeros(length(InputArray))
-    for i in range 1:length(InputArray)-1
+    OutputArray = zeros(length(InputArray)-1)
+    for i in range 2:length(InputArray)-1
         OutputArray[i] = InputArray[i+1] - InputArray[i]
     end
     return OutputArray
+end
+
+function UnevenTrapzWeightArray(InputArray::Vector{Float64})
+    WeightArray = zeros(length(InputArray))
+    DifferenceArray = Difference(InputArray)
+    for idx in 1:length(WeightArray)
+        WeightArray[i] = (DifferenceArray[idx]+DifferenceArray[idx-1])/2
+    end
+    WeightArray[1] = DifferenceArray[1]/2
+    WeightArray[length(InputArray)] = DifferenceArray[length(InputArray)-1]/2
+    return WeightArray
+end
+
+function UnevenTrapzWeightMatrix(InputMatrix::Vector{Float64, 2})
+    WeightMatrix = zeros(size(InputMatrix))
+    for lidx in 1:length(WeightMatrix[:,1])
+        WeightMatrix[lidx,:] = UnevenTrapzWeightArray(InputMatrix[lidx,:])
+    end
+    return WeightMatrix
 end
