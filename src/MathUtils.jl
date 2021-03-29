@@ -113,3 +113,16 @@ function SimpsonWeightMatrix(n::Int64)
     end
     return weight_matrix
 end
+
+"""
+    Difference(InputArray::Vector{Float64})
+
+This function evaluates the n-th discrete difference of a given 1-D array.
+"""
+function Difference(InputArray::Vector{Float64})
+    OutputArray = zeros(length(InputArray))
+    for i in range 1:length(InputArray)-1
+        OutputArray[i] = InputArray[i+1] - InputArray[i]
+    end
+    return OutputArray
+end

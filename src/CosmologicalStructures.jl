@@ -60,6 +60,7 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
     MultipolesArray::Vector{Float64} = LinRange(10., 3000., 2991)
     KLimberArray::AbstractArray{Float64, 2} = zeros(length(MultipolesArray),
     length(ZArray))
+    KBeyondLimberArray::AbstractArray{Float64, 2} = zeros(100, 1000)
 end
 
 """
@@ -223,6 +224,8 @@ Limber ``k-z`` grid.
     InterpolatedPowerSpectrum::AbstractArray{Float64, 2} = zeros(2991, 300)
     GrowthFactor::AbstractArray{Float64, 1} = zeros(
     length(PowerSpectrumLinArray[:,1]))
+    InterpolatedPowerSpectrumBeyondLimber::AbstractArray{Float64, 3} =
+    zeros(10, 100, 1000)
 end
 
 """

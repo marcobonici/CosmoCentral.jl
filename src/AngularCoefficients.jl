@@ -53,7 +53,7 @@ end
 
 This function evaluates the Angular Coefficients for all tomographic bins and
 multipole values. In order to evaluate the numerical integrals, it has been
-implemented the trapezoidal rule.
+implemented the Simpson rule.
 """
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::AbstractWeightFunction,
