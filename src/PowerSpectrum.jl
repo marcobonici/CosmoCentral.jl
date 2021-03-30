@@ -71,7 +71,8 @@ function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
     for iidx in 1:length(ConvolvedDensity.ZBinArray)-1
         for lidx in 1:length(CosmologicalGrid.MultipolesArray)
             PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[iidx, lidx, :] =
-            10 .^(InterpPmm.(log10.(CosmologicalGrid.KBeyondLimberArray[lidx, :]),
+            10 .^(InterpPmm.(log10.(
+            CosmologicalGrid.KBeyondLimberArray[lidx, :]),
             (ConvolvedDensity.ZBinArray[iidx+1]-
             ConvolvedDensity.ZBinArray[iidx])/2))
         end

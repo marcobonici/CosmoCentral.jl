@@ -121,7 +121,7 @@ This function evaluates the n-th discrete difference of a given 1-D array.
 """
 function Difference(InputArray::Vector{Float64})
     OutputArray = zeros(length(InputArray)-1)
-    for i in range 2:length(InputArray)-1
+    for i in 1:length(InputArray)-1
         OutputArray[i] = InputArray[i+1] - InputArray[i]
     end
     return OutputArray
@@ -130,8 +130,8 @@ end
 function UnevenTrapzWeightArray(InputArray::Vector{Float64})
     WeightArray = zeros(length(InputArray))
     DifferenceArray = Difference(InputArray)
-    for idx in 1:length(WeightArray)
-        WeightArray[i] = (DifferenceArray[idx]+DifferenceArray[idx-1])/2
+    for idx in 2:length(WeightArray)-1
+        WeightArray[idx] = (DifferenceArray[idx]+DifferenceArray[idx-1])/2
     end
     WeightArray[1] = DifferenceArray[1]/2
     WeightArray[length(InputArray)] = DifferenceArray[length(InputArray)-1]/2

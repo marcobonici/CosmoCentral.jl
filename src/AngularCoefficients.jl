@@ -102,18 +102,18 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     check = true
     while check == true
         Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray))
-        Simpson_weights = SimpsonWeightArray(length(CosmologicalGrid.ZArray))
-        @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
+        WeightsMatrix =
+        UnevenTrapzWeightMatrix(CosmologicalGrid.KBeyondLimberArray)
+        for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
             j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
             l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
-            for z ∈ axes(CosmologicalGrid.ZArray,1)
-                Integrand[l,i,j] += c_0 *
-                WeightFunctionA.WeightFunctionArray[i, z] *
-                WeightFunctionB.WeightFunctionArray[j, z] /
-                (BackgroundQuantities.HZArray[z] *
-                BackgroundQuantities.rZArray[z]^2) *
-                PowerSpectrum.InterpolatedPowerSpectrum[l,z] *
-                Simpson_weights[z]
+            for k ∈ axes(CosmologicalGrid.KBeyondLimberArray,1)
+                Integrand[l,i,j] += 2 / π * WeightsMatrix[l, k] *
+                TransferFunctionA.TransferFunctionArray[i, l, k] *
+                TransferFunctionB.TransferFunctionArray[j, l, k] *
+                sqrt(PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[i,l,k]) *
+                sqrt(PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[j,l,k]) *
+                CosmologicalGrid.KBeyondLimberArray[k]^2
             end
         end
         Integrand .*= (last(CosmologicalGrid.ZArray)-
