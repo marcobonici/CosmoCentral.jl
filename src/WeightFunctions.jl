@@ -76,6 +76,21 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     return int
 end
 
+function ComputeLensingEfficiency(z::Float64, i::Int64,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    CosmologicalGrid::CosmologicalGrid,
+    LensingSourceFunction::LensingSourceFunctionStruct)
+    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
+    x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
+    (1. - CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology)/
+    CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology)), z,
+    last(CosmologicalGrid.ZArray) , rtol=1e-12)
+    return int
+end
+
 
 """
     ComputeLensingEfficiencyOverGrid(
@@ -105,6 +120,25 @@ function ComputeLensingEfficiencyOverGrid(
             idx_ZBinArray, ConvolvedDensity, AnalitycalDensity,
             InstrumentResponse, w0waCDMCosmology, CosmologicalGrid,
             WLWeightFunction)
+        end
+    end
+end
+
+function ComputeLensingEfficiencyOverGrid(
+    LensingSourceFunction::LensingSourceFunctionStruct,
+    AnalitycalDensity::AnalitycalDensityStruct,
+    InstrumentResponse::InstrumentResponse,
+    ConvolvedDensity::AsbtractConvolvedDensity,
+    CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
+        for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
+            LensingSourceFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray] =
+            ComputeLensingEfficiency(CosmologicalGrid.ZArray[idx_ZArray],
+            idx_ZBinArray, ConvolvedDensity, AnalitycalDensity,
+            InstrumentResponse, w0waCDMCosmology, CosmologicalGrid,
+            LensingSourceFunction)
         end
     end
 end

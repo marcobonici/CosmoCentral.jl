@@ -116,8 +116,6 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
                 CosmologicalGrid.KBeyondLimberArray[k]^2
             end
         end
-        Integrand .*= (last(CosmologicalGrid.ZArray)-
-        first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
         AngularCoefficients.AngularCoefficientsArray = Integrand
         if any(isnan,Integrand)
             println("There is a problem, we need to evaluate the coefficients

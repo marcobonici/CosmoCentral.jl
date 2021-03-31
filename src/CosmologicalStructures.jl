@@ -7,6 +7,7 @@ abstract type AsbtractDensity end
 abstract type AsbtractConvolvedDensity end
 abstract type InstrumentResponse end
 abstract type AbstractWeightFunction end
+abstract type AbstractSourceFunction end
 abstract type AbstractTransferFunction end
 abstract type PowerSpectrum end
 abstract type AngularCoefficients end
@@ -210,6 +211,11 @@ Weight Function values for all tomographic bins and redshift values in the
     LensingEfficiencyArray::AbstractArray{Float64, 2} = zeros(10, 500)
 end
 
+@kwdef mutable struct LensingSourceFunctionStruct <: AbstractSourceFunction
+    SourceFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
+    LensingEfficiencyArray::AbstractArray{Float64, 2} = zeros(10, 500)
+end
+
 
 """
     PowerSpectrumStruct()
@@ -283,6 +289,6 @@ Weight Function values for all tomographic bins and redshift values in the
 [`CosmologicalGridStruct`](@ref)
 """
 @kwdef mutable struct κTransferFunctionStruct <: AbstractTransferFunction
-    WLWeightFunction::WLWeightFunctionStruct = WLWeightFunctionStruct
+    LensingSourceFunction::LensingSourceFunctionStruct = LensingSourceFunctionStruct
     TransferFunctionArray::AbstractArray{Float64, 3} = zeros(10, 100, 1000)
 end
