@@ -97,31 +97,20 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     TransferFunctionB::AbstractTransferFunction,
     w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     PowerSpectrum::PowerSpectrum)
-    c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
-                       #physical constants involved in calculations
-    check = true
-    while check == true
-        Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray))
-        WeightsMatrix =
-        UnevenTrapzWeightMatrix(CosmologicalGrid.KBeyondLimberArray)
-        for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
-            j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
-            l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
-            for k ∈ axes(CosmologicalGrid.KBeyondLimberArray,1)
-                Integrand[l,i,j] += 2 / π * WeightsMatrix[l, k] *
-                TransferFunctionA.TransferFunctionArray[i, l, k] *
-                TransferFunctionB.TransferFunctionArray[j, l, k] *
-                sqrt(PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[i,l,k]) *
-                sqrt(PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[j,l,k]) *
-                CosmologicalGrid.KBeyondLimberArray[k]^2
-            end
-        end
-        AngularCoefficients.AngularCoefficientsArray = Integrand
-        if any(isnan,Integrand)
-            println("There is a problem, we need to evaluate the coefficients
-            for this cosmology again!!",w0waCDMCosmology)
-        else
-            check = false
+    Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray))
+    WeightsMatrix =
+    UnevenTrapzWeightMatrix(CosmologicalGrid.KBeyondLimberArray)
+    for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
+        j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
+        l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
+        for k ∈ axes(CosmologicalGrid.KBeyondLimberArray,2)
+            Integrand[l,i,j] += 2 / π * WeightsMatrix[l, k] *
+            TransferFunctionA.TransferFunctionArray[i, l, k] *
+            TransferFunctionB.TransferFunctionArray[j, l, k] *
+            sqrt(PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[i,l,k]*
+            PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[j,l,k]) *
+            CosmologicalGrid.KBeyondLimberArray[l, k]^2
         end
     end
+    AngularCoefficients.AngularCoefficientsArray = Integrand
 end
