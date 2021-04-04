@@ -84,8 +84,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
         first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
         AngularCoefficients.AngularCoefficientsArray = Integrand
         if any(isnan,Integrand)
-            println("There is a problem, we need to evaluate the coefficients
-            for this cosmology again!!",w0waCDMCosmology)
+
         else
             check = false
         end

@@ -15,6 +15,7 @@ using JSON3
 using FFTW
 using SpecialFunctions
 using LatinHypercubeSampling
+using Random
 numpy = pyimport("numpy")
 classy = pyimport("classy")
 
