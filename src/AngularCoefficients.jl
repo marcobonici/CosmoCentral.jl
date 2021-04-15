@@ -99,7 +99,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray))
     WeightsMatrix =
     UnevenTrapzWeightMatrix(CosmologicalGrid.KBeyondLimberArray)
-    for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
+    @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
         j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
         l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
         for k ∈ axes(CosmologicalGrid.KBeyondLimberArray,2)
