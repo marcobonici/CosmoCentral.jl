@@ -28,7 +28,7 @@ end
 
 function GMVals(Mu::Float64, Q::Array{Complex{Float64},1})
     if(Mu+1+real(Q[1]) == 0)
-        println("Γ(0) encountered. Please change another nu value! Try ν=1.1 .")
+        println("Γ(0) encountered. Please change another ν value! Try ν=1.1 .")
     end
     ImagQ = imag(Q)
     GM = zeros(ComplexF64, length(Q))
