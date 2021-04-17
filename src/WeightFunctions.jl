@@ -85,8 +85,10 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     LensingSourceFunction::LensingSourceFunctionStruct)
     int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
-    ((CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology) - CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology))/
-    (CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology) * CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology)  ) ), z,
+    ((CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology) -
+    CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology))/
+    (CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology) *
+    CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology)  ) ), z,
     last(CosmologicalGrid.ZArray) , rtol=1e-12)
     return int
 end
