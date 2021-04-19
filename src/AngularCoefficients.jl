@@ -1,6 +1,7 @@
 abstract type IntegrationMethod end
 struct NumericalIntegrationSimpson <: IntegrationMethod end
 struct CustomTrapz <: IntegrationMethod end
+struct BeyondLimber <: IntegrationMethod end
 
 """
     ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
@@ -95,7 +96,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     TransferFunctionA::AbstractTransferFunction,
     TransferFunctionB::AbstractTransferFunction,
     w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
-    PowerSpectrum::PowerSpectrum)
+    PowerSpectrum::PowerSpectrum, ::BeyondLimber)
     Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray))
     WeightsMatrix =
     UnevenTrapzWeightMatrix(CosmologicalGrid.KBeyondLimberArray)
@@ -106,8 +107,7 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
             Integrand[l,i,j] += 2 / π * WeightsMatrix[l, k] *
             TransferFunctionA.TransferFunctionArray[i, l, k] *
             TransferFunctionB.TransferFunctionArray[j, l, k] *
-            sqrt(PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[i,l,k] *
-            PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[j,l,k]) *
+            PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[l,k] *
             CosmologicalGrid.KBeyondLimberArray[l, k]^2
         end
     end

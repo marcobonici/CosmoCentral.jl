@@ -12,19 +12,6 @@ function LogSpaced(min::Float64, max::Float64, n::Int64)
 end
 
 """
-    LnSpaced(min::Float64, max::Float64, n::Int64)
-
-This function evaluates ``n`` points, natural logarithmically spaced between
-    ``min`` and ``max``.
-"""
-function LnSpaced(min::Float64, max::Float64, n::Int64)
-    lnmin = log(min)
-    lnmax = log(max)
-    lnarray = Array(LinRange(lnmin, lnmax, n))
-    return exp.(lnarray)
-end
-
-"""
     BinSearch(x::Float64, Array::Vector{Float64})
 
 Given a value ``z`` and an Array, determines the couple of array elements where
@@ -127,6 +114,13 @@ function Difference(InputArray::Vector{Float64})
     return OutputArray
 end
 
+
+"""
+    UnevenTrapzWeightArray(InputArray::Vector{Float64})
+
+This function evaluates the array of weights for the integration with uneven
+spaced points and the Trapezoidal rule.
+"""
 function UnevenTrapzWeightArray(InputArray::Vector{Float64})
     WeightArray = zeros(length(InputArray))
     DifferenceArray = Difference(InputArray)

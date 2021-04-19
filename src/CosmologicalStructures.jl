@@ -25,7 +25,7 @@ abstract type FFTLog end
 This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM cosmologies:
 - ``w_0`` and ``w_a``, the parameters in the [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
 
-- ``\\Omega_M``, ``\\Omega_B``, ``\\Omega_{DE}``, ``\\Omega_R``, and ``\\Omega_k`` the density parameters for matter, baryons, Dark Energy, radiation, curvature
+- ``\\Omega_M``, ``\\Omega_B``, ``\\Omega_{DE}``, ``\\Omega_R``, and ``\\Omega_k`` the density parameters for respectively  matter, baryons, Dark Energy, radiation, curvature
 
 - ``n_s``, the scalar spectral index
 
@@ -230,8 +230,8 @@ Limber ``k-z`` grid.
     InterpolatedPowerSpectrum::AbstractArray{Float64, 2} = zeros(2991, 300)
     GrowthFactor::AbstractArray{Float64, 1} = zeros(
     length(PowerSpectrumLinArray[:,1]))
-    InterpolatedPowerSpectrumBeyondLimber::AbstractArray{Float64, 3} =
-    zeros(10, 100, 1000)
+    InterpolatedPowerSpectrumBeyondLimber::AbstractArray{Float64, 2} =
+    zeros(100, 1000)
 end
 
 """
