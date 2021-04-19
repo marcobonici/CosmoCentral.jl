@@ -73,8 +73,7 @@ function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
             PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[lidx, :] =
             10 .^(InterpPmm.(log10.(
             CosmologicalGrid.KBeyondLimberArray[lidx, :]),
-            CosmologicalGrid.ZArray[1]
-            ))
+            CosmologicalGrid.ZArray[1]))
         end
     end
 end
