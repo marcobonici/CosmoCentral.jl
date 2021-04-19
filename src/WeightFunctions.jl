@@ -70,8 +70,10 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     WLWeightFunction::WLWeightFunctionStruct)
     int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
-    (1. - CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology)/
-    CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology)), z,
+    ((ComputeComovingDistance(x, w0waCDMCosmology) -
+    ComputeComovingDistance(z, w0waCDMCosmology))/
+    (ComputeComovingDistance(x, w0waCDMCosmology) *
+    ComputeComovingDistance(z, w0waCDMCosmology)  ) ), z,
     last(CosmologicalGrid.ZArray) , rtol=1e-12)
     return int
 end
@@ -85,10 +87,10 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     LensingSourceFunction::LensingSourceFunctionStruct)
     int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
-    ((CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology) -
-    CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology))/
-    (CosmoCentral.ComputeComovingDistance(x, w0waCDMCosmology) *
-    CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology)  ) ), z,
+    ((ComputeComovingDistance(x, w0waCDMCosmology) -
+    ComputeComovingDistance(z, w0waCDMCosmology))/
+    (ComputeComovingDistance(x, w0waCDMCosmology) *
+    ComputeComovingDistance(z, w0waCDMCosmology)  ) ), z,
     last(CosmologicalGrid.ZArray) , rtol=1e-12)
     return int
 end
@@ -169,8 +171,10 @@ function ComputeLensingEfficiencyOverGridCustom(
             for idx_ZArrayInt in 1:length(CosmologicalGrid.ZArray)
                 WLWeightFunction.LensingEfficiencyArray[idx_ZBinArray,
                 idx_ZArray] += ConvolvedDensity.DensityGridArray[idx_ZBinArray,
-                idx_ZArrayInt] * (1 - BackgroundQuantities.rZArray[idx_ZArray] /
-                BackgroundQuantities.rZArray[idx_ZArrayInt]) *
+                idx_ZArrayInt] * (BackgroundQuantities.rZArray[idx_ZArrayInt] -
+                BackgroundQuantities.rZArray[idx_ZArray]) /
+                BackgroundQuantities.rZArray[idx_ZArrayInt] /
+                BackgroundQuantities.rZArray[idx_ZArray] *
                 Weight_Matrix[idx_ZArray, idx_ZArrayInt]
             end
         end
@@ -204,7 +208,7 @@ function ComputeWeightFunction(z::Float64, i::Int64,
     return 1.5 * ComputeLensingEfficiency(z, i, ConvolvedDensity,
     AnalitycalDensity,InstrumentResponse, w0waCDMCosmology, CosmologicalGrid,
     WLWeightFunction) * (w0waCDMCosmology.H0/c_0)^2 * w0waCDMCosmology.ΩM *
-    (1. + z) * ComputeComovingDistance(z, w0waCDMCosmology)
+    (1. + z) * ComputeComovingDistance(z, w0waCDMCosmology)^2
 end
 
 
@@ -232,7 +236,7 @@ function ComputeWeightFunctionOverGrid(
             WLWeightFunction.WeightFunctionArray[idx_ZBinArray, idx_ZArray] =
             1.5 * (w0waCDMCosmology.H0/c_0)^2 * w0waCDMCosmology.ΩM *
             (1. + CosmologicalGrid.ZArray[idx_ZArray]) *
-            BackgroundQuantities.rZArray[idx_ZArray] *
+            BackgroundQuantities.rZArray[idx_ZArray]^2 *
             WLWeightFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray]
         end
     end
