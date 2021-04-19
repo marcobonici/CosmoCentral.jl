@@ -4,7 +4,7 @@ abstract type AngularCoefficientsGrid end
 abstract type BackgroundQuantities end
 abstract type BoltzmannSolverParams end
 abstract type AsbtractDensity end
-abstract type AsbtractConvolvedDensity end
+abstract type AbstractConvolvedDensity end
 abstract type InstrumentResponse end
 abstract type AbstractWeightFunction end
 abstract type AbstractSourceFunction end
@@ -152,7 +152,7 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
 \\left(z_{\\mathrm{p}} \\mid z\\right)}
 ```
 """
-@kwdef mutable struct ConvolvedDensityStruct <: AsbtractConvolvedDensity
+@kwdef mutable struct ConvolvedDensityStruct <: AbstractConvolvedDensity
     ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
     0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
     DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)

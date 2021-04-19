@@ -84,7 +84,7 @@ function EvaluatePowerSpectra(Cosmologies::Dict, Path::String,
 end
 
 function InstantiateComputeWeightFunctionOverGrid(
-    ConvolvedDensity::AsbtractConvolvedDensity,
+    ConvolvedDensity::AbstractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     GCWeightFunction::GCWeightFunctionStruct)
@@ -97,7 +97,7 @@ function InstantiateComputeWeightFunctionOverGrid(
 end
 
 function InstantiateComputeWeightFunctionOverGrid(
-    ConvolvedDensity::AsbtractConvolvedDensity,
+    ConvolvedDensity::AbstractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmologyStruct,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
@@ -231,7 +231,7 @@ function InstantiateBias(DictInput::Dict,
 end
 
 function InitializeProbes(DictInput::Dict,
-    ConvolvedDensity::AsbtractConvolvedDensity,
+    ConvolvedDensity::AbstractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmologyStruct,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities)

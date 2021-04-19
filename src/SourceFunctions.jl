@@ -1,6 +1,6 @@
 function ComputeSourceFunctionOverGrid(
     LensingSourceFunction::LensingSourceFunctionStruct,
-    ConvolvedDensity::AsbtractConvolvedDensity,
+    ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmologyStruct,
