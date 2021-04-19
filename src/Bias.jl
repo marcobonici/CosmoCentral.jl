@@ -22,10 +22,10 @@ end
 This function evaluate the bias, over the cosmological redshift grid.
 """
 function ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
-    GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
+    GCWeightFunction::GCWeightFunctionStruct,
     ConvolvedDensity::AsbtractConvolvedDensity)
     for (zidx, zvalue) in enumerate(CosmologicalGrid.ZArray)
         GCWeightFunction.BiasArray[:, zidx] .=
-        ComputeBias(zvalue, Bias, ConvolvedDensity)
+        ComputeBias(zvalue, GCWeightFunction.BiasKind, ConvolvedDensity)
     end
 end
