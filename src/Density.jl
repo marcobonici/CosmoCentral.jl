@@ -56,12 +56,12 @@ function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
     ConvolvedDensity::AbstractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse)
-    int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
-    InstrumentResponse),
+    int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(
+    z+ConvolvedDensity.ShiftArray[i], x, InstrumentResponse),
     ConvolvedDensity.ZBinArray[i],
     ConvolvedDensity.ZBinArray[i+1], rtol=1e-12)
-    return int*ComputeDensityFunction(z, AnalitycalDensity)*
-    ConvolvedDensity.DensityNormalizationArray[i]
+    return int*ComputeDensityFunction(z+ConvolvedDensity.ShiftArray[i],
+    AnalitycalDensity) * ConvolvedDensity.DensityNormalizationArray[i]
 end
 
 """
