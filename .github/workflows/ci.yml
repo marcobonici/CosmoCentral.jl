@@ -11,6 +11,7 @@ on:
       - main
       - develop
       - beyond_limber
+      - nuisace
     tags: '*'
 jobs:
   test:
