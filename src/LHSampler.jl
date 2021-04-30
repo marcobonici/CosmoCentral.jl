@@ -101,6 +101,12 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
     AnalitycalDensity = AnalitycalDensityStruct()
     NormalizeAnalitycalDensityStruct(AnalitycalDensity)
     InstrumentResponse = InstrumentResponseStruct()
+    ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse, CosmologicalGrid)
+    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
+    AnalitycalDensity, InstrumentResponse)
     MultipolesArray = Array(LinRange(10,3000,100))
     for (root, dirs, files) in walkdir(PmmDirectory)
         for file in files
@@ -111,14 +117,16 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
                 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
                 ReadPowerSpectrumBackground(joinpath(root, "p_mm"),
                 CosmologicalGrid.MultipolesArray)
-                ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
-                ones(10, length(CosmologicalGrid.ZArray)),
-                ShiftArray = ones(10).*CosmoDict["ShiftParameter"])
-                NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
+                CopyConvolvedDensity = deepcopy(ConvolvedDensity)
+                CopyConvolvedDensity.ShiftArray =
+                ones(10).*CosmoDict["ShiftParameter"]
+                ShiftConvolvedDensityFunctionGrid(CosmologicalGrid,
+                CopyConvolvedDensity)
+                NormalizeConvolvedDensityStruct(CopyConvolvedDensity, AnalitycalDensity,
                 InstrumentResponse, CosmologicalGrid)
-                ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
-                AnalitycalDensity, InstrumentResponse)
-                DictProbes = InitializeProbes(ProbesDict, ConvolvedDensity,
+                ComputeConvolvedDensityFunctionGrid(CosmologicalGrid,
+                CopyConvolvedDensity, AnalitycalDensity, InstrumentResponse)
+                DictProbes = InitializeProbes(ProbesDict, CopyConvolvedDensity,
                 w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
                 ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
                 InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
