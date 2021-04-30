@@ -129,8 +129,9 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
                 BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
                 RandomString = Random.randstring(12)
                 mkdir(joinpath(PathOutput,RandomString))
-                InitializeComputeAngularCoefficients(DictProbes, BackgroundQuantities,
-                w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutput, RandomString)
+                InitializeComputeAngularCoefficients(DictProbes,
+                BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid,
+                PowerSpectrum, PathOutput, CosmoDict, RandomString)
             end
 
         end
