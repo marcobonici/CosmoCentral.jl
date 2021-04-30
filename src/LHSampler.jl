@@ -122,10 +122,6 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
                 ones(10).*CosmoDict["ShiftParameter"]
                 ShiftConvolvedDensityFunctionGrid(CosmologicalGrid,
                 CopyConvolvedDensity)
-                NormalizeConvolvedDensityStruct(CopyConvolvedDensity, AnalitycalDensity,
-                InstrumentResponse, CosmologicalGrid)
-                ComputeConvolvedDensityFunctionGrid(CosmologicalGrid,
-                CopyConvolvedDensity, AnalitycalDensity, InstrumentResponse)
                 DictProbes = InitializeProbes(ProbesDict, CopyConvolvedDensity,
                 w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
                 ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
