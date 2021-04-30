@@ -20,6 +20,10 @@ function WriteCosmology(Cosmology::w0waCDMCosmologyStruct, Filename::String)
     JSON3.write(Filename*"/cosmology.json", CosmoDict)
 end
 
+function WriteParameters(CosmoDict::Dict, Filename::String)
+    JSON3.write(Filename*"/parameters.json", CosmoDict)
+end
+
 function ReadCosmology(CosmoDict::Dict)
     Cosmology = w0waCDMCosmologyStruct(
     w0 = CosmoDict["w0"],
