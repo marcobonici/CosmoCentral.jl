@@ -40,6 +40,22 @@ function ReadCosmology(CosmoDict::Dict)
     return Cosmology
 end
 
+function ReadCosmology(CosmoDict::JSON3.Object)
+    Cosmology = w0waCDMCosmologyStruct(
+    w0 = CosmoDict["w0"],
+    wa = CosmoDict["wa"],
+    Mν = CosmoDict["Mν"],
+    H0 = CosmoDict["H0"],
+    ΩM = CosmoDict["ΩM"],
+    ΩB = CosmoDict["ΩB"],
+    ΩDE = CosmoDict["ΩDE"],
+    Ωk = CosmoDict["Ωk"],
+    Ωr = CosmoDict["Ωr"],
+    ns = CosmoDict["ns"],
+    σ8 = CosmoDict["σ8"])
+    return Cosmology
+end
+
 function ReadAngularCoefficients(Filename::String)
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
