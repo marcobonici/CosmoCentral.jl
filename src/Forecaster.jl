@@ -88,9 +88,7 @@ function InstantiateComputeWeightFunctionOverGrid(
     w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     GCWeightFunction::GCWeightFunctionStruct)
-    ComputeBiasOverGrid(CosmologicalGrid, GCWeightFunction,
-    GCWeightFunction.BiasKind,
-    ConvolvedDensity)
+    ComputeBiasOverGrid(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
     ComputeWeightFunctionOverGrid(GCWeightFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
     return GCWeightFunction
