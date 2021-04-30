@@ -113,7 +113,7 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
                 CosmologicalGrid.MultipolesArray)
                 ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
                 ones(10, length(CosmologicalGrid.ZArray)),
-                zeros(10).*CosmoDict["ShiftParameter"])
+                ones(10).*CosmoDict["ShiftParameter"])
                 NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
                 InstrumentResponse, CosmologicalGrid)
                 ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
