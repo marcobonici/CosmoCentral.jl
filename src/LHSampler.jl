@@ -117,15 +117,21 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
                 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
                 ReadPowerSpectrumBackground(joinpath(root, "p_mm"),
                 CosmologicalGrid.MultipolesArray)
-                DictProbes = InitializeProbes(ProbesDict, ConvolvedDensity,
+                CopyConvolvedDensity = deepcopy(ConvolvedDensity)
+                CopyConvolvedDensity.ShiftArray =
+                ones(10).*CosmoDict["ShiftParameter"]
+                ShiftConvolvedDensityFunctionGrid(CosmologicalGrid,
+                CopyConvolvedDensity)
+                DictProbes = InitializeProbes(ProbesDict, CopyConvolvedDensity,
                 w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
                 ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
                 InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
                 BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
                 RandomString = Random.randstring(12)
                 mkdir(joinpath(PathOutput,RandomString))
-                InitializeComputeAngularCoefficients(DictProbes, BackgroundQuantities,
-                w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutput, RandomString)
+                InitializeComputeAngularCoefficients(DictProbes,
+                BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid,
+                PowerSpectrum, PathOutput, CosmoDict, RandomString)
             end
 
         end

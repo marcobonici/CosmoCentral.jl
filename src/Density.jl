@@ -60,8 +60,8 @@ function ComputeConvolvedDensityFunction(z::Float64, i::Int64,
     InstrumentResponse),
     ConvolvedDensity.ZBinArray[i],
     ConvolvedDensity.ZBinArray[i+1], rtol=1e-12)
-    return int*ComputeDensityFunction(z, AnalitycalDensity)*
-    ConvolvedDensity.DensityNormalizationArray[i]
+    return int*ComputeDensityFunction(z,
+    AnalitycalDensity) * ConvolvedDensity.DensityNormalizationArray[i]
 end
 
 """
@@ -106,6 +106,23 @@ function ComputeConvolvedDensityFunctionGrid(CosmologicalGrid::CosmologicalGrid,
             ComputeConvolvedDensityFunction(CosmologicalGrid.ZArray[idx_ZArray],
             idx_ZBinArray, ConvolvedDensity, AnalitycalDensity,
             InstrumentResponse)
+        end
+        InterpConvDens = Dierckx.Spline1D(CosmologicalGrid.ZArray,
+        ConvolvedDensity.DensityGridArray[idx_ZBinArray,:], k=5, bc="nearest")
+
+    end
+end
+
+function ShiftConvolvedDensityFunctionGrid(CosmologicalGrid::CosmologicalGrid,
+    ConvolvedDensity::AbstractConvolvedDensity)
+    for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
+        InterpConvDens = Dierckx.Spline1D(CosmologicalGrid.ZArray,
+        ConvolvedDensity.DensityGridArray[idx_ZBinArray,:], k=4,
+        bc="extrapolate")
+        for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
+            ConvolvedDensity.DensityGridArray[idx_ZBinArray,idx_ZArray] =
+            InterpConvDens(CosmologicalGrid.ZArray[idx_ZArray]+
+            ConvolvedDensity.ShiftArray[idx_ZBinArray])
         end
     end
 end

@@ -157,6 +157,7 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
     0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
     DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)
     DensityGridArray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300)
+    ShiftArray::Vector{Float64} = zeros(length(ZBinArray)-1)
 end
 
 """

@@ -88,9 +88,7 @@ function InstantiateComputeWeightFunctionOverGrid(
     w0waCDMCosmology::w0waCDMCosmologyStruct, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     GCWeightFunction::GCWeightFunctionStruct)
-    ComputeBiasOverGrid(CosmologicalGrid, GCWeightFunction,
-    GCWeightFunction.BiasKind,
-    ConvolvedDensity)
+    ComputeBiasOverGrid(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
     ComputeWeightFunctionOverGrid(GCWeightFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
     return GCWeightFunction
@@ -303,6 +301,39 @@ function InitializeComputeAngularCoefficients(ProbesDict::Dict,
                 WriteAngularCoefficients(key_A*"_"*key_B,
                 AngularCoefficients, PathOutput*key*"/cl")
                 WriteCosmology(w0waCDMCosmology, PathOutput*key)
+            end
+        end
+    end
+end
+
+function InitializeComputeAngularCoefficients(ProbesDict::Dict,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum,
+    PathOutput::String, CosmoDict::Dict, key::String)
+    ProbesArray = []
+    CoefficientsArray = []
+    for (key, value) in ProbesDict
+        push!(ProbesArray, key)
+    end
+    sort!(ProbesArray)
+    for key_A in ProbesArray
+        for key_B in ProbesArray
+            if key_B*"_"*key_A in CoefficientsArray
+            else
+                push!(CoefficientsArray, key_A*"_"*key_B)
+                AngularCoefficients = AngularCoefficientsStruct(
+                AngularCoefficientsArray
+                = zeros(length(CosmologicalGrid.MultipolesArray),
+                length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
+                length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
+                ComputeAngularCoefficients(AngularCoefficients,
+                ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
+                w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
+                CosmoCentral.CustomTrapz())
+                WriteAngularCoefficients(key_A*"_"*key_B,
+                AngularCoefficients, PathOutput*key*"/cl")
+                WriteParameters(CosmoDict, PathOutput*key)
             end
         end
     end
