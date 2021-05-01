@@ -4,14 +4,10 @@ on:
     branches:
       - main
       - develop
-      - beyond_limber
-      - nuisance
   push:
     branches:
       - main
       - develop
-      - beyond_limber
-      - nuisance
     tags: '*'
 jobs:
   test:

@@ -201,6 +201,23 @@ Function values for all tomographic bins and redshift values in the
 end
 
 """
+    EuclidBiasStruct()
+
+This struct contains the parameter for the bias model measured by
+[the Euclid Collaboration](https://arxiv.org/abs/2005.00055):
+
+```math
+b(z)= A +\\frac{B}{1+\\exp \\left( \\left(D-z \\right)C   \\right)}
+```
+"""
+@kwdef struct EuclidBiasStruct <: AbstractBias
+    A::Float64 = 1.0
+    B::Float64 = 2.5
+    C::Float64 = 2.8
+    D::Float64 = 1.6
+end
+
+"""
     WLWeightFunctionStruct()
 
 This struct contains the array with the Lensing Efficiency and Weak Lensing

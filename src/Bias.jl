@@ -14,6 +14,12 @@ function ComputeBias(z::Float64, ::PiecewiseBiasStruct,
     return bias
 end
 
+function ComputeBias(z::Float64, EuclidBias::EuclidBiasStruct,
+    ConvolvedDensity::AbstractConvolvedDensity)
+    bias = EuclidBias.A+EuclidBias.B/(1+exp((EuclidBias.D-z)*EuclidBias.C))
+    return bias
+end
+
 """
     ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
     GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
