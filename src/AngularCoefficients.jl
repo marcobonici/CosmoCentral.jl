@@ -1,6 +1,7 @@
 abstract type IntegrationMethod end
 struct NumericalIntegrationSimpson <: IntegrationMethod end
 struct CustomTrapz <: IntegrationMethod end
+struct BeyondLimber <: IntegrationMethod end
 
 """
     ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
@@ -53,7 +54,7 @@ end
 
 This function evaluates the Angular Coefficients for all tomographic bins and
 multipole values. In order to evaluate the numerical integrals, it has been
-implemented the trapezoidal rule.
+implemented the Simpson rule.
 """
 function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
     WeightFunctionA::AbstractWeightFunction,
@@ -84,10 +85,31 @@ function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
         first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
         AngularCoefficients.AngularCoefficientsArray = Integrand
         if any(isnan,Integrand)
-            println("There is a problem, we need to evaluate the coefficients
-            for this cosmology again!!",w0waCDMCosmology)
+
         else
             check = false
         end
     end
+end
+
+function  ComputeAngularCoefficients(AngularCoefficients::AngularCoefficients,
+    TransferFunctionA::AbstractTransferFunction,
+    TransferFunctionB::AbstractTransferFunction,
+    w0waCDMCosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
+    PowerSpectrum::PowerSpectrum, ::BeyondLimber)
+    Integrand = zeros(size(AngularCoefficients.AngularCoefficientsArray))
+    WeightsMatrix =
+    UnevenTrapzWeightMatrix(CosmologicalGrid.KBeyondLimberArray)
+    @avx for i ∈ axes(AngularCoefficients.AngularCoefficientsArray,2),
+        j ∈ axes(AngularCoefficients.AngularCoefficientsArray,3),
+        l ∈ axes(AngularCoefficients.AngularCoefficientsArray,1)
+        for k ∈ axes(CosmologicalGrid.KBeyondLimberArray,2)
+            Integrand[l,i,j] += 2 / π * WeightsMatrix[l, k] *
+            TransferFunctionA.TransferFunctionArray[i, l, k] *
+            TransferFunctionB.TransferFunctionArray[j, l, k] *
+            PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[l,k] *
+            CosmologicalGrid.KBeyondLimberArray[l, k]^2
+        end
+    end
+    AngularCoefficients.AngularCoefficientsArray = Integrand
 end

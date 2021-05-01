@@ -94,3 +94,47 @@ function EvaluateAngularCoefficientsLHS(Cosmologies::Dict, PathInput::String,
         w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutput, key)
     end
 end
+
+function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
+    PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
+    ProbesDict = JSON.parsefile(PathConfig)
+    AnalitycalDensity = AnalitycalDensityStruct()
+    NormalizeAnalitycalDensityStruct(AnalitycalDensity)
+    InstrumentResponse = InstrumentResponseStruct()
+    ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse, CosmologicalGrid)
+    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
+    AnalitycalDensity, InstrumentResponse)
+    MultipolesArray = Array(LinRange(10,3000,100))
+    for (root, dirs, files) in walkdir(PmmDirectory)
+        for file in files
+            file_extension = file[findlast(isequal('.'),file):end]
+            if file_extension == ".json"
+                CosmoDict = JSON.parsefile(joinpath(root, file))
+                w0waCDMCosmology = CosmoCentral.ReadCosmology(Dict(CosmoDict))
+                PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+                ReadPowerSpectrumBackground(joinpath(root, "p_mm"),
+                CosmologicalGrid.MultipolesArray)
+                CopyConvolvedDensity = deepcopy(ConvolvedDensity)
+                CopyConvolvedDensity.ShiftArray =
+                ones(10).*CosmoDict["ShiftParameter"]
+                ShiftConvolvedDensityFunctionGrid(CosmologicalGrid,
+                CopyConvolvedDensity)
+                DictProbes = InitializeProbes(ProbesDict, CopyConvolvedDensity,
+                w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
+                ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
+                InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+                BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+                RandomString = Random.randstring(12)
+                mkdir(joinpath(PathOutput,RandomString))
+                InitializeComputeAngularCoefficients(DictProbes,
+                BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid,
+                PowerSpectrum, PathOutput, CosmoDict, RandomString)
+            end
+
+        end
+    end
+
+end

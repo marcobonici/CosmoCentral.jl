@@ -12,19 +12,6 @@ function LogSpaced(min::Float64, max::Float64, n::Int64)
 end
 
 """
-    LnSpaced(min::Float64, max::Float64, n::Int64)
-
-This function evaluates ``n`` points, natural logarithmically spaced between
-    ``min`` and ``max``.
-"""
-function LnSpaced(min::Float64, max::Float64, n::Int64)
-    lnmin = log(min)
-    lnmax = log(max)
-    lnarray = Array(LinRange(lnmin, lnmax, n))
-    return exp.(lnarray)
-end
-
-"""
     BinSearch(x::Float64, Array::Vector{Float64})
 
 Given a value ``z`` and an Array, determines the couple of array elements where
@@ -112,4 +99,43 @@ function SimpsonWeightMatrix(n::Int64)
         weight_matrix[i,i:n] = SimpsonWeightArray(n-i+1)
     end
     return weight_matrix
+end
+
+"""
+    Difference(InputArray::Vector{Float64})
+
+This function evaluates the n-th discrete difference of a given 1-D array.
+"""
+function Difference(InputArray::Vector{Float64})
+    OutputArray = zeros(length(InputArray)-1)
+    for i in 1:length(InputArray)-1
+        OutputArray[i] = InputArray[i+1] - InputArray[i]
+    end
+    return OutputArray
+end
+
+
+"""
+    UnevenTrapzWeightArray(InputArray::Vector{Float64})
+
+This function evaluates the array of weights for the integration with uneven
+spaced points and the Trapezoidal rule.
+"""
+function UnevenTrapzWeightArray(InputArray::Vector{Float64})
+    WeightArray = zeros(length(InputArray))
+    DifferenceArray = Difference(InputArray)
+    for idx in 2:length(WeightArray)-1
+        WeightArray[idx] = (DifferenceArray[idx]+DifferenceArray[idx-1])/2
+    end
+    WeightArray[1] = DifferenceArray[1]/2
+    WeightArray[length(InputArray)] = DifferenceArray[length(InputArray)-1]/2
+    return WeightArray
+end
+
+function UnevenTrapzWeightMatrix(InputMatrix::AbstractArray{Float64, 2})
+    WeightMatrix = zeros(size(InputMatrix))
+    for lidx in 1:length(WeightMatrix[:,1])
+        WeightMatrix[lidx,:] = UnevenTrapzWeightArray(InputMatrix[lidx,:])
+    end
+    return WeightMatrix
 end

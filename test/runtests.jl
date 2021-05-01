@@ -120,7 +120,7 @@ end
         GCWeightFunction.BiasKind, ConvolvedDensity)
     end
     CosmoCentral.ComputeBiasOverGrid(CosmologicalGrid,
-        GCWeightFunction, GCWeightFunction.BiasKind, ConvolvedDensity)
+        GCWeightFunction, ConvolvedDensity)
     @test isapprox(test_array, GCWeightFunction.BiasArray[1,:], atol=1e-10)
 end
 

@@ -55,3 +55,33 @@ function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
         CosmologicalGrid.ZArray))
     end
 end
+
+function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities, PowerSpectrum::PowerSpectrum,
+    ConvolvedDensity::ConvolvedDensityStruct)
+    x = LinRange(log10(first(CosmologicalGrid.KArray)),
+    log10(last(CosmologicalGrid.KArray)), length(CosmologicalGrid.KArray))
+    y = LinRange(first(CosmologicalGrid.ZArray), last(CosmologicalGrid.ZArray),
+    length(CosmologicalGrid.ZArray))
+    InterpPmm = Interpolations.interpolate(
+    log10.(PowerSpectrum.PowerSpectrumLinArray),
+    BSpline(Cubic(Line(OnGrid()))))
+    InterpPmm = scale(InterpPmm, x, y)
+    InterpPmm = Interpolations.extrapolate(InterpPmm, Line())
+    for iidx in 1:length(ConvolvedDensity.ZBinArray)-1
+        for lidx in 1:length(CosmologicalGrid.MultipolesArray)
+            PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[lidx, :] =
+            10 .^(InterpPmm.(log10.(
+            CosmologicalGrid.KBeyondLimberArray[lidx, :]),
+            CosmologicalGrid.ZArray[1]))
+        end
+    end
+end
+
+function ExtractGrowthFactor(PowerSpectrum::PowerSpectrum)
+    for zidx in 1:length(PowerSpectrum.GrowthFactor)
+        PowerSpectrum.GrowthFactor[zidx] =
+        sqrt(PowerSpectrum.PowerSpectrumLinArray[1,zidx]./
+        PowerSpectrum.PowerSpectrumLinArray[1,1])
+    end
+end
