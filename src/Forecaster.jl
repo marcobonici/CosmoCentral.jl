@@ -286,6 +286,7 @@ function InitializeComputeAngularCoefficients(ProbesDict::Dict,
     sort!(ProbesArray)
     for key_A in ProbesArray
         for key_B in ProbesArray
+            #TODO is this if-else necessary?
             if key_B*"_"*key_A in CoefficientsArray
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
@@ -319,6 +320,7 @@ function InitializeComputeAngularCoefficients(ProbesDict::Dict,
     sort!(ProbesArray)
     for key_A in ProbesArray
         for key_B in ProbesArray
+            #TODO is this if-else necessary?
             if key_B*"_"*key_A in CoefficientsArray
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
