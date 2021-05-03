@@ -187,6 +187,7 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                         end
                         for (index, myCℓ ) in enumerate(TempCℓArray)
                             CℓArray[index][:,i,j] .= myCℓ[:,i,j]
+                            CℓArray[index][:,j,i] .= myCℓ[:,j,i]
                         end
                         #ProbesArray = []
                         #sort!(ProbesArray)
