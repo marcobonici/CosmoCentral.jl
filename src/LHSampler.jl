@@ -184,9 +184,9 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                             CℓArray = deepcopy(TempCℓArray)
                         end
                         for (index, myCℓ ) in enumerate(TempCℓArray)
-                            CℓArray.AngularCoefficientsArray[index][:,i,j] .=
+                            (CℓArray[index]).AngularCoefficientsArray[:,i,j] .=
                             myCℓ.AngularCoefficientsArray[:,i,j]
-                            CℓArray.AngularCoefficientsArray[index][:,j,i] .=
+                            (CℓArray[index]).AngularCoefficientsArray[:,j,i] .=
                             myCℓ.AngularCoefficientsArray[:,j,i]
                         end
                         #ProbesArray = []
