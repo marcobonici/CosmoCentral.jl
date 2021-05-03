@@ -107,6 +107,7 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
     InstrumentResponse, CosmologicalGrid)
     ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
     AnalitycalDensity, InstrumentResponse)
+    #TODO Probably the following line is useless
     MultipolesArray = Array(LinRange(10,3000,100))
     for (root, dirs, files) in walkdir(PmmDirectory)
         for file in files
@@ -126,7 +127,7 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
                 w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
                 ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
                 InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
-                BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+                BackgroundQuantities, PowerSpectrum, BSplineCubic())
                 RandomString = Random.randstring(12)
                 mkdir(joinpath(PathOutput,RandomString))
                 InitializeComputeAngularCoefficients(DictProbes,
@@ -151,6 +152,7 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
     InstrumentResponse, CosmologicalGrid)
     ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
     AnalitycalDensity, InstrumentResponse)
+    #TODO Probably the following line is useless
     MultipolesArray = Array(LinRange(10,3000,100))
     for (root, dirs, files) in walkdir(PmmDirectory)
         for file in files
@@ -165,7 +167,7 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                 ShiftParameter_j = CosmoDict["ShiftParameter_j"]
                 ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
                 InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
-                BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+                BackgroundQuantities, PowerSpectrum, BSplineCubic())
                 for i in 1:10
                     for j in i+1:10
                         CopyConvolvedDensity = deepcopy(ConvolvedDensity)
@@ -183,14 +185,14 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                         if i == 1 && j == 2
                             CℓArray = deepcopy(TempCℓArray)
                         end
-                        for (index, probe) in enumerate(TempCℓArray)
-                            CℓArray[index][:,i,j] .= probe[:,i,j]
+                        for (index, myCℓ ) in enumerate(TempCℓArray)
+                            CℓArray[index][:,i,j] .= myCℓ[:,i,j]
                         end
-                        ProbesArray = []
-                        sort!(ProbesArray)
-                        for (key, value) in ProbesDict
-                            push!(ProbesArray, key)
-                        end
+                        #ProbesArray = []
+                        #sort!(ProbesArray)
+                        #for (key, value) in ProbesDict
+                        #    push!(ProbesArray, key)
+                        #end
                     end
                 end
                 RandomString = Random.randstring(12)
