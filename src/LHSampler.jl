@@ -134,10 +134,8 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
                 BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid,
                 PowerSpectrum, PathOutput, CosmoDict, RandomString)
             end
-
         end
     end
-
 end
 
 function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
@@ -186,8 +184,10 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                             CℓArray = deepcopy(TempCℓArray)
                         end
                         for (index, myCℓ ) in enumerate(TempCℓArray)
-                            CℓArray[index][:,i,j] .= myCℓ[:,i,j]
-                            CℓArray[index][:,j,i] .= myCℓ[:,j,i]
+                            CℓArray[index][:,i,j] .=
+                            myCℓ.AngularCoefficientsArray[:,i,j]
+                            CℓArray[index][:,j,i] .=
+                            myCℓ.AngularCoefficientsArray[:,j,i]
                         end
                         #ProbesArray = []
                         #sort!(ProbesArray)
