@@ -181,8 +181,7 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                             AngularCoefficients = AngularCoefficientsStruct(
                             AngularCoefficientsArray
                             = zeros(length(CosmologicalGrid.MultipolesArray),
-                            length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
-                            length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
+                            10, 10)
                             push!(CℓArray, AngularCoefficients)
                         end
                     end
