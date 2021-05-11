@@ -166,6 +166,27 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                 ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
                 InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
                 BackgroundQuantities, PowerSpectrum, BSplineCubic())
+                ProbesArray = []
+                CℓKeyArray = []
+                CℓArray = []
+                for (key, value) in ProbesDict
+                    push!(ProbesArray, key)
+                end
+                sort!(ProbesArray)
+                for key_A in ProbesArray
+                    for key_B in ProbesArray
+                        if key_B*"_"*key_A in CℓKeyArray
+                        else
+                            push!(CℓKeyArray, key_A*"_"*key_B)
+                            AngularCoefficients = AngularCoefficientsStruct(
+                            AngularCoefficientsArray
+                            = zeros(length(CosmologicalGrid.MultipolesArray),
+                            length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
+                            length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
+                            push!(CℓArray, AngularCoefficients)
+                        end
+                    end
+                end
                 for i in 1:10
                     for j in i+1:10
                         CopyConvolvedDensity = deepcopy(ConvolvedDensity)
@@ -180,20 +201,12 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                         InitializeComputeAngularCoefficientsDoubleNuisance(
                         DictProbes, BackgroundQuantities, w0waCDMCosmology,
                         CosmologicalGrid, PowerSpectrum)
-                        if i == 1 && j == 2
-                            CℓArray = deepcopy(TempCℓArray)
-                        end
                         for (index, myCℓ ) in enumerate(TempCℓArray)
                             (CℓArray[index]).AngularCoefficientsArray[:,i,j] .=
                             myCℓ.AngularCoefficientsArray[:,i,j]
                             (CℓArray[index]).AngularCoefficientsArray[:,j,i] .=
                             myCℓ.AngularCoefficientsArray[:,j,i]
                         end
-                        #ProbesArray = []
-                        #sort!(ProbesArray)
-                        #for (key, value) in ProbesDict
-                        #    push!(ProbesArray, key)
-                        #end
                     end
                 end
                 RandomString = Random.randstring(12)
