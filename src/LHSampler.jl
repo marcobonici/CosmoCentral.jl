@@ -210,8 +210,14 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                 end
                 RandomString = Random.randstring(12)
                 mkdir(joinpath(PathOutput,RandomString))
-                WriteAngularCoefficients(key_A*"_"*key_B,
-                AngularCoefficients, PathOutput*RandomString*"/cl")
+                WriteAngularCoefficients("Lensing_Lensing",
+                CℓArray[1], PathOutput*RandomString*"/cl")
+                WriteAngularCoefficients("Lensing_PhotometricGalaxy",
+                CℓArray[2], PathOutput*RandomString*"/cl")
+                WriteAngularCoefficients("PhotometricGalaxy_PhotometricGalaxy",
+                CℓArray[3], PathOutput*RandomString*"/cl")
+                #TODO this function is not beautiful. It is quite long and it
+                # needs a serious refactoring
                 WriteParameters(CosmoDict, PathOutput*RandomString)
             end
         end
