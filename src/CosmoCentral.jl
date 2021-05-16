@@ -16,6 +16,7 @@ using FFTW
 using SpecialFunctions
 using LatinHypercubeSampling
 using Random
+using DelimitedFiles
 numpy = pyimport("numpy")
 classy = pyimport("classy")
 
@@ -35,5 +36,6 @@ include("LHSampler.jl")
 include("FFTLog.jl")
 include("SourceFunctions.jl")
 include("TransferFunctions.jl")
+include("IntrinsicAlignment.jl")
 
 end # module
