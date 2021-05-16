@@ -14,6 +14,7 @@ abstract type AngularCoefficients end
 abstract type DerivativeAngularCoefficients end
 abstract type AbstractBias end
 struct PiecewiseBiasStruct <: AbstractBias end
+abstract type IntrinsicAlignment end
 abstract type FFTLog end
 
 """
@@ -217,6 +218,13 @@ b(z)= A +\\frac{B}{1+\\exp \\left( \\left(D-z \\right)C   \\right)}
     D::Float64 = 1.6
 end
 
+@kwdef struct ExtendedNLIAStruct <: IntrinsicAlignment
+    A::Float64 = 1.72
+    β::Float64 = -0.41
+    C::Float64 = 0.0134
+    η::Float64 = 2.17
+end
+
 """
     WLWeightFunctionStruct()
 
@@ -227,6 +235,7 @@ Weight Function values for all tomographic bins and redshift values in the
 @kwdef mutable struct WLWeightFunctionStruct <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
     LensingEfficiencyArray::AbstractArray{Float64, 2} = zeros(10, 500)
+    IntrinsicAlignmentArray::AbstractArray{Float64, 2} = zeros(10, 500)
 end
 
 @kwdef mutable struct LensingSourceFunctionStruct <: AbstractSourceFunction
