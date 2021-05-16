@@ -6,6 +6,7 @@ version = "0.0.2"
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
