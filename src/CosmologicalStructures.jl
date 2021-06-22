@@ -3,7 +3,7 @@ abstract type CosmologicalGrid end
 abstract type AngularCoefficientsGrid end
 abstract type BackgroundQuantities end
 abstract type BoltzmannSolverParams end
-abstract type AsbtractDensity end
+abstract type AbstractDensity end
 abstract type AbstractConvolvedDensity end
 abstract type InstrumentResponse end
 abstract type AbstractWeightFunction end
@@ -125,7 +125,7 @@ The parameters contained in this struct are
 - surfacedensity , the value of the galaxy source density integrated between ``z_{min}`` and ``z_{max}``
 - normalization, the value of parameter which multiplies the source dennsity in order to match the correct surface density
 """
-@kwdef mutable struct AnalitycalDensityStruct <: AsbtractDensity
+@kwdef mutable struct AnalitycalDensityStruct <: AbstractDensity
     Z0::Float64 = 0.9/sqrt(2.)
     ZMin::Float64 = 0.001
     ZMax::Float64 = 4.0
