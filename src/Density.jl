@@ -1,23 +1,20 @@
 """
-    ComputeDensityFunction(z::Float64,
-    AnalitycalDensity::AnalitycalDensityStruct)
+    ComputeDensityFunction(z::Float64, AnalitycalDensity::AnalitycalDensity)
 
 This function returns the source density for a given redshift ``z``.
 """
-function ComputeDensity(z::Float64,
-    AnalitycalDensity::AnalitycalDensity)
+function ComputeDensity(z::Float64, AnalitycalDensity::AnalitycalDensity)
     return ((z/AnalitycalDensity.Z0)^2)*exp(-(z/AnalitycalDensity.Z0)^(3. / 2.))*
     AnalitycalDensity.Normalization
 end
 
 """
-    NormalizeAnalitycalDensity!(densityparameters::AnalitycalDensityStruct)
+    NormalizeAnalitycalDensity!(AnalitycalDensity::AnalitycalDensity)
 
-This function normalize AnalitycalDensityStruct in order to have the correct
+This function normalize AnalitycalDensity in order to have the correct
 value of the surface density once integrated.
 """
-function NormalizeAnalitycalDensity!(
-    AnalitycalDensity::AnalitycalDensity)
+function NormalizeAnalitycalDensity!(AnalitycalDensity::AnalitycalDensity)
     int, err = QuadGK.quadgk(x -> ComputeDensity(x, AnalitycalDensity),
     AnalitycalDensity.ZMin, AnalitycalDensity.ZMax, rtol=1e-12)
     AnalitycalDensity.Normalization *= (AnalitycalDensity.SurfaceDensity/int)
@@ -44,18 +41,14 @@ function ComputeInstrumentResponse(z::Float64, zp::Float64,
 end
 
 """
-    ComputeConvolvedDensity(z::Float64, i::Int64,
-    ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse)
+    ComputeConvolvedDensity(z::Float64, i::Int64, ConvolvedDensity::AbstractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse)
 
 This function computes the Convolved density function for a single bin at a
 given redshift ``z``.
 """
-function ComputeConvolvedDensity(z::Float64, i::Int64,
-    ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse)
+function ComputeConvolvedDensity(z::Float64, i::Int64, ConvolvedDensity::AbstractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse)
     int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
     InstrumentResponse),
     ConvolvedDensity.ZBinArray[i],
@@ -66,16 +59,15 @@ end
 
 """
     NormalizeConvolvedDensity!(ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensityStruct,
-    InstrumentResponse::InstrumentResponse, CosmologicalGrid::CosmologicalGrid)
+    AnalitycalDensity::AnalitycalDensity,InstrumentResponse::InstrumentResponse,
+    CosmologicalGrid::CosmologicalGrid)
 
 This function normalizes ConvolvedDensity such that the integrals of the
 convolved densities are normalized to 1.
 """
-function NormalizeConvolvedDensity!(
-    ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse, CosmologicalGrid::CosmologicalGrid)
+function NormalizeConvolvedDensity!(ConvolvedDensity::AbstractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensity,InstrumentResponse::InstrumentResponse,
+    CosmologicalGrid::CosmologicalGrid)
     for idx in 1:length(ConvolvedDensity.DensityNormalizationArray)
         int, err = QuadGK.quadgk(x -> ComputeConvolvedDensity(x, idx,
         ConvolvedDensity, AnalitycalDensity, InstrumentResponse),
@@ -87,16 +79,14 @@ end
 
 """
     ComputeConvolvedDensityGrid!(CosmologicalGrid::CosmologicalGrid,
-    ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensityStruct,
+    ConvolvedDensity::AbstractConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse)
 
 This function computes the convolved density function for all tomographic bins
 on the ``z``-grid provided by CosmologicalGrid.
 """
 function ComputeConvolvedDensityGrid!(CosmologicalGrid::CosmologicalGrid,
-    ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity,
+    ConvolvedDensity::AbstractConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse)
     ConvolvedDensity.DensityGridArray = zeros(Float64,length(ConvolvedDensity.ZBinArray)-1,
     length(CosmologicalGrid.ZArray))

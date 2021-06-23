@@ -3,7 +3,7 @@ abstract type AbstractCosmologicalGrid end
 abstract type AngularCoefficientsGrid end
 abstract type AbstractBackgroundQuantities end
 abstract type BoltzmannSolverParams end
-abstract type AsbtractDensity end
+abstract type AbstractDensity end
 abstract type AbstractConvolvedDensity end
 abstract type AbstractInstrumentResponse end
 abstract type AbstractWeightFunction end
@@ -127,7 +127,7 @@ The parameters contained in this struct are
 - surfacedensity , the value of the galaxy source density integrated between ``z_{min}`` and ``z_{max}``
 - normalization, the value of parameter which multiplies the source dennsity in order to match the correct surface density
 """
-@kwdef mutable struct AnalitycalDensity <: AsbtractDensity
+@kwdef mutable struct AnalitycalDensity <: AbstractDensity
     Z0::Float64 = 0.9/sqrt(2.)
     ZMin::Float64 = 0.001
     ZMax::Float64 = 4.0
@@ -136,15 +136,15 @@ The parameters contained in this struct are
 end
 
 """
-    ConvolvedDensity(AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct(),
-    InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
+    ConvolvedDensity(AnalitycalDensity::AnalitycalDensity = AnalitycalDensity(),
+    InstrumentResponse::InstrumentResponse = InstrumentResponse()
     ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789, 0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
     DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)
     DensityGridArray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300))
 
 
 In order to take into account the error in the redshift measurement, the
-source density is convolved with the [`InstrumentResponseStruct`](@ref),
+source density is convolved with the [`InstrumentResponse`](@ref),
 according to [the following equation](https://arxiv.org/abs/1910.09273)
 ```math
 n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
@@ -193,7 +193,7 @@ end
     GCWeightFunction()
 
 This struct contains the array with the Galaxy Bias and Galaxy Clustering Weight Function
-values for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
+values for all tomographic bins and redshift values in the [`CosmologicalGrid`](@ref).
 """
 @kwdef mutable struct GCWeightFunction <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
@@ -230,7 +230,7 @@ end
 
 This struct contains the array with the Lensing Efficiency and Weak Lensing
 Weight Function values for all tomographic bins and redshift values in the
-[`CosmologicalGridStruct`](@ref)
+[`CosmologicalGrid`](@ref)
 """
 @kwdef mutable struct WLWeightFunction <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
@@ -317,7 +317,7 @@ end
 
 This struct contains the array with the Lensing Efficiency and Weak Lensing
 Weight Function values for all tomographic bins and redshift values in the
-[`CosmologicalGridStruct`](@ref)
+[`CosmologicalGrid`](@ref)
 """
 @kwdef mutable struct κTransferFunction <: AbstractTransferFunction
     LensingSourceFunction::LensingSourceFunction = LensingSourceFunction

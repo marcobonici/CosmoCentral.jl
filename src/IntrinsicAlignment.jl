@@ -1,5 +1,5 @@
 function ComputeIntrinsicAlignmentOverGrid(CosmologicalGrid::CosmologicalGrid,
-    WLWeightFunction::WLWeightFunction,
+    wlWeightFunction::WLWeightFunction,
     ConvolvedDensity::AbstractConvolvedDensity,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology)
@@ -11,14 +11,14 @@ function ComputeIntrinsicAlignmentOverGrid(CosmologicalGrid::CosmologicalGrid,
     spl = Dierckx.Spline1D(z, lum)
     for (zidx, zvalue) in enumerate(CosmologicalGrid.ZArray)
         for iidx in 1:length(ConvolvedDensity.ZBinArray)-1
-            WLWeightFunction.IntrinsicAlignmentArray[iidx, zidx] =
+            wlWeightFunction.IntrinsicAlignmentArray[iidx, zidx] =
             -BackgroundQuantities.HZArray[zidx]/c_0 *
             ConvolvedDensity.DensityGridArray[iidx, zidx] *
-            WLWeightFunction.IntrinsicAlignmentModel.A *
-            WLWeightFunction.IntrinsicAlignmentModel.C *
+            wlWeightFunction.IntrinsicAlignmentModel.A *
+            wlWeightFunction.IntrinsicAlignmentModel.C *
             w0waCDMCosmology.ΩM *
-            (1 + zidx) ^ WLWeightFunction.IntrinsicAlignmentModel.η *
-            spl(zvalue) ^ WLWeightFunction.IntrinsicAlignmentModel.β
+            (1 + zidx) ^ wlWeightFunction.IntrinsicAlignmentModel.η *
+            spl(zvalue) ^ wlWeightFunction.IntrinsicAlignmentModel.β
         end
     end
 end

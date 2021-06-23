@@ -14,7 +14,7 @@ deal with the source densities.
 
 ```@docs
 CosmoCentral.AnalitycalDensity
-CosmoCentral.ComputeDensityFunction
+CosmoCentral.ComputeDensity
 CosmoCentral.NormalizeAnalitycalDensity!
 ```
 
