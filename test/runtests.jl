@@ -30,8 +30,8 @@ AngularCoefficients = CosmoCentral.AngularCoefficientsStruct(
 AngularCoefficientsArray = zeros(length(CosmologicalGrid.MultipolesArray),
 length(GCWeightFunction.WeightFunctionArray[:, 1]),
 length(GCWeightFunction.WeightFunctionArray[:, 1])))
-input_path_pmm = pwd()*"/CosmoCentral.jl/test/p_mm"
-input_path_Cℓ = pwd()*"/CosmoCentral.jl/test/cl"
+input_path_pmm = pwd()*"/p_mm"
+input_path_Cℓ = pwd()*"/cl"
 
 @testset "Evaluation of background quantities" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., w0waCDMCosmology)
