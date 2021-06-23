@@ -30,6 +30,8 @@ AngularCoefficients = CosmoCentral.AngularCoefficientsStruct(
 AngularCoefficientsArray = zeros(length(CosmologicalGrid.MultipolesArray),
 length(GCWeightFunction.WeightFunctionArray[:, 1]),
 length(GCWeightFunction.WeightFunctionArray[:, 1])))
+input_path_pmm = pwd()*"/CosmoCentral.jl/test/p_mm"
+input_path_Cℓ = pwd()*"/CosmoCentral.jl/test/cl"
 
 @testset "Evaluation of background quantities" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., w0waCDMCosmology)
@@ -172,10 +174,10 @@ end
 
 @testset "Check the Power Spectrum evaluated over the Limber Grid" begin
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
+    print(input_path_pmm)
+    # "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
     PowerSpectrum, BackgroundQuantitiesLoaded, CosmologicalGrid =
-    CosmoCentral.ReadPowerSpectrumBackground(
-    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
-    MultipolesArray)
+    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
     classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
@@ -216,9 +218,7 @@ end
     @test isapprox(BackgroundQuantitiesLoaded.rZArray,
     NewBackgroundQuantitiesLoaded.rZArray, rtol=1e-6)
     PowerSpectrumDierckx, BackgroundQuantitiesLoaded, CosmologicalGrid =
-    CosmoCentral.ReadPowerSpectrumBackground(
-    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
-    MultipolesArray)
+    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrumDierckx,
     CosmoCentral.RectBivSplineDierckx())
@@ -228,12 +228,10 @@ end
 
 @testset "Test Angular coefficients evaluation" begin
     AngularCoefficientsLoaded = CosmoCentral.ReadAngularCoefficients(
-    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/cl")
+    input_path_Cℓ)
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
-    CosmoCentral.ReadPowerSpectrumBackground(
-    "/home/runner/work/CosmoCentral.jl/CosmoCentral.jl/test/p_mm",
-    MultipolesArray)
+    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
     CosmoCentral.ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
     CosmoCentral.InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
     BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
