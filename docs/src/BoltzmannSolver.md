@@ -12,9 +12,9 @@ We plan to include other Boltzmann solvers in the future.
 ## Power Spectrum
 
 ```@docs
-CosmoCentral.PowerSpectrumStruct
-CosmoCentral.ComputeLimberArray
-CosmoCentral.InterpolateAndEvaluatePowerSpectrum
+CosmoCentral.PowerSpectrum
+CosmoCentral.ComputeLimberArray!
+CosmoCentral.InterpolateAndEvaluatePowerSpectrum!
 CosmoCentral.InterpolationMethod
 ```
 
@@ -23,7 +23,7 @@ CosmoCentral.InterpolationMethod
 classy is the Python wrapper for [CLASS](http://class-code.net/).
 
 ```@docs
-CosmoCentral.classyParamsStruct
+CosmoCentral.classyParamsS
 CosmoCentral.Initializeclassy
 CosmoCentral.EvaluatePowerSpectrum
 ```

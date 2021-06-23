@@ -8,7 +8,7 @@ W_{i}^{\mathrm{G}}(z)=b_{i}(z) n_{i}(z) \frac{H(z)}{c}
 ```
 
 ```@docs
-CosmoCentral.GCWeightFunctionStruct
+CosmoCentral.GCWeightFunction
 CosmoCentral.ComputeWeightFunction(z::Float64, i::Int64,
     ConvolvedDensity::CosmoCentral.AsbtractConvolvedDensity,
     AnalitycalDensity::CosmoCentral.AnalitycalDensityStruct,
@@ -37,27 +37,27 @@ where ``\widetilde{W}_{i}(z)`` is the Lensing Efficiency, whose expression is gi
 ```
 
 ```@docs
-CosmoCentral.WLWeightFunctionStruct
+CosmoCentral.WLWeightFunction
 CosmoCentral.ComputeWeightFunction(z::Float64, i::Int64,
     ConvolvedDensity::CosmoCentral.AsbtractConvolvedDensity,
-    AnalitycalDensity::CosmoCentral.AnalitycalDensityStruct,
+    AnalitycalDensity::CosmoCentral.AnalitycalDensity,
     InstrumentResponse::CosmoCentral.InstrumentResponse,
-    w0waCDMCosmology::CosmoCentral.w0waCDMCosmologyStruct,
+    w0waCDMCosmology::CosmoCentral.w0waCDMCosmology,
     CosmologicalGrid::CosmoCentral.CosmologicalGrid,
-    WLWeightFunction::CosmoCentral.WLWeightFunctionStruct)
+    WLWeightFunction::CosmoCentral.WLWeightFunction)
 CosmoCentral.ComputeWeightFunctionOverGrid(
-    WLWeightFunction::CosmoCentral.WLWeightFunctionStruct,
+    WLWeightFunction::CosmoCentral.WLWeightFunction,
     ConvolvedDensity::CosmoCentral.AsbtractConvolvedDensity,
     CosmologicalGrid::CosmoCentral.CosmologicalGrid,
     BackgroundQuantities::CosmoCentral.BackgroundQuantities,
-    w0waCDMCosmology::CosmoCentral.w0waCDMCosmologyStruct)
+    w0waCDMCosmology::CosmoCentral.w0waCDMCosmology)
 CosmoCentral.ComputeLensingEfficiency(z::Float64, i::Int64,
     ConvolvedDensity::CosmoCentral.AsbtractConvolvedDensity,
-    AnalitycalDensity::CosmoCentral.AnalitycalDensityStruct,
+    AnalitycalDensity::CosmoCentral.AnalitycalDensity,
     InstrumentResponse::CosmoCentral.InstrumentResponse,
-    w0waCDMCosmology::CosmoCentral.w0waCDMCosmologyStruct,
+    w0waCDMCosmology::CosmoCentral.w0waCDMCosmology,
     CosmologicalGrid::CosmoCentral.CosmologicalGrid,
-    WLWeightFunction::CosmoCentral.WLWeightFunctionStruct)
-CosmoCentral.ComputeLensingEfficiencyOverGrid
-CosmoCentral.ComputeLensingEfficiencyOverGridCustom
+    WLWeightFunction::CosmoCentral.WLWeightFunction)
+CosmoCentral.ComputeLensingEfficiencyGrid!
+CosmoCentral.ComputeLensingEfficiencyGrid!
 ```

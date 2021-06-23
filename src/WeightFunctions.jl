@@ -8,20 +8,20 @@ This function returns the Galaxy Clustering Weight function for a given redshift
 """
 function ComputeWeightFunction(z::Float64, i::Int64,
     ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensityStruct,
+    AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
-    w0waCDMCosmology::w0waCDMCosmologyStruct,
-    GCWeightFunction::GCWeightFunctionStruct)
+    w0waCDMCosmology::w0waCDMCosmology,
+    GCWeightFunction::GCWeightFunction)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    return ComputeConvolvedDensityFunction(z, i, ConvolvedDensity,
+    return ComputeConvolvedDensity(z, i, ConvolvedDensity,
     AnalitycalDensity, InstrumentResponse) *
     ComputeBias(z, GCWeightFunction.BiasKind, ConvolvedDensity) *
     ComputeHubbleFactor(z, w0waCDMCosmology) / c_0
 end
 
 """
-    ComputeWeightFunctionOverGrid(GCWeightFunction::GCWeightFunctionStruct,
+    ComputeWeightFunctionGrid!(GCWeightFunction::GCWeightFunctionStruct,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
@@ -30,11 +30,11 @@ end
 This function evaluates the Galaxy Clustering Weight Function over the ``z``
 grid and for all tomographic bins ``i``.
 """
-function ComputeWeightFunctionOverGrid(GCWeightFunction::GCWeightFunctionStruct,
+function ComputeWeightFunctionGrid!(GCWeightFunction::GCWeightFunction,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    w0waCDMCosmology::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     #TODO use avx here to accelerate
@@ -63,41 +63,41 @@ This function returns the Lensing efficiency, for a given redshift
 """
 function ComputeLensingEfficiency(z::Float64, i::Int64,
     ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensityStruct,
+    AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
-    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid,
-    WLWeightFunction::WLWeightFunctionStruct)
-    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
+    WLWeightFunction::WLWeightFunction)
+    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
-    ((ComputeComovingDistance(x, w0waCDMCosmology) -
-    ComputeComovingDistance(z, w0waCDMCosmology))/
-    (ComputeComovingDistance(x, w0waCDMCosmology) *
-    ComputeComovingDistance(z, w0waCDMCosmology)  ) ), z,
+    ((Computeχ(x, w0waCDMCosmology) -
+    Computeχ(z, w0waCDMCosmology))/
+    (Computeχ(x, w0waCDMCosmology) *
+    Computeχ(z, w0waCDMCosmology)  ) ), z,
     last(CosmologicalGrid.ZArray) , rtol=1e-12)
     return int
 end
 
 function ComputeLensingEfficiency(z::Float64, i::Int64,
     ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensityStruct,
+    AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
-    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid,
-    LensingSourceFunction::LensingSourceFunctionStruct)
-    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensityFunction(
+    LensingSourceFunction::LensingSourceFunction)
+    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
-    ((ComputeComovingDistance(x, w0waCDMCosmology) -
-    ComputeComovingDistance(z, w0waCDMCosmology))/
-    (ComputeComovingDistance(x, w0waCDMCosmology) *
-    ComputeComovingDistance(z, w0waCDMCosmology)  ) ), z,
+    ((Computeχ(x, w0waCDMCosmology) -
+    Computeχ(z, w0waCDMCosmology))/
+    (Computeχ(x, w0waCDMCosmology) *
+    Computeχ(z, w0waCDMCosmology)  ) ), z,
     last(CosmologicalGrid.ZArray) , rtol=1e-12)
     return int
 end
 
 
 """
-    ComputeLensingEfficiencyOverGrid(
+    ComputeLensingEfficiencyGrid!(
     WLWeightFunction::WLWeightFunctionStruct,
     AnalitycalDensity::AnalitycalDensityStruct,
     InstrumentResponse::InstrumentResponse,
@@ -109,14 +109,15 @@ end
 This function evaluates the Lensing Efficiency over the ``z``
 grid and for all tomographic bins ``i``.
 """
-function ComputeLensingEfficiencyOverGrid(
-    WLWeightFunction::WLWeightFunctionStruct,
-    AnalitycalDensity::AnalitycalDensityStruct,
+function ComputeLensingEfficiencyGrid!(
+    WLWeightFunction::WLWeightFunction,
+    AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    w0waCDMCosmology::w0waCDMCosmology,
+    ::StandardLensingEfficiency)
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
             WLWeightFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray] =
@@ -128,14 +129,15 @@ function ComputeLensingEfficiencyOverGrid(
     end
 end
 
-function ComputeLensingEfficiencyOverGrid(
-    LensingSourceFunction::LensingSourceFunctionStruct,
-    AnalitycalDensity::AnalitycalDensityStruct,
+function ComputeLensingEfficiencyGrid!(
+    LensingSourceFunction::LensingSourceFunction,
+    AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    w0waCDMCosmology::w0waCDMCosmology,
+    ::StandardLensingEfficiency)
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
             LensingSourceFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray] =
@@ -148,7 +150,7 @@ function ComputeLensingEfficiencyOverGrid(
 end
 
 """
-    ComputeLensingEfficiencyOverGridCustom(
+    ComputeLensingEfficiencyGrid!(
     WLWeightFunction::WLWeightFunctionStruct,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
@@ -158,12 +160,13 @@ end
 This function evaluates the Lensing Efficiency over the ``z``
 grid and for all tomographic bins ``i``.
 """
-function ComputeLensingEfficiencyOverGridCustom(
-    WLWeightFunction::WLWeightFunctionStruct,
+function ComputeLensingEfficiencyGrid!(
+    WLWeightFunction::WLWeightFunction,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    w0waCDMCosmology::w0waCDMCosmology,
+    ::CustomLensingEfficiency)
     WLWeightFunction.LensingEfficiencyArray .*= 0
     Weight_Matrix = SimpsonWeightMatrix(length(CosmologicalGrid.ZArray))
     @avx for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
@@ -198,22 +201,22 @@ This function returns the Weak Lensing Weight Function, for a given redshift
 """
 function ComputeWeightFunction(z::Float64, i::Int64,
     ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensityStruct,
+    AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
-    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid,
-    WLWeightFunction::WLWeightFunctionStruct)
+    WLWeightFunction::WLWeightFunction)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     return 1.5 * ComputeLensingEfficiency(z, i, ConvolvedDensity,
     AnalitycalDensity,InstrumentResponse, w0waCDMCosmology, CosmologicalGrid,
     WLWeightFunction) * (w0waCDMCosmology.H0/c_0)^2 * w0waCDMCosmology.ΩM *
-    (1. + z) * ComputeComovingDistance(z, w0waCDMCosmology)^2
+    (1. + z) * Computeχ(z, w0waCDMCosmology)^2
 end
 
 
 """
-    ComputeWeightFunctionOverGrid(
+    ComputeWeightFunctionGrid!(
     WLWeightFunction::WLWeightFunctionStruct,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
@@ -223,12 +226,12 @@ end
 This function evaluates the Weak Lensing Weight Function over the ``z``
 grid and for all tomographic bins ``i``.
 """
-function ComputeWeightFunctionOverGrid(
-    WLWeightFunction::WLWeightFunctionStruct,
+function ComputeWeightFunctionGrid!(
+    WLWeightFunction::WLWeightFunction,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    w0waCDMCosmology::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1

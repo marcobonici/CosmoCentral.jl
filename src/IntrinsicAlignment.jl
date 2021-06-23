@@ -1,8 +1,8 @@
 function ComputeIntrinsicAlignmentOverGrid(CosmologicalGrid::CosmologicalGrid,
-    WLWeightFunction::WLWeightFunctionStruct,
+    WLWeightFunction::WLWeightFunction,
     ConvolvedDensity::AbstractConvolvedDensity,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    w0waCDMCosmology::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     input_data = readdlm("input_files/scaledmeanlum-E2Sa.txt", Float64)

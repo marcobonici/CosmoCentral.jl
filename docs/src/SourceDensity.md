@@ -13,9 +13,9 @@ densities. In this section are presented the custom types and function used to
 deal with the source densities.
 
 ```@docs
-CosmoCentral.AnalitycalDensityStruct
+CosmoCentral.AnalitycalDensity
 CosmoCentral.ComputeDensityFunction
-CosmoCentral.NormalizeAnalitycalDensityStruct
+CosmoCentral.NormalizeAnalitycalDensity!
 ```
 
 ## Convolved Source Density
@@ -27,15 +27,15 @@ convolving the source density with a redshift measurement error.
 ### Intrument Response
 
 ```@docs
-CosmoCentral.InstrumentResponseStruct
+CosmoCentral.InstrumentResponse
 CosmoCentral.ComputeInstrumentResponse
 ```
 
 ### Convolved Source Density
 
 ```@docs
-CosmoCentral.ConvolvedDensityStruct
-CosmoCentral.ComputeConvolvedDensityFunction
-CosmoCentral.NormalizeConvolvedDensityStruct
-CosmoCentral.ComputeConvolvedDensityFunctionGrid
+CosmoCentral.ConvolvedDensity
+CosmoCentral.ComputeConvolvedDensity
+CosmoCentral.NormalizeConvolvedDensity!
+CosmoCentral.ComputeConvolvedDensityGrid!
 ```

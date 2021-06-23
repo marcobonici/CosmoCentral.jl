@@ -12,10 +12,10 @@ CosmoCentral.ComputeHubbleFactor
 
 ## Distances
 ```@docs
-CosmoCentral.ComputeComovingDistance
+CosmoCentral.Computeχ
 ```
 
 ## Utils
 ```@docs
-CosmoCentral.ComputeBackgroundQuantitiesOverGrid
+CosmoCentral.ComputeBackgroundQuantitiesGrid!
 ```

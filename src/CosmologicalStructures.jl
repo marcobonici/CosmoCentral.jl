@@ -1,24 +1,25 @@
 abstract type AbstractCosmology end
-abstract type CosmologicalGrid end
+abstract type AbstractCosmologicalGrid end
 abstract type AngularCoefficientsGrid end
-abstract type BackgroundQuantities end
+abstract type AbstractBackgroundQuantities end
 abstract type BoltzmannSolverParams end
 abstract type AsbtractDensity end
 abstract type AbstractConvolvedDensity end
-abstract type InstrumentResponse end
+abstract type AbstractInstrumentResponse end
 abstract type AbstractWeightFunction end
 abstract type AbstractSourceFunction end
 abstract type AbstractTransferFunction end
-abstract type PowerSpectrum end
-abstract type AngularCoefficients end
-abstract type DerivativeAngularCoefficients end
+abstract type AbstractPowerSpectrum end
+abstract type AbstractCℓ end
+abstract type Abstract∂Cℓ end
 abstract type AbstractBias end
-struct PiecewiseBiasStruct <: AbstractBias end
+abstract type LensingEfficiencyMethod end
+struct PiecewiseBias <: AbstractBias end
 abstract type AbstractIntrinsicAlignment end
-abstract type FFTLog end
+abstract type AbstractFFTLog end
 
 """
-    w0waCDMCosmologyStruct(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
+    w0waCDMCosmology(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
     ΩB::Float64  = 0.05, ΩDE::Float64 = 0.68, Ωk::Float64  = 0.,
     Ωr::Float64  = 0., ns::Float64  = 0.96, Mν::Float64  = 0.06,
     σ8::Float64  = 0.816, H0::Float64  = 67.)
@@ -36,7 +37,7 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 
 - ``H_0``, the value of the Hubble paramater
 """
-@kwdef struct w0waCDMCosmologyStruct <: AbstractCosmology
+@kwdef struct w0waCDMCosmology <: AbstractCosmology
     w0::Float64  = -1.
     wa::Float64  = 0.
     Mν::Float64  = 0.06 #neutrino mass in eV
@@ -51,12 +52,12 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 end
 
 """
-    CosmologicalGridStruct(ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300)),
+    CosmologicalGrid(ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300)),
     KArray::Vector{Float64} = LogSpaced(1e-5, 50., 1000))
 
 This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
 """
-@kwdef mutable struct CosmologicalGridStruct <: CosmologicalGrid
+@kwdef mutable struct CosmologicalGrid <: AbstractCosmologicalGrid
     ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
     KArray::Vector{Float64} = LogSpaced(1e-5, 50., 1000)
     MultipolesArray::Vector{Float64} = LinRange(10., 3000., 2991)
@@ -66,25 +67,25 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
 end
 
 """
-    BackgroundQuantitiesStruct(HZArray::Vector{Float64},
+    BackgroundQuantities(HZArray::Vector{Float64},
     rZArray::Vector{Float64})
 
 This struct contains the arrays with the values of the Hubble parameter ``H(z)``
 and the comoving distance ``r(z)``.
 """
-@kwdef struct BackgroundQuantitiesStruct <: BackgroundQuantities
+@kwdef struct BackgroundQuantities <: AbstractBackgroundQuantities
     HZArray::Vector{Float64} = zeros(500)
     rZArray::Vector{Float64} = zeros(500)
 end
 
 """
-    classyParamsStruct(classyParamsDict::Dict)
+    classyParams(classyParamsDict::Dict)
 
 This struct contains the dictionary with the classy parameters. For a detalied
 explanation of the parameters, please refer to the
 [CLASS website](http://class-code.net/)
 """
-@kwdef mutable struct classyParamsStruct <: BoltzmannSolverParams
+@kwdef mutable struct classyParams <: BoltzmannSolverParams
     classyParamsDict::Dict = Dict("output" => "mPk",
         "non linear"=> "halofit",
         "Omega_b"=> 0.05,
@@ -107,7 +108,7 @@ explanation of the parameters, please refer to the
 end
 
 """
-    AnalitycalDensityStruct(z0::Float64 = 0.9/sqrt(2.), zmin::Float64 = 0.001,
+    AnalitycalDensity(z0::Float64 = 0.9/sqrt(2.), zmin::Float64 = 0.001,
     zmax::Float64 = 2.5, surfacedensity::Float64 = 30.,
     normalization::Float64 = 1.)
 
@@ -126,7 +127,7 @@ The parameters contained in this struct are
 - surfacedensity , the value of the galaxy source density integrated between ``z_{min}`` and ``z_{max}``
 - normalization, the value of parameter which multiplies the source dennsity in order to match the correct surface density
 """
-@kwdef mutable struct AnalitycalDensityStruct <: AsbtractDensity
+@kwdef mutable struct AnalitycalDensity <: AsbtractDensity
     Z0::Float64 = 0.9/sqrt(2.)
     ZMin::Float64 = 0.001
     ZMax::Float64 = 4.0
@@ -135,7 +136,7 @@ The parameters contained in this struct are
 end
 
 """
-    ConvolvedDensityStruct(AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct(),
+    ConvolvedDensity(AnalitycalDensity::AnalitycalDensity = AnalitycalDensityStruct(),
     InstrumentResponse::InstrumentResponse = InstrumentResponseStruct()
     ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789, 0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
     DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)
@@ -153,7 +154,7 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
 \\left(z_{\\mathrm{p}} \\mid z\\right)}
 ```
 """
-@kwdef mutable struct ConvolvedDensityStruct <: AbstractConvolvedDensity
+@kwdef mutable struct ConvolvedDensity <: AbstractConvolvedDensity
     ZBinArray::Vector{Float64} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
     0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
     DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)
@@ -162,7 +163,7 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
 end
 
 """
-    InstrumentResponseStruct(cb::Float64 = 1.0, zb::Float64 = 0.0,
+    InstrumentResponse(cb::Float64 = 1.0, zb::Float64 = 0.0,
     σb::Float64 = 0.05, co::Float64 = 1.0, zo::Float64 = 0.1,
     σo::Float64 = 0.05, fout::Float64 = 0.1)
 
@@ -178,7 +179,7 @@ p(z_p|z)  = \\frac{1-f_{out}}{\\sqrt{2 \\pi} \\sigma_{b}(1+z)} \\exp \\left(
 ```
 This struct contains all these parameters.
 """
-@kwdef struct InstrumentResponseStruct <: InstrumentResponse
+@kwdef struct InstrumentResponse <: AbstractInstrumentResponse
     cb::Float64   = 1.0
     zb::Float64   = 0.0
     σb::Float64   = 0.05
@@ -189,20 +190,19 @@ This struct contains all these parameters.
 end
 
 """
-    GCWeightFunctionStruct()
+    GCWeightFunction()
 
-This struct contains the array with the Galaxy Bias Galaxy Clustering Weight
-Function values for all tomographic bins and redshift values in the
-    [`CosmologicalGridStruct`](@ref).
+This struct contains the array with the Galaxy Bias and Galaxy Clustering Weight Function
+values for all tomographic bins and redshift values in the [`CosmologicalGridStruct`](@ref).
 """
-@kwdef mutable struct GCWeightFunctionStruct <: AbstractWeightFunction
+@kwdef mutable struct GCWeightFunction <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
     BiasArray::AbstractArray{Float64, 2} = zeros(size(WeightFunctionArray))
-    BiasKind::AbstractBias = PiecewiseBiasStruct()
+    BiasKind::AbstractBias = PiecewiseBias()
 end
 
 """
-    EuclidBiasStruct()
+    EuclidBias()
 
 This struct contains the parameter for the bias model measured by
 [the Euclid Collaboration](https://arxiv.org/abs/2005.00055):
@@ -211,14 +211,14 @@ This struct contains the parameter for the bias model measured by
 b(z)= A +\\frac{B}{1+\\exp \\left( \\left(D-z \\right)C   \\right)}
 ```
 """
-@kwdef struct EuclidBiasStruct <: AbstractBias
+@kwdef struct EuclidBias <: AbstractBias
     A::Float64 = 1.0
     B::Float64 = 2.5
     C::Float64 = 2.8
     D::Float64 = 1.6
 end
 
-@kwdef struct ExtendedNLIAStruct <: AbstractIntrinsicAlignment
+@kwdef struct ExtendedNLIA <: AbstractIntrinsicAlignment
     A::Float64 = 1.72
     β::Float64 = -0.41
     C::Float64 = 0.0134
@@ -226,33 +226,33 @@ end
 end
 
 """
-    WLWeightFunctionStruct()
+    WLWeightFunction()
 
 This struct contains the array with the Lensing Efficiency and Weak Lensing
 Weight Function values for all tomographic bins and redshift values in the
 [`CosmologicalGridStruct`](@ref)
 """
-@kwdef mutable struct WLWeightFunctionStruct <: AbstractWeightFunction
+@kwdef mutable struct WLWeightFunction <: AbstractWeightFunction
     WeightFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
     LensingEfficiencyArray::AbstractArray{Float64, 2} = zeros(10, 500)
     IntrinsicAlignmentArray::AbstractArray{Float64, 2} = zeros(10, 500)
-    IntrinsicAlignmentModel::AbstractIntrinsicAlignment = ExtendedNLIAStruct()
+    IntrinsicAlignmentModel::AbstractIntrinsicAlignment = ExtendedNLIA()
 end
 
-@kwdef mutable struct LensingSourceFunctionStruct <: AbstractSourceFunction
+@kwdef mutable struct LensingSourceFunction <: AbstractSourceFunction
     SourceFunctionArray::AbstractArray{Float64, 2} = zeros(10, 500)
     LensingEfficiencyArray::AbstractArray{Float64, 2} = zeros(10, 500)
 end
 
 
 """
-    PowerSpectrumStruct()
+    PowerSpectrum()
 
 This struct contains the array with the Linear and Nonlinear Power Spectrum
 evaluated on the ``k-z`` grid and the interpolated Nonlinear Power Spectrum on
 Limber ``k-z`` grid.
 """
-@kwdef mutable struct PowerSpectrumStruct <: PowerSpectrum
+@kwdef mutable struct PowerSpectrum <: AbstractPowerSpectrum
     PowerSpectrumLinArray::AbstractArray{Float64, 2} = zeros(1000, 300)
     PowerSpectrumNonlinArray::AbstractArray{Float64, 2} = zeros(1000, 300)
     InterpolatedPowerSpectrum::AbstractArray{Float64, 2} = zeros(2991, 300)
@@ -263,16 +263,16 @@ Limber ``k-z`` grid.
 end
 
 """
-    AngularCoefficientsStruct()
+    Cℓ()
 
 This struct contains the array with the Angular Coefficients.
 """
-@kwdef mutable struct AngularCoefficientsStruct <: AngularCoefficients
-    AngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+@kwdef mutable struct Cℓ <: AbstractCℓ
+    CℓArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
-@kwdef mutable struct DerivativeAngularCoefficientsStruct <: DerivativeAngularCoefficients
-    DerivativeAngularCoefficientsArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+@kwdef mutable struct ∂Cℓ <: Abstract∂Cℓ
+    ∂Cℓ::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
 """
@@ -293,7 +293,10 @@ struct RectBivSplineDierckx <: InterpolationMethod end
 struct GriddedLinear <: InterpolationMethod end
 struct BSplineCubic <: InterpolationMethod end
 
-@kwdef mutable struct FFTLogStruct <: FFTLog
+struct StandardLensingEfficiency <: LensingEfficiencyMethod end
+struct CustomLensingEfficiency <: LensingEfficiencyMethod end
+
+@kwdef mutable struct FFTLog <: AbstractFFTLog
     XArray::Vector{Float64}
     DLnX::Float64 = log(XArray[2]/XArray[1])
     FXArray::Vector{Float64}
@@ -310,13 +313,13 @@ struct BSplineCubic <: InterpolationMethod end
 end
 
 """
-    κTransferFunctionStruct()
+    κTransferFunction()
 
 This struct contains the array with the Lensing Efficiency and Weak Lensing
 Weight Function values for all tomographic bins and redshift values in the
 [`CosmologicalGridStruct`](@ref)
 """
-@kwdef mutable struct κTransferFunctionStruct <: AbstractTransferFunction
-    LensingSourceFunction::LensingSourceFunctionStruct = LensingSourceFunctionStruct
+@kwdef mutable struct κTransferFunction <: AbstractTransferFunction
+    LensingSourceFunction::LensingSourceFunction = LensingSourceFunction
     TransferFunctionArray::AbstractArray{Float64, 3} = zeros(10, 100, 1000)
 end

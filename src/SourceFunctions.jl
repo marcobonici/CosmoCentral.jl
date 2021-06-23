@@ -1,10 +1,10 @@
 function ComputeSourceFunctionOverGrid(
-    LensingSourceFunction::LensingSourceFunctionStruct,
+    LensingSourceFunction::LensingSourceFunction,
     ConvolvedDensity::AbstractConvolvedDensity,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct,
-    PowerSpectrum::PowerSpectrumStruct)
+    w0waCDMCosmology::w0waCDMCosmology,
+    PowerSpectrum::PowerSpectrum)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     for zbinidx in 1:length(ConvolvedDensity.ZBinArray)-1

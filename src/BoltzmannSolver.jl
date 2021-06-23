@@ -4,7 +4,7 @@
 This function, given a [`w0waCDMCosmologyStruct`](@ref), returns the
 [`classyParamsStruct`](@ref) correctly initialized.
 """
-function Initializeclassy(w0waCDMCosmology::w0waCDMCosmologyStruct)
+function Initializeclassy(w0waCDMCosmology::w0waCDMCosmology)
     classyParamsDict = Dict("output" => "mPk",
     "non linear"=> "halofit",
     "Omega_b"=> w0waCDMCosmology.ΩB,
@@ -25,20 +25,20 @@ function Initializeclassy(w0waCDMCosmology::w0waCDMCosmologyStruct)
     "cs2_fld" =>  1.,
     "N_ncdm" =>  1,
     "tau_reio" =>  0.058)
-    classyParams = classyParamsStruct(classyParamsDict = classyParamsDict)
-    return classyParams
+    classyparams = classyParams(classyParamsDict = classyParamsDict)
+    return classyparams
 end
 
 
 
 """
-    EvaluatePowerSpectrum(classyParams:: classyParamsStruct,
+    EvaluatePowerSpectrum!(classyParams:: classyParamsStruct,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum)
 
 This function runs classy to evaluate the Matter Power Spectrum over the ``k-z``
 grid specified in [`CosmologicalGridStruct`](@ref)
 """
-function EvaluatePowerSpectrum(classyParams:: classyParamsStruct,
+function EvaluatePowerSpectrum!(classyParams:: classyParams,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum)
     cosmo = classy.Class()
     cosmo.set(classyParams.classyParamsDict)
