@@ -33,6 +33,7 @@ length(GCWeightFunction.WeightFunctionArray[:, 1])))
 classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
 input_path_pmm = pwd()*"/p_mm"
 input_path_Cℓ = pwd()*"/cl"
+CosmoCentral.classy.Class()
 
 @testset "Evaluation of background quantities" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., w0waCDMCosmology)
@@ -237,7 +238,7 @@ end
     length(GCWeightFunction.WeightFunctionArray[:, 1]),
     length(GCWeightFunction.WeightFunctionArray[:, 1])))
     CosmoCentral.ComputeCℓ!(Cℓ, GCWeightFunction, GCWeightFunction, BackgroundQuantities,
-    w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomTrapz())
+    w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
     @test isapprox(CℓLoaded.CℓArray,
     Cℓ.CℓArray, rtol=1e-6)
     CosmoCentral.WriteCℓ!("PhotometricGalaxy_PhotometricGalaxy", Cℓ, "new_cl")

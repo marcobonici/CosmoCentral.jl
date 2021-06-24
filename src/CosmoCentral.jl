@@ -1,3 +1,4 @@
+__precompile__()
 module CosmoCentral
 
 using QuadGK
@@ -18,7 +19,15 @@ using LatinHypercubeSampling
 using Random
 using DelimitedFiles
 numpy = pyimport("numpy")
-classy = pyimport("classy")
+
+const classy = PyNULL()
+
+
+function __init__()
+    copy!(classy, pyimport("classy"))
+end
+
+#classy = pyimport("classy")
 
 include("CosmologicalStructures.jl")
 include("Background.jl")

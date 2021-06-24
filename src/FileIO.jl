@@ -71,9 +71,8 @@ function ReadCℓ(Filename::String, Probes::String)
     file = HDF5.h5open(Filename, "r")
     c_lij =
     HDF5.read(file["cls"][Probes]["c_lij"])
-    AngularCoefficients = AngularCoefficients(CℓArray =
-    c_lij)
-    return AngularCoefficients
+    cℓ = Cℓ(CℓArray = c_lij)
+    return cℓ
 end
 
 function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},

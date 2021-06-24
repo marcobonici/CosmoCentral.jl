@@ -249,7 +249,7 @@ function InitializeComputeAngularCoefficientsDoubleNuisance(ProbesDict::Dict,
                 ComputeCℓ!(AngularCoefficients,
                 ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
                 w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
-                CosmoCentral.CustomTrapz())
+                CosmoCentral.CustomSimpson())
                 push!(CℓArray, AngularCoefficients)
             end
         end

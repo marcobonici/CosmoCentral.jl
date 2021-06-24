@@ -9,5 +9,18 @@ C_{i j}^{AB}(\ell)=\frac{c}{H_0} \int_{z_{\min }}^{z_{\max }} \mathrm{d} z \frac
 
 ```@docs
 CosmoCentral.Cℓ
-CosmoCentral.ComputeCℓ!
+CosmoCentral.∂Cℓ
+CosmoCentral.ComputeCℓ!(Cℓ::CosmoCentral.AbstractCℓ,
+WeightFunctionA::CosmoCentral.AbstractWeightFunction,
+WeightFunctionB::CosmoCentral.AbstractWeightFunction,
+BackgroundQuantities::CosmoCentral.BackgroundQuantities, ::CosmoCentral.w0waCDMCosmology,
+CosmologicalGrid::CosmoCentral.AbstractCosmologicalGrid,
+PowerSpectrum::CosmoCentral.AbstractPowerSpectrum,
+::CosmoCentral.NumericalIntegrationSimpson)
+CosmoCentral.ComputeCℓ!(Cℓ::CosmoCentral.AbstractCℓ,
+WeightFunctionA::CosmoCentral.AbstractWeightFunction,
+WeightFunctionB::CosmoCentral.AbstractWeightFunction,
+BackgroundQuantities::CosmoCentral.BackgroundQuantities, ::CosmoCentral.w0waCDMCosmology,
+CosmologicalGrid::CosmoCentral.AbstractCosmologicalGrid,
+PowerSpectrum::CosmoCentral.AbstractPowerSpectrum, ::CosmoCentral.CustomSimpson)
 ```
