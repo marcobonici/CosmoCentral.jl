@@ -107,53 +107,7 @@ function InstantiateComputeWeightFunctionOverGrid(
     return LensingFunction
 end
 
-function EvaluateDerivativeAngularCoefficients(DictCosmo::Dict, Path::String,
-    Steps::Array)
-    CentralCosmologyCL = ReadCℓ(
-    Path*"/Angular/dvar_central_step_0/cl")
-    CℓArray = zeros(size(CentralCosmologyCL.CℓArray, 1),
-    size(CentralCosmologyCL.CℓArray, 2),
-    size(CentralCosmologyCL.CℓArray, 3),
-    2*length(Steps)+1)
-    ∂CℓArray = similar(CentralCosmologyCL.CℓArray)
-    CℓArray[:, :, :, length(Steps) + 1] .=
-    CentralCosmologyCL.CℓArray[:,:,:]
-    stepvalues = zeros(2*length(Steps)+1)
-    AngularDerivatives = zeros(size(CℓArray, 1),
-    size(CℓArray, 2), size(CℓArray, 3))
-    for (key, value) in DictCosmo
-        if value[2] == "present"
-            stepvalues[length(Steps) + 1] = value[1]
-            for (index, mystep) in enumerate(Steps)
-                AngularCoefficientsMinus = ReadCℓ(
-                Path*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl")
-                AngularCoefficientsPlus = ReadCℓ(
-                Path*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl")
-                CℓArray[:, :, :, length(Steps) + 1 - index] .=
-                AngularCoefficientsMinus.CℓArray
-                CℓArray[:, :, :, length(Steps) + 1 + index] .=
-                AngularCoefficientsPlus.CℓArray
-                stepvalues[length(Steps) + 1 - index] =
-                IncrementedValue(value[1], -mystep)
-                stepvalues[length(Steps) + 1 + index] =
-                IncrementedValue(value[1],  mystep)
-            end
-            for idx_a in 1:size(CentralCosmologyCL.CℓArray, 2)
-                for idx_b in 1:size(CentralCosmologyCL.CℓArray, 3)
-                    for idx_l in 1:size(CentralCosmologyCL.CℓArray, 1)
-                        y = CℓArray[idx_l, idx_a, idx_b, :]
-                        der = SteMDerivative(stepvalues, y)
-                        AngularDerivatives[idx_l, idx_a, idx_b] = der
-                    end
-                end
-            end
-            Write∂Cℓ!(AngularDerivatives,
-            Path*"/Derivative/"*key*"/"*key)
-        end
-    end
-end
-
-function EvaluateDerivativeAngularCoefficientsNew(DictCosmo::Dict,
+function Forecast∂Cℓ(DictCosmo::Dict,
     PathInput::String, PathConfig::String, Steps::Array)
     ProbesDict = JSON.parsefile(PathConfig)
     CoefficientsArray = GetProbesArray(ProbesDict)
@@ -168,22 +122,22 @@ function EvaluateDerivativeAngularCoefficientsNew(DictCosmo::Dict,
         CℓArray[:, :, :, length(Steps) + 1] .=
         CentralCosmologyCL.CℓArray[:,:,:]
         stepvalues = zeros(2*length(Steps)+1)
-        AngularDerivatives = zeros(size(CℓArray, 1),
+        ∂cℓ = zeros(size(CℓArray, 1),
         size(CℓArray, 2), size(CℓArray, 3))
         for (key, value) in DictCosmo
             if value[2] == "present"
                 stepvalues[length(Steps) + 1] = value[1]
                 for (index, mystep) in enumerate(Steps)
-                    AngularCoefficientsMinus = ReadCℓ(
+                    cℓminus = ReadCℓ(
                     PathInput*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl",
                     Coefficient)
-                    AngularCoefficientsPlus = ReadCℓ(
+                    cℓplus = ReadCℓ(
                     PathInput*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl",
                     Coefficient)
                     CℓArray[:, :, :, length(Steps) + 1 - index] .=
-                    AngularCoefficientsMinus.CℓArray
+                    cℓminus.CℓArray
                     CℓArray[:, :, :, length(Steps) + 1 + index] .=
-                    AngularCoefficientsPlus.CℓArray
+                    cℓplus.CℓArray
                     stepvalues[length(Steps) + 1 - index] =
                     IncrementedValue(value[1], -mystep)
                     stepvalues[length(Steps) + 1 + index] =
@@ -194,11 +148,11 @@ function EvaluateDerivativeAngularCoefficientsNew(DictCosmo::Dict,
                         for idx_l in 1:size(CentralCosmologyCL.CℓArray, 1)
                             y = CℓArray[idx_l, idx_a, idx_b, :]
                             der = SteMDerivative(stepvalues, y)
-                            AngularDerivatives[idx_l, idx_a, idx_b] = der
+                            ∂cℓ[idx_l, idx_a, idx_b] = der
                         end
                     end
                 end
-                Write∂Cℓ!(AngularDerivatives,
+                Write∂Cℓ!(∂cℓ,
                 PathInput*"/Derivative/"*key*"/"*key, Coefficient)
             end
         end
@@ -270,7 +224,7 @@ function GetProbesArray(DictInput::Dict)
     return CoefficientsArray
 end
 
-function InitializeComputeAngularCoefficients(ProbesDict::Dict,
+function InitializeForecastCℓ(ProbesDict::Dict,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum,
@@ -287,23 +241,23 @@ function InitializeComputeAngularCoefficients(ProbesDict::Dict,
             if key_B*"_"*key_A in CoefficientsArray
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
-                AngularCoefficients = Cℓ(CℓArray = 
+                cℓ = Cℓ(CℓArray = 
                 zeros(length(CosmologicalGrid.MultipolesArray),
                 length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
                 length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
-                ComputeCℓ!(AngularCoefficients,
+                ComputeCℓ!(cℓ,
                 ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
                 w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
                 CosmoCentral.CustomSimpson())
                 WriteCℓ!(key_A*"_"*key_B,
-                AngularCoefficients, PathOutput*key*"/cl")
+                cℓ, PathOutput*key*"/cl")
                 WriteCosmology!(w0waCDMCosmology, PathOutput*key)
             end
         end
     end
 end
 
-function InitializeComputeAngularCoefficients(ProbesDict::Dict,
+function InitializeForecastCℓ(ProbesDict::Dict,
     BackgroundQuantities::BackgroundQuantities,
     w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum,
@@ -320,24 +274,20 @@ function InitializeComputeAngularCoefficients(ProbesDict::Dict,
             if key_B*"_"*key_A in CoefficientsArray
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
-                AngularCoefficients = AngularCoefficients(
-                CℓArray
-                = zeros(length(CosmologicalGrid.MultipolesArray),
+                cℓ = Cℓ(CℓArray = zeros(length(CosmologicalGrid.MultipolesArray),
                 length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
                 length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
-                ComputeCℓ!(AngularCoefficients,
-                ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
+                ComputeCℓ!(cℓ, ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
                 w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
                 CosmoCentral.CustomSimpson())
-                WriteCℓ!(key_A*"_"*key_B,
-                AngularCoefficients, PathOutput*key*"/cl")
+                WriteCℓ!(key_A*"_"*key_B, cℓ, PathOutput*key*"/cl")
                 WriteParameters!(CosmoDict, PathOutput*key)
             end
         end
     end
 end
 
-function EvaluateAngularCoefficients(Cosmologies::Dict, PathInput::String,
+function ForecastCℓ(Cosmologies::Dict, PathInput::String,
     PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
     ProbesDict = JSON.parsefile(PathConfig)
     analyticaldensity = AnalitycalDensity()
@@ -360,7 +310,7 @@ function EvaluateAngularCoefficients(Cosmologies::Dict, PathInput::String,
         ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
         InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
         BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
-        InitializeComputeAngularCoefficients(DictProbes, BackgroundQuantities,
+        InitializeForecastCℓ(DictProbes, BackgroundQuantities,
         w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutput, key)
     end
 end

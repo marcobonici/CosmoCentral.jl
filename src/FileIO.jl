@@ -56,29 +56,11 @@ function ReadCosmology(CosmoDict::JSON3.Object)
     return Cosmology
 end
 
-function ReadCℓ(Filename::String)
-    Filename *= ".h5"
-    file = HDF5.h5open(Filename, "r")
-    c_lij =
-    HDF5.read(file["cls"]["PhotometricGalaxy_PhotometricGalaxy"]["c_lij"])
-    AngularCoefficients = Cℓ(CℓArray =
-    c_lij)
-    return AngularCoefficients
-end
-
 function ReadCℓ(Filename::String, Probes::String)
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
-    c_lij =
-    HDF5.read(file["cls"][Probes]["c_lij"])
-    cℓ = Cℓ(CℓArray = c_lij)
-    return cℓ
-end
-
-function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},
-    Filename::String)
-    h5write(Filename*".h5", "dcls/PhotometricGalaxy_PhotometricGalaxy/dc_lij",
-    DerivativeArray)
+    c_lij = HDF5.read(file["cls"][Probes]["c_lij"])
+    return Cℓ(CℓArray = c_lij)
 end
 
 function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},

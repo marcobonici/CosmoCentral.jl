@@ -1,6 +1,5 @@
 abstract type AbstractCosmology end
 abstract type AbstractCosmologicalGrid end
-abstract type AngularCoefficientsGrid end
 abstract type AbstractBackgroundQuantities end
 abstract type BoltzmannSolverParams end
 abstract type AbstractDensity end

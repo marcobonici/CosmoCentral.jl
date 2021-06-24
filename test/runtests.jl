@@ -226,7 +226,7 @@ end
 end
 
 @testset "Test Angular coefficients evaluation" begin
-    CℓLoaded = CosmoCentral.ReadCℓ(input_path_Cℓ)
+    CℓLoaded = CosmoCentral.ReadCℓ(input_path_Cℓ, "PhotometricGalaxy_PhotometricGalaxy")
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
@@ -241,6 +241,6 @@ end
     @test isapprox(CℓLoaded.CℓArray,
     Cℓ.CℓArray, rtol=1e-6)
     CosmoCentral.WriteCℓ!("PhotometricGalaxy_PhotometricGalaxy", Cℓ, "new_cl")
-    CℓReloaded = CosmoCentral.ReadCℓ("new_cl")
+    CℓReloaded = CosmoCentral.ReadCℓ("new_cl", "PhotometricGalaxy_PhotometricGalaxy")
     @test isapprox(CℓReloaded.CℓArray, Cℓ.CℓArray, rtol=1e-9)
 end
