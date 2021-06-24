@@ -94,3 +94,13 @@ function ComputeBackgroundQuantitiesOverLogSpacedχGrid(
     ComputeBackgroundQuantitiesGrid!(CosmologicalGrid, BackgroundQuantities,
     w0waCDMCosmology)
 end
+
+function ExtractGrowthFactor!(BackgroundQuantities::BackgroundQuantities,
+    PowerSpectrum::PowerSpectrum)
+    BackgroundQuantities.DZArray = zeros(length(PowerSpectrum.PowerSpectrumLinArray[1,:]))
+    for zidx in 1:length(BackgroundQuantities.DZArray)
+        BackgroundQuantities.DZArray[zidx] =
+        sqrt(PowerSpectrum.PowerSpectrumLinArray[1,zidx]./
+        PowerSpectrum.PowerSpectrumLinArray[1,1])
+    end
+end

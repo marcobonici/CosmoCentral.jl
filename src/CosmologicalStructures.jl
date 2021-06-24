@@ -72,9 +72,10 @@ end
 This struct contains the arrays with the values of the Hubble parameter ``H(z)``
 and the comoving distance ``r(z)``.
 """
-@kwdef struct BackgroundQuantities <: AbstractBackgroundQuantities
+@kwdef mutable struct BackgroundQuantities <: AbstractBackgroundQuantities
     HZArray::Vector{Float64} = zeros(500)
     rZArray::Vector{Float64} = zeros(500)
+    DZArray::Vector{Float64} = zeros(500)
 end
 
 """

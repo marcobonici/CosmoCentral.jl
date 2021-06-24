@@ -221,7 +221,8 @@ function ComputeWeightFunctionGrid!(
             1.5 * (w0waCDMCosmology.H0/c_0)^2 * w0waCDMCosmology.ΩM *
             (1. + CosmologicalGrid.ZArray[idx_ZArray]) *
             BackgroundQuantities.rZArray[idx_ZArray]^2 *
-            LensingFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray]
+            LensingFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray] +
+            LensingFunction.IntrinsicAlignmentArray[idx_ZBinArray, idx_ZArray]
         end
     end
 end

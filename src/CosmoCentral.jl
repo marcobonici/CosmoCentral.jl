@@ -27,8 +27,6 @@ function __init__()
     copy!(classy, pyimport("classy"))
 end
 
-#classy = pyimport("classy")
-
 include("CosmologicalStructures.jl")
 include("Background.jl")
 include("Density.jl")

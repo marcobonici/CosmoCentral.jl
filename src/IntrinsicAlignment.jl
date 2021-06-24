@@ -1,6 +1,6 @@
 function ComputeIntrinsicAlignmentGrid!(CosmologicalGrid::CosmologicalGrid,
     LensingFunction::WLWeightFunction, ConvolvedDensity::AbstractConvolvedDensity,
-    BackgroundQuantities::BackgroundQuantities, PowerSpectrum::PowerSpectrum,
+    BackgroundQuantities::BackgroundQuantities, 
     w0waCDMCosmology::w0waCDMCosmology, Path::String)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
@@ -17,7 +17,7 @@ function ComputeIntrinsicAlignmentGrid!(CosmologicalGrid::CosmologicalGrid,
             LensingFunction.IntrinsicAlignmentModel.C * w0waCDMCosmology.ΩM *
             ( (1 + zvalue) ^ LensingFunction.IntrinsicAlignmentModel.η ) *
             (spl(zvalue) ^ LensingFunction.IntrinsicAlignmentModel.β ) /
-            PowerSpectrum.GrowthFactor[zidx]
+            BackgroundQuantities.DZArray[zidx]
         end
     end
 end
