@@ -220,9 +220,9 @@ end
 
 @kwdef struct ExtendedNLIA <: AbstractIntrinsicAlignment
     A::Float64 = 1.72
-    β::Float64 = -0.41
+    β::Float64 = 2.17
     C::Float64 = 0.0134
-    η::Float64 = 2.17
+    η::Float64 = -0.41
 end
 
 """
