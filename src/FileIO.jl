@@ -1,10 +1,10 @@
-function WriteAngularCoefficients(Probes::String,
-    AngularCoefficients::AngularCoefficientsStruct, Filename::String)
+function WriteCℓ!(Probes::String,
+    Cℓ::AbstractCℓ, Filename::String)
     h5write(Filename*".h5", "cls/"*Probes*"/c_lij",
-    AngularCoefficients.AngularCoefficientsArray)
+    Cℓ.CℓArray)
 end
 
-function WriteCosmology(Cosmology::w0waCDMCosmologyStruct, Filename::String)
+function WriteCosmology!(Cosmology::w0waCDMCosmology, Filename::String)
     CosmoDict = Dict{String,Float64}()
     CosmoDict["w0"]  = Cosmology.w0
     CosmoDict["wa"]  = Cosmology.wa
@@ -20,33 +20,69 @@ function WriteCosmology(Cosmology::w0waCDMCosmologyStruct, Filename::String)
     JSON3.write(Filename*"/cosmology.json", CosmoDict)
 end
 
-function ReadAngularCoefficients(Filename::String)
+function WriteParameters!(CosmoDict::Dict, Filename::String)
+    JSON3.write(Filename*"/parameters.json", CosmoDict)
+end
+
+function ReadCosmology(CosmoDict::Dict)
+    Cosmology = w0waCDMCosmology(
+    w0 = CosmoDict["w0"],
+    wa = CosmoDict["wa"],
+    Mν = CosmoDict["Mν"],
+    H0 = CosmoDict["H0"],
+    ΩM = CosmoDict["ΩM"],
+    ΩB = CosmoDict["ΩB"],
+    ΩDE = CosmoDict["ΩDE"],
+    Ωk = CosmoDict["Ωk"],
+    Ωr = CosmoDict["Ωr"],
+    ns = CosmoDict["ns"],
+    σ8 = CosmoDict["σ8"])
+    return Cosmology
+end
+
+function ReadCosmology(CosmoDict::JSON3.Object)
+    Cosmology = w0waCDMCosmology(
+    w0 = CosmoDict["w0"],
+    wa = CosmoDict["wa"],
+    Mν = CosmoDict["Mν"],
+    H0 = CosmoDict["H0"],
+    ΩM = CosmoDict["ΩM"],
+    ΩB = CosmoDict["ΩB"],
+    ΩDE = CosmoDict["ΩDE"],
+    Ωk = CosmoDict["Ωk"],
+    Ωr = CosmoDict["Ωr"],
+    ns = CosmoDict["ns"],
+    σ8 = CosmoDict["σ8"])
+    return Cosmology
+end
+
+function ReadCℓ(Filename::String)
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
     c_lij =
     HDF5.read(file["cls"]["PhotometricGalaxy_PhotometricGalaxy"]["c_lij"])
-    AngularCoefficients = AngularCoefficientsStruct(AngularCoefficientsArray =
+    AngularCoefficients = Cℓ(CℓArray =
     c_lij)
     return AngularCoefficients
 end
 
-function ReadAngularCoefficients(Filename::String, Probes::String)
+function ReadCℓ(Filename::String, Probes::String)
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
     c_lij =
     HDF5.read(file["cls"][Probes]["c_lij"])
-    AngularCoefficients = AngularCoefficientsStruct(AngularCoefficientsArray =
+    AngularCoefficients = AngularCoefficients(CℓArray =
     c_lij)
     return AngularCoefficients
 end
 
-function WriteDerivativeCoefficients(DerivativeArray::AbstractArray{Float64, 3},
+function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},
     Filename::String)
     h5write(Filename*".h5", "dcls/PhotometricGalaxy_PhotometricGalaxy/dc_lij",
     DerivativeArray)
 end
 
-function WriteDerivativeCoefficients(DerivativeArray::AbstractArray{Float64, 3},
+function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},
     Filename::String, Probes::String)
     h5write(Filename*".h5", "dcls/"*Probes*"/dc_lij",
     DerivativeArray)
@@ -61,9 +97,9 @@ end
 This function writes the Power Spectrum, the Background quantities and the
 Cosmological Grid in a HDF5 file.
 """
-function WritePowerSpectrumBackground(PowerSpectrum::PowerSpectrum,
-    BackgroundQuantities::BackgroundQuantities,
-    CosmologicalGrid::CosmologicalGrid, Filename::String)
+function WritePowerSpectrumBackground(PowerSpectrum::AbstractPowerSpectrum,
+    BackgroundQuantities::AbstractBackgroundQuantities,
+    CosmologicalGrid::AbstractCosmologicalGrid, Filename::String)
     h5write(Filename*".h5",
     "cosmology/comoving_distance_array",
     BackgroundQuantities.rZArray)
@@ -104,15 +140,15 @@ function ReadPowerSpectrumBackground(Filename::String,
     k_grid = HDF5.read(file["power_spectrum"]["k_grid"])
     comoving_distance_array = HDF5.read(file["cosmology"]["comoving_distance_array"])
     hubble_array = HDF5.read(file["cosmology"]["hubble_array"])
-    BackgroundQuantities = BackgroundQuantitiesStruct(HZArray = hubble_array,
+    BackgroundQuantitiesRead = BackgroundQuantities(HZArray = hubble_array,
     rZArray = comoving_distance_array)
-    CosmologicalGrid = CosmologicalGridStruct(ZArray = z_grid, KArray = k_grid,
+    CosmologicalGridRead = CosmologicalGrid(ZArray = z_grid, KArray = k_grid,
     MultipolesArray = MultipolesArray)
-    PowerSpectrum = PowerSpectrumStruct(PowerSpectrumLinArray = lin_p_mm_k_z,
+    PowerSpectrumRead = PowerSpectrum(PowerSpectrumLinArray = lin_p_mm_k_z,
     PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
-    length(CosmologicalGrid.ZArray)))
-    return PowerSpectrum, BackgroundQuantities, CosmologicalGrid
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGridRead.MultipolesArray),
+    length(CosmologicalGridRead.ZArray)))
+    return PowerSpectrumRead, BackgroundQuantitiesRead, CosmologicalGridRead
 end
 
 function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
@@ -126,12 +162,12 @@ function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
     k_grid = HDF5.read(file["power_spectrum"]["k_grid"])
     dimensionless_comoving_distance_array = HDF5.read(file["cosmology"]["dimensionless_comoving_distance_array"])
     dimensionless_hubble_array = HDF5.read(file["cosmology"]["dimensionless_hubble_array"])
-    BackgroundQuantities = BackgroundQuantitiesStruct(HZArray =
+    BackgroundQuantities = BackgroundQuantities(HZArray =
     dimensionless_hubble_array*67,
     rZArray = dimensionless_comoving_distance_array*c_0/67)
-    CosmologicalGrid = CosmologicalGridStruct(ZArray = z_grid, KArray = k_grid,
+    CosmologicalGrid = CosmologicalGrid(ZArray = z_grid, KArray = k_grid,
     MultipolesArray = MultipolesArray)
-    PowerSpectrum = PowerSpectrumStruct(PowerSpectrumLinArray = lin_p_mm_k_z,
+    PowerSpectrum = PowerSpectrum(PowerSpectrumLinArray = lin_p_mm_k_z,
     PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
     InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
     length(CosmologicalGrid.ZArray)))

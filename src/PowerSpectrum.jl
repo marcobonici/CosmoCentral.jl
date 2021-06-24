@@ -1,5 +1,5 @@
 """
-    ComputeLimberArray(CosmologicalGrid::CosmologicalGrid,
+    ComputeLimberArray!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities)
 
 This function compute the Limber grid. In the Limber approximation, ``k`` and
@@ -8,7 +8,7 @@ This function compute the Limber grid. In the Limber approximation, ``k`` and
 k_\\ell(z)=\\frac{\\ell+1/2}{r(z)}.
 ```
 """
-function ComputeLimberArray(CosmologicalGrid::CosmologicalGrid,
+function ComputeLimberArray!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities)
     for (idx_l, myl) in enumerate(CosmologicalGrid.MultipolesArray)
         CosmologicalGrid.KLimberArray[idx_l, :] =  (myl + 0.5) ./
@@ -17,14 +17,14 @@ function ComputeLimberArray(CosmologicalGrid::CosmologicalGrid,
 end
 
 """
-    InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
+    InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities, PowerSpectrum::PowerSpectrum,
     ::InterpolationMethod)
 
 This function interpolates the Power Spectrum on the ``k-z`` grid and evaluates
 it on the Limber grid.
 """
-function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
+function InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities, PowerSpectrum::PowerSpectrum,
     ::RectBivSplineDierckx)
     InterpPmm = Dierckx.Spline2D(log10.(CosmologicalGrid.KArray),
@@ -37,7 +37,7 @@ function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
     end
 end
 
-function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
+function InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities, PowerSpectrum::PowerSpectrum,
     ::BSplineCubic)
     x = LinRange(log10(first(CosmologicalGrid.KArray)),
@@ -53,5 +53,35 @@ function InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid::CosmologicalGrid,
         PowerSpectrum.InterpolatedPowerSpectrum[idx_l, :] =
         10 .^(InterpPmm.(log10.(CosmologicalGrid.KLimberArray[idx_l, :]),
         CosmologicalGrid.ZArray))
+    end
+end
+
+function InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities, PowerSpectrum::PowerSpectrum,
+    ConvolvedDensity::ConvolvedDensity)
+    x = LinRange(log10(first(CosmologicalGrid.KArray)),
+    log10(last(CosmologicalGrid.KArray)), length(CosmologicalGrid.KArray))
+    y = LinRange(first(CosmologicalGrid.ZArray), last(CosmologicalGrid.ZArray),
+    length(CosmologicalGrid.ZArray))
+    InterpPmm = Interpolations.interpolate(
+    log10.(PowerSpectrum.PowerSpectrumLinArray),
+    BSpline(Cubic(Line(OnGrid()))))
+    InterpPmm = scale(InterpPmm, x, y)
+    InterpPmm = Interpolations.extrapolate(InterpPmm, Line())
+    for iidx in 1:length(ConvolvedDensity.ZBinArray)-1
+        for lidx in 1:length(CosmologicalGrid.MultipolesArray)
+            PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[lidx, :] =
+            10 .^(InterpPmm.(log10.(
+            CosmologicalGrid.KBeyondLimberArray[lidx, :]),
+            CosmologicalGrid.ZArray[1]))
+        end
+    end
+end
+
+function ExtractGrowthFactor!(PowerSpectrum::PowerSpectrum)
+    for zidx in 1:length(PowerSpectrum.GrowthFactor)
+        PowerSpectrum.GrowthFactor[zidx] =
+        sqrt(PowerSpectrum.PowerSpectrumLinArray[1,zidx]./
+        PowerSpectrum.PowerSpectrumLinArray[1,1])
     end
 end

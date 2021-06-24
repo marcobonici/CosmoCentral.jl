@@ -1,6 +1,5 @@
 """
-    ComputeAdimensionalHubbleFactor(z::Float64,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    ComputeAdimensionalHubbleFactor(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
 
 This function, given the value of the cosmological parameters, evaluate the
 Adimensional Hubble Factor for ``w_0 w_a``CDM cosmologies.
@@ -15,8 +14,7 @@ E(z)=\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
     [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
     of the Dark Energy Equation of State.
 """
-function ComputeAdimensionalHubbleFactor(z::Float64,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+function ComputeAdimensionalHubbleFactor(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
     E_z = sqrt(w0waCDMCosmology.ΩM*(1+z)^3 + w0waCDMCosmology.Ωr*(1+z)^4+
     w0waCDMCosmology.Ωk*(1+z)^2
     +w0waCDMCosmology.ΩDE*(1+z)^(3*(1+w0waCDMCosmology.w0+
@@ -25,8 +23,7 @@ function ComputeAdimensionalHubbleFactor(z::Float64,
 end
 
 """
-    ComputeHubbleFactor(z::Float64,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    ComputeHubbleFactor(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
 
 This function, given the value of the cosmological parameters, evaluate the
 Hubble Factor for ``w_0 w_a``CDM cosmologies, whose expression is given by
@@ -36,8 +33,7 @@ H(z)=H_0\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
 ```
 
 """
-function ComputeHubbleFactor(z::Float64,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+function ComputeHubbleFactor(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
     H_z = w0waCDMCosmology.H0*ComputeAdimensionalHubbleFactor(z,
     w0waCDMCosmology)
     return H_z
@@ -52,8 +48,8 @@ Comoving Distance. It is evaluated as:
 r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dz'}{E(z')}
 ```
 """
-function ComputeComovingDistance(z::Float64,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+function Computeχ(z::Float64,
+    w0waCDMCosmology::w0waCDMCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     integral, err = QuadGK.quadgk(x -> 1 /
@@ -64,18 +60,37 @@ end
 """
     ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    w0waCDMCosmology::w0waCDMCosmology)
 
 This function evaluate the Hubble factor and the comoving distance over the
-[`CosmologicalGridStruct`](@ref).
+[`CosmologicalGrid`](@ref).
 """
-function ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid::CosmologicalGrid,
+function ComputeBackgroundQuantitiesGrid!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct)
+    w0waCDMCosmology::w0waCDMCosmology)
     for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
         BackgroundQuantities.HZArray[idx_ZArray] = ComputeHubbleFactor(
         CosmologicalGrid.ZArray[idx_ZArray], w0waCDMCosmology)
-        BackgroundQuantities.rZArray[idx_ZArray] = ComputeComovingDistance(
+        BackgroundQuantities.rZArray[idx_ZArray] = Computeχ(
         CosmologicalGrid.ZArray[idx_ZArray], w0waCDMCosmology)
     end
+end
+
+function ComputeLogSpacedχGrid(CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities)
+    Zχ = Dierckx.Spline1D(BackgroundQuantities.rZArray, CosmologicalGrid.ZArray)
+    χArray = CosmoCentral.LogSpaced(BackgroundQuantities.rZArray[1],
+    last(BackgroundQuantities.rZArray), length(BackgroundQuantities.rZArray))
+    CosmologicalGrid.ZArray = Zχ.(χArray)
+end
+
+function ComputeBackgroundQuantitiesOverLogSpacedχGrid(
+    CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities,
+    w0waCDMCosmology::w0waCDMCosmology)
+    ComputeBackgroundQuantitiesGrid!(CosmologicalGrid, BackgroundQuantities,
+    w0waCDMCosmology)
+    ComputeLogSpacedχGrid(CosmologicalGrid, BackgroundQuantities)
+    ComputeBackgroundQuantitiesGrid!(CosmologicalGrid, BackgroundQuantities,
+    w0waCDMCosmology)
 end
