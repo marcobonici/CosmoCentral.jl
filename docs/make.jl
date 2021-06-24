@@ -1,5 +1,7 @@
-using Documenter, CosmoCentral
-using Plots, PlotThemes
+using Documenter
+using CosmoCentral
+using Plots
+using PlotThemes
 
 
 

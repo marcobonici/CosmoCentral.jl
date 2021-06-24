@@ -28,7 +28,7 @@ quantities.
 
 ```@repl
 using CosmoCentral
-w0waCDMCosmology = CosmoCentral.w0waCDMCosmologyStruct()
+w0waCDMCosmology = CosmoCentral.w0waCDMCosmology()
 z = 1.
 CosmoCentral.ComputeAdimensionalHubbleFactor(z, w0waCDMCosmology)
 CosmoCentral.ComputeHubbleFactor(z, w0waCDMCosmology)

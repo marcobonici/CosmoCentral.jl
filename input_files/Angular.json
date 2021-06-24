@@ -1,6 +1,8 @@
 {
   "Lensing": {
-    "present": true
+    "present": true,
+    "intrinsic_alignment" : false,
+    "intrinsic_alignment_model" : "ExtendedNL"
   },
   "PhotometricGalaxy":{
     "present": true,

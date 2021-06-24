@@ -22,7 +22,7 @@ function CosmologicalParameterSampler(DictCosmo::Dict, n_points::Int)
                 CopyDictCosmo[key][4] = scaled_plan[i, counter]
             end
         end
-        w0waCDMCosmology = CosmoCentral.w0waCDMCosmologyStruct(
+        w0waCDMCosmology = CosmoCentral.w0waCDMCosmology(
         w0 = CopyDictCosmo["w0"][4], wa = CopyDictCosmo["wa"][4],
         Mν = CopyDictCosmo["Mν"][4], H0 = CopyDictCosmo["H0"][4],
         ΩM = CopyDictCosmo["ΩM"][4], ΩB = CopyDictCosmo["ΩB"][4],
@@ -38,22 +38,22 @@ function EvaluatePowerSpectraLHS(Cosmologies::Dict, Path::String,
     CosmologicalGrid::CosmologicalGrid)
     for (key, value) in Cosmologies
         println(key, value[1])
-        BackgroundQuantities = BackgroundQuantitiesStruct(
+        BackgroundQuantities = BackgroundQuantities(
         HZArray = zeros(length(CosmologicalGrid.ZArray)),
         rZArray=zeros(length(CosmologicalGrid.ZArray)))
-        ComputeBackgroundQuantitiesOverGrid(CosmologicalGrid,
+        ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
         BackgroundQuantities, value[1])
         ClassyParams = Initializeclassy(value[1])
-        PowerSpectrum = PowerSpectrumStruct(PowerSpectrumLinArray =
+        PowerSpectrum = PowerSpectrum(PowerSpectrumLinArray =
         zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray)),
         PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
         length(CosmologicalGrid.ZArray)),
         InterpolatedPowerSpectrum = zeros(length(
         CosmologicalGrid.MultipolesArray), length(CosmologicalGrid.ZArray)))
-        EvaluatePowerSpectrum(ClassyParams, CosmologicalGrid, PowerSpectrum)
+        EvaluatePowerSpectrum!(ClassyParams, CosmologicalGrid, PowerSpectrum)
         WritePowerSpectrumBackground(PowerSpectrum, BackgroundQuantities,
         CosmologicalGrid, Path*key*"/p_mm")
-        WriteCosmology(value[1], Path*key)
+        WriteCosmology!(value[1], Path*key)
     end
 end
 
@@ -70,14 +70,14 @@ end
 function EvaluateAngularCoefficientsLHS(Cosmologies::Dict, PathInput::String,
     PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
     ProbesDict = JSON.parsefile(PathConfig)
-    AnalitycalDensity = AnalitycalDensityStruct()
-    NormalizeAnalitycalDensityStruct(AnalitycalDensity)
-    InstrumentResponse = InstrumentResponseStruct()
-    ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
+    AnalitycalDensity = AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = InstrumentResponse()
+    ConvolvedDensity = ConvolvedDensity(DensityGridArray =
     ones(10, length(CosmologicalGrid.ZArray)))
-    NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity,
     InstrumentResponse, CosmologicalGrid)
-    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity,
     AnalitycalDensity, InstrumentResponse)
     for (key, value) in Cosmologies
         w0waCDMCosmology = value[1]
@@ -87,8 +87,8 @@ function EvaluateAngularCoefficientsLHS(Cosmologies::Dict, PathInput::String,
         CosmologicalGrid.MultipolesArray[1,1]
         DictProbes = InitializeProbes(ProbesDict, ConvolvedDensity,
         w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
-        ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
-        InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+        ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+        InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
         BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
         InitializeComputeAngularCoefficients(DictProbes, BackgroundQuantities,
         w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutput, key)
@@ -98,14 +98,14 @@ end
 function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
     PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
     ProbesDict = JSON.parsefile(PathConfig)
-    AnalitycalDensity = AnalitycalDensityStruct()
-    NormalizeAnalitycalDensityStruct(AnalitycalDensity)
-    InstrumentResponse = InstrumentResponseStruct()
-    ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
+    AnalitycalDensity = AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = InstrumentResponse()
+    ConvolvedDensity = ConvolvedDensity(DensityGridArray =
     ones(10, length(CosmologicalGrid.ZArray)))
-    NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity,
     InstrumentResponse, CosmologicalGrid)
-    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity,
     AnalitycalDensity, InstrumentResponse)
     #TODO Probably the following line is useless
     MultipolesArray = Array(LinRange(10,3000,100))
@@ -121,12 +121,12 @@ function EvaluateAngularCoefficientsGeneral(PmmDirectory::String,
                 CopyConvolvedDensity = deepcopy(ConvolvedDensity)
                 CopyConvolvedDensity.ShiftArray =
                 ones(10).*CosmoDict["ShiftParameter"]
-                ShiftConvolvedDensityFunctionGrid(CosmologicalGrid,
+                ShiftConvolvedDensityGrid!(CosmologicalGrid,
                 CopyConvolvedDensity)
                 DictProbes = InitializeProbes(ProbesDict, CopyConvolvedDensity,
                 w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
-                ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
-                InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+                ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+                InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
                 BackgroundQuantities, PowerSpectrum, BSplineCubic())
                 RandomString = Random.randstring(12)
                 mkdir(joinpath(PathOutput,RandomString))
@@ -141,14 +141,14 @@ end
 function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
     PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
     ProbesDict = JSON.parsefile(PathConfig)
-    AnalitycalDensity = AnalitycalDensityStruct()
-    NormalizeAnalitycalDensityStruct(AnalitycalDensity)
-    InstrumentResponse = InstrumentResponseStruct()
-    ConvolvedDensity = ConvolvedDensityStruct(DensityGridArray =
+    AnalitycalDensity = AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = InstrumentResponse()
+    ConvolvedDensity = ConvolvedDensity(DensityGridArray =
     ones(10, length(CosmologicalGrid.ZArray)))
-    NormalizeConvolvedDensityStruct(ConvolvedDensity, AnalitycalDensity,
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity,
     InstrumentResponse, CosmologicalGrid)
-    ComputeConvolvedDensityFunctionGrid(CosmologicalGrid, ConvolvedDensity,
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity,
     AnalitycalDensity, InstrumentResponse)
     #TODO Probably the following line is useless
     MultipolesArray = Array(LinRange(10,3000,100))
@@ -163,8 +163,8 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                 CosmologicalGrid.MultipolesArray)
                 ShiftParameter_i = CosmoDict["ShiftParameter_i"]
                 ShiftParameter_j = CosmoDict["ShiftParameter_j"]
-                ComputeLimberArray(CosmologicalGrid, BackgroundQuantities)
-                InterpolateAndEvaluatePowerSpectrum(CosmologicalGrid,
+                ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+                InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
                 BackgroundQuantities, PowerSpectrum, BSplineCubic())
                 ProbesArray = []
                 CℓKeyArray = []
@@ -178,8 +178,8 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                         if key_B*"_"*key_A in CℓKeyArray
                         else
                             push!(CℓKeyArray, key_A*"_"*key_B)
-                            AngularCoefficients = AngularCoefficientsStruct(
-                            AngularCoefficientsArray
+                            AngularCoefficients = AngularCoefficients(
+                            CℓArray
                             = zeros(length(CosmologicalGrid.MultipolesArray),
                             10, 10))
                             push!(CℓArray, AngularCoefficients)
@@ -191,7 +191,7 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                         CopyConvolvedDensity = deepcopy(ConvolvedDensity)
                         CopyConvolvedDensity.ShiftArray[i] = ShiftParameter_i
                         CopyConvolvedDensity.ShiftArray[j] = ShiftParameter_j
-                        ShiftConvolvedDensityFunctionGrid(CosmologicalGrid,
+                        ShiftConvolvedDensityGrid!(CosmologicalGrid,
                         CopyConvolvedDensity)
                         DictProbes = InitializeProbes(ProbesDict,
                         CopyConvolvedDensity, w0waCDMCosmology,
@@ -201,24 +201,24 @@ function EvaluateAngularCoefficientsDoubleShift(PmmDirectory::String,
                         DictProbes, BackgroundQuantities, w0waCDMCosmology,
                         CosmologicalGrid, PowerSpectrum)
                         for (index, myCℓ ) in enumerate(TempCℓArray)
-                            (CℓArray[index]).AngularCoefficientsArray[:,i,j] .=
-                            myCℓ.AngularCoefficientsArray[:,i,j]
-                            (CℓArray[index]).AngularCoefficientsArray[:,j,i] .=
-                            myCℓ.AngularCoefficientsArray[:,j,i]
+                            (CℓArray[index]).CℓArray[:,i,j] .=
+                            myCℓ.CℓArray[:,i,j]
+                            (CℓArray[index]).CℓArray[:,j,i] .=
+                            myCℓ.CℓArray[:,j,i]
                         end
                     end
                 end
                 RandomString = Random.randstring(12)
                 mkdir(joinpath(PathOutput,RandomString))
-                WriteAngularCoefficients("Lensing_Lensing",
+                WriteCℓ!("Lensing_Lensing",
                 CℓArray[1], PathOutput*RandomString*"/cl")
-                WriteAngularCoefficients("Lensing_PhotometricGalaxy",
+                WriteCℓ!("Lensing_PhotometricGalaxy",
                 CℓArray[2], PathOutput*RandomString*"/cl")
-                WriteAngularCoefficients("PhotometricGalaxy_PhotometricGalaxy",
+                WriteCℓ!("PhotometricGalaxy_PhotometricGalaxy",
                 CℓArray[3], PathOutput*RandomString*"/cl")
                 #TODO this function is not beautiful. It is quite long and it
                 # needs a serious refactoring
-                WriteParameters(CosmoDict, PathOutput*RandomString)
+                WriteParameters!(CosmoDict, PathOutput*RandomString)
             end
         end
     end
@@ -227,7 +227,7 @@ end
 
 function InitializeComputeAngularCoefficientsDoubleNuisance(ProbesDict::Dict,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmologyStruct,
+    w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum)
     ProbesArray = []
     CℓKeyArray = []
@@ -241,12 +241,12 @@ function InitializeComputeAngularCoefficientsDoubleNuisance(ProbesDict::Dict,
             if key_B*"_"*key_A in CℓKeyArray
             else
                 push!(CℓKeyArray, key_A*"_"*key_B)
-                AngularCoefficients = AngularCoefficientsStruct(
-                AngularCoefficientsArray
+                AngularCoefficients = AngularCoefficients(
+                CℓArray
                 = zeros(length(CosmologicalGrid.MultipolesArray),
                 length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
                 length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
-                ComputeAngularCoefficients(AngularCoefficients,
+                ComputeCℓ!(AngularCoefficients,
                 ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
                 w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
                 CosmoCentral.CustomTrapz())

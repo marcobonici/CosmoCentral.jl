@@ -8,6 +8,6 @@ C_{i j}^{AB}(\ell)=\frac{c}{H_0} \int_{z_{\min }}^{z_{\max }} \mathrm{d} z \frac
 ```
 
 ```@docs
-CosmoCentral.AngularCoefficientsStruct
-CosmoCentral.ComputeAngularCoefficients
+CosmoCentral.Cℓ
+CosmoCentral.ComputeCℓ!
 ```
