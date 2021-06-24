@@ -58,12 +58,17 @@ CosmoCentral.ComputeLensingEfficiency(z::Float64, i::Int64,
     w0waCDMCosmology::CosmoCentral.w0waCDMCosmology,
     CosmologicalGrid::CosmoCentral.CosmologicalGrid,
     wlWeightFunction::CosmoCentral.WLWeightFunction)
-CosmoCentral.ComputeLensingEfficiencyGrid!(wlWeightFunction::WLWeightFunction,
-    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse,
-    ConvolvedDensity::AbstractConvolvedDensity, CosmologicalGrid::CosmologicalGrid,
-    BackgroundQuantities::BackgroundQuantities, w0waCDMCosmology::w0waCDMCosmology)
-CosmoCentral.ComputeLensingEfficiencyGrid!(wlWeightFunction::WLWeightFunction,
-    ConvolvedDensity::AbstractConvolvedDensity, CosmologicalGrid::CosmologicalGrid,
-    BackgroundQuantities::BackgroundQuantities, w0waCDMCosmology::w0waCDMCosmology,
-    ::CustomLensingEfficiency)
+CosmoCentral.ComputeLensingEfficiencyGrid!(wlWeightFunction::CosmoCentral.WLWeightFunction,
+    AnalitycalDensity::CosmoCentral.AnalitycalDensity,
+    InstrumentResponse::CosmoCentral.InstrumentResponse,
+    ConvolvedDensity::CosmoCentral.AbstractConvolvedDensity,
+    CosmologicalGrid::CosmoCentral.CosmologicalGrid,
+    BackgroundQuantities::CosmoCentral.BackgroundQuantities,
+    w0waCDMCosmology::CosmoCentral.w0waCDMCosmology,
+    ::CosmoCentral.StandardLensingEfficiency)
+CosmoCentral.ComputeLensingEfficiencyGrid!(wlWeightFunction::CosmoCentral.WLWeightFunction,
+    ConvolvedDensity::CosmoCentral.AbstractConvolvedDensity,
+    CosmologicalGrid::CosmoCentral.CosmologicalGrid,
+    BackgroundQuantities::CosmoCentral.BackgroundQuantities,
+    w0waCDMCosmology::CosmoCentral.w0waCDMCosmology, ::CosmoCentral.CustomLensingEfficiency)
 ```

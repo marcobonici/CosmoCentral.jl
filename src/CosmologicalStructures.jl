@@ -11,7 +11,7 @@ abstract type AbstractSourceFunction end
 abstract type AbstractTransferFunction end
 abstract type AbstractPowerSpectrum end
 abstract type AbstractCℓ end
-abstract type Abstract∂Cℓ end
+abstract type AbstractderCℓ end
 abstract type AbstractBias end
 abstract type LensingEfficiencyMethod end
 struct PiecewiseBias <: AbstractBias end
@@ -271,7 +271,7 @@ This struct contains the array with the Angular Coefficients.
     CℓArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
-@kwdef mutable struct ∂Cℓ <: Abstract∂Cℓ
+@kwdef mutable struct ∂Cℓ <: AbstractderCℓ
     ∂Cℓ::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 

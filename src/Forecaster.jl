@@ -99,12 +99,12 @@ function InstantiateComputeWeightFunctionOverGrid(
     w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    wlWeightFunction::WLWeightFunction)
-    ComputeLensingEfficiencyGrid!(wlWeightFunction, ConvolvedDensity,
+    LensingFunction::WLWeightFunction)
+    ComputeLensingEfficiencyGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
-    ComputeWeightFunctionGrid!(wlWeightFunction, ConvolvedDensity,
+    ComputeWeightFunctionGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
-    return wlWeightFunction
+    return LensingFunction
 end
 
 function EvaluateDerivativeAngularCoefficients(DictCosmo::Dict, Path::String,
@@ -206,8 +206,8 @@ function EvaluateDerivativeAngularCoefficientsNew(DictCosmo::Dict,
 end
 
 function InstantiateWL(DictInput::Dict)
-    wlWeightFunction = WLWeightFunction()
-    return wlWeightFunction
+    LensingFunction = WLWeightFunction()
+    return LensingFunction
 end
 
 function InstantiateGC(DictInput::Dict)
@@ -232,11 +232,11 @@ function InitializeProbes(DictInput::Dict,
     BackgroundQuantities::BackgroundQuantities)
     DictProbes = Dict()
     if DictInput["Lensing"]["present"]
-        wlWeightFunction = InstantiateWL(DictInput::Dict)
-        wlWeightFunction = InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity,
+        LensingFunction = InstantiateWL(DictInput::Dict)
+        LensingFunction = InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity,
         w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
-        wlWeightFunction)
-        push!(DictProbes, "Lensing" => wlWeightFunction)
+        LensingFunction)
+        push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]
         GCWeightFunction = InstantiateGC(DictInput::Dict)

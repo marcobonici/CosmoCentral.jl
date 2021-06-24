@@ -1,5 +1,5 @@
 """
-    ComputeBias(z::Float64, ::PiecewiseBiasStruct,
+    ComputeBias(z::Float64, ::PiecewiseBias,
     ConvolvedDensity::AbstractConvolvedDensity)
 
 This function evaluate the piecewise bias, given by ``\\sqrt{1+z}``, for a given
@@ -22,7 +22,7 @@ end
 
 """
     ComputeBiasOverGrid(CosmologicalGrid::CosmologicalGrid,
-    GCWeightFunction::GCWeightFunctionStruct, Bias::AbstractBias,
+    gcWeightFunction::GCWeightFunction, Bias::AbstractBias,
     ConvolvedDensity::AbstractConvolvedDensity)
 
 This function evaluate the bias, over the cosmological redshift grid.
