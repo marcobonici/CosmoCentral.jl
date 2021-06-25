@@ -66,10 +66,8 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
                 Integrand[l,i,j] += c_0 *
                 WeightFunctionA.WeightFunctionArray[i, z] *
                 WeightFunctionB.WeightFunctionArray[j, z] /
-                (BackgroundQuantities.HZArray[z] *
-                BackgroundQuantities.rZArray[z]^2) *
-                PowerSpectrum.InterpolatedPowerSpectrum[l,z] *
-                Simpson_weights[z]
+                (BackgroundQuantities.HZArray[z] * BackgroundQuantities.rZArray[z]^2) *
+                PowerSpectrum.InterpolatedPowerSpectrum[l,z] * Simpson_weights[z]
             end
         end
         Integrand .*= (last(CosmologicalGrid.ZArray)-

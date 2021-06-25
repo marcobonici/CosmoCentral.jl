@@ -1,6 +1,5 @@
 function CosmologicalParameterSampler(DictCosmo::Dict, n_points::Int)
-    parameter_list = ["w0", "wa", "Mν", "H0","ΩM","ΩB","ΩDE","Ωk","Ωr","ns",
-    "σ8"]
+    parameter_list = ["w0", "wa", "Mν", "H0", "ΩM", "ΩB", "ΩDE", "Ωk", "Ωr", "ns", "σ8"]
     dim_space = 0
     priors = [(-1000.0,1.0)]
     deleteat!(priors, 1)
@@ -67,7 +66,7 @@ function CreateDirectoriesLHS(Cosmologies::Dict, path::String)
     end
 end
 
-function EvaluateCℓLHS(Cosmologies::Dict, PathInput::String,
+function EvaluateCℓLHS!(Cosmologies::Dict, PathInput::String,
     PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
     ProbesDict = JSON.parsefile(PathConfig)
     AnalitycalDensity = AnalitycalDensity()
@@ -95,7 +94,7 @@ function EvaluateCℓLHS(Cosmologies::Dict, PathInput::String,
     end
 end
 
-function EvaluateCℓGeneral(PmmDirectory::String,
+function EvaluateCℓGeneral!(PmmDirectory::String,
     PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
     ProbesDict = JSON.parsefile(PathConfig)
     analitycaldensity = AnalitycalDensity()

@@ -83,7 +83,7 @@ function ForecastPowerSpectra!(Cosmologies::Dict, Path::String,
     end
 end
 
-function InstantiateComputeWeightFunctionOverGrid(
+function InstantiateComputeWeightFunctionGrid(
     ConvolvedDensity::AbstractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
@@ -94,7 +94,7 @@ function InstantiateComputeWeightFunctionOverGrid(
     return GCWeightFunction
 end
 
-function InstantiateComputeWeightFunctionOverGrid(
+function InstantiateComputeWeightFunctionGrid(
     ConvolvedDensity::AbstractConvolvedDensity,
     w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid,
@@ -107,7 +107,7 @@ function InstantiateComputeWeightFunctionOverGrid(
     return LensingFunction
 end
 
-function Forecast∂Cℓ(DictCosmo::Dict,
+function Forecast∂Cℓ!(DictCosmo::Dict,
     PathInput::String, PathConfig::String, Steps::Array)
     ProbesDict = JSON.parsefile(PathConfig)
     CoefficientsArray = GetProbesArray(ProbesDict)
@@ -187,7 +187,7 @@ function InitializeProbes(DictInput::Dict,
     DictProbes = Dict()
     if DictInput["Lensing"]["present"]
         LensingFunction = InstantiateWL(DictInput::Dict)
-        LensingFunction = InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity,
+        LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
         LensingFunction)
         push!(DictProbes, "Lensing" => LensingFunction)
@@ -195,7 +195,7 @@ function InitializeProbes(DictInput::Dict,
     if DictInput["PhotometricGalaxy"]["present"]
         GCWeightFunction = InstantiateGC(DictInput::Dict)
         GCWeightFunction =
-        InstantiateComputeWeightFunctionOverGrid(ConvolvedDensity,
+        InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
         GCWeightFunction)
         push!(DictProbes, "PhotometricGalaxy" => GCWeightFunction)
@@ -287,7 +287,7 @@ function InitializeForecastCℓ(ProbesDict::Dict,
     end
 end
 
-function ForecastCℓ(Cosmologies::Dict, PathInput::String,
+function ForecastCℓ!(Cosmologies::Dict, PathInput::String,
     PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
     ProbesDict = JSON.parsefile(PathConfig)
     analyticaldensity = AnalitycalDensity()
