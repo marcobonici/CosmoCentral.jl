@@ -61,7 +61,7 @@ function CreateDirectories(Cosmologies::Dict, DictCosmo::Dict, path::String)
     end
 end
 
-function EvaluatePowerSpectra(Cosmologies::Dict, Path::String,
+function ForecastPowerSpectra!(Cosmologies::Dict, Path::String,
     CosmologicalGrid::CosmologicalGrid)
     for (key, value) in Cosmologies
         backgroundquantities = BackgroundQuantities(
