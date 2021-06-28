@@ -100,14 +100,10 @@ function InstantiateComputeWeightFunctionGrid(
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     LensingFunction::WLWeightFunction, PathInput::String)
-    println(LensingFunction.IntrinsicAlignmentModel)
     ComputeLensingEfficiencyGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology, CustomLensingEfficiency())
-    println(LensingFunction.LensingEfficiencyArray[1,1], "LE")
-    println(LensingFunction.IntrinsicAlignmentArray[1,250], "IA")
     ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, LensingFunction, ConvolvedDensity,
     BackgroundQuantities, w0waCDMCosmology, PathInput)
-    println(LensingFunction.IntrinsicAlignmentArray[1,250], "IA")
     ComputeWeightFunctionGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
     return LensingFunction
