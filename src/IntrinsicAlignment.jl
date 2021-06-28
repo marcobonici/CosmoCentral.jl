@@ -8,15 +8,17 @@ function ComputeIntrinsicAlignmentGrid!(CosmologicalGrid::CosmologicalGrid,
     z = input_data[:,1]
     lum = input_data[:,2]
     spl = Dierckx.Spline1D(z, lum, k = 1)
+    println(spl(1.), "SPL")
+    println(BackgroundQuantities.DZArray[1],"DZ")
     for (zidx, zvalue) in enumerate(CosmologicalGrid.ZArray)
         for iidx in 1:length(ConvolvedDensity.ZBinArray)-1
             LensingFunction.IntrinsicAlignmentArray[iidx, zidx] =
             - BackgroundQuantities.HZArray[zidx] / c_0 *
             ConvolvedDensity.DensityGridArray[iidx, zidx] *
-            LensingFunction.IntrinsicAlignmentModel.A *
-            LensingFunction.IntrinsicAlignmentModel.C * w0waCDMCosmology.ΩM *
-            ( (1 + zvalue) ^ LensingFunction.IntrinsicAlignmentModel.η ) *
-            (spl(zvalue) ^ LensingFunction.IntrinsicAlignmentModel.β ) /
+            LensingFunction.IntrinsicAlignmentModel.𝓐IA *
+            LensingFunction.IntrinsicAlignmentModel.𝓒IA * w0waCDMCosmology.ΩM *
+            ( (1 + zvalue) ^ LensingFunction.IntrinsicAlignmentModel.ηIA ) *
+            (spl(zvalue) ^ LensingFunction.IntrinsicAlignmentModel.βIA ) /
             BackgroundQuantities.DZArray[zidx]
         end
     end

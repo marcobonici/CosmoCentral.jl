@@ -56,6 +56,24 @@ function ReadCosmology(CosmoDict::JSON3.Object)
     return Cosmology
 end
 
+function ReadIntrinsicAlignment(CosmoDict::Dict)
+    intrinsicalignment = ExtendedNLIA()
+    intrinsicalignment.𝓐IA = CosmoDict["𝓐IA"]
+    intrinsicalignment.βIA = CosmoDict["βIA"]
+    intrinsicalignment.𝓒IA = CosmoDict["𝓒IA"]
+    intrinsicalignment.ηIA = CosmoDict["ηIA"]
+    return intrinsicalignment
+end
+
+function ReadBias(CosmoDict::Dict)
+    bias = EuclidBias()
+    bias.A = CosmoDict["A"]
+    bias.B = CosmoDict["B"]
+    bias.C = CosmoDict["C"]
+    bias.D = CosmoDict["D"]
+    return bias
+end
+
 function ReadCℓ(Filename::String, Probes::String)
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")

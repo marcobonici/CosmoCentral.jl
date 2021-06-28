@@ -99,9 +99,15 @@ function InstantiateComputeWeightFunctionGrid(
     w0waCDMCosmology::w0waCDMCosmology,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    LensingFunction::WLWeightFunction)
+    LensingFunction::WLWeightFunction, PathInput::String)
+    println(LensingFunction.IntrinsicAlignmentModel)
     ComputeLensingEfficiencyGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology, CustomLensingEfficiency())
+    println(LensingFunction.LensingEfficiencyArray[1,1], "LE")
+    println(LensingFunction.IntrinsicAlignmentArray[1,250], "IA")
+    ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, LensingFunction, ConvolvedDensity,
+    BackgroundQuantities, w0waCDMCosmology, PathInput)
+    println(LensingFunction.IntrinsicAlignmentArray[1,250], "IA")
     ComputeWeightFunctionGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
     return LensingFunction
@@ -164,9 +170,21 @@ function InstantiateWL(DictInput::Dict)
     return LensingFunction
 end
 
+function InstantiateWL(DictInput::Dict, IntrinsicAlignment::AbstractIntrinsicAlignment)
+    LensingFunction = WLWeightFunction()
+    LensingFunction.IntrinsicAlignmentModel = IntrinsicAlignment
+    return LensingFunction
+end
+
 function InstantiateGC(DictInput::Dict)
     gcWeightFunction = GCWeightFunction()
     InstantiateBias(DictInput, gcWeightFunction)
+    return gcWeightFunction
+end
+
+function InstantiateGC(DictInput::Dict, Bias::AbstractBias)
+    gcWeightFunction = GCWeightFunction()
+    gcWeightFunction.BiasKind = Bias
     return gcWeightFunction
 end
 
@@ -174,6 +192,8 @@ function InstantiateBias(DictInput::Dict,
     GCWeightFunction::GCWeightFunction)
     if DictInput["PhotometricGalaxy"]["Bias"] == "PiecewiseBias"
         GCWeightFunction.BiasKind = PiecewiseBias()
+    elseif DictInput["PhotometricGalaxy"]["Bias"] == "EuclidBias"
+        GCWeightFunction.BiasKind = EuclidBias()
     else
         println("Bias must be correctly specified!")
     end
@@ -194,6 +214,31 @@ function InitializeProbes(DictInput::Dict,
     end
     if DictInput["PhotometricGalaxy"]["present"]
         GCWeightFunction = InstantiateGC(DictInput::Dict)
+        GCWeightFunction =
+        InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        GCWeightFunction)
+        push!(DictProbes, "PhotometricGalaxy" => GCWeightFunction)
+    end
+    return DictProbes
+end
+
+function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDensity,
+    w0waCDMCosmology::w0waCDMCosmology, IntrinsicAlignment::AbstractIntrinsicAlignment,
+    Bias::AbstractBias, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities, PathInput::String)
+    DictProbes = Dict()
+    if DictInput["Lensing"]["present"]
+        LensingFunction = InstantiateWL(DictInput::Dict)
+        LensingFunction.IntrinsicAlignmentModel = IntrinsicAlignment
+        LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        LensingFunction, PathInput)
+        push!(DictProbes, "Lensing" => LensingFunction)
+    end
+    if DictInput["PhotometricGalaxy"]["present"]
+        GCWeightFunction = InstantiateGC(DictInput::Dict)
+        GCWeightFunction.BiasKind = Bias
         GCWeightFunction =
         InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,

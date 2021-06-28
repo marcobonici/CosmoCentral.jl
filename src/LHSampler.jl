@@ -95,7 +95,8 @@ function EvaluateCℓLHS!(Cosmologies::Dict, PathInput::String,
 end
 
 function EvaluateCℓGeneral!(PmmDirectory::String,
-    PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
+    PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String,
+    PathInput::String)
     ProbesDict = JSON.parsefile(PathConfig)
     analitycaldensity = AnalitycalDensity()
     NormalizeAnalitycalDensity!(analitycaldensity)
@@ -106,8 +107,6 @@ function EvaluateCℓGeneral!(PmmDirectory::String,
     instrumentresponse, CosmologicalGrid)
     ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
     analitycaldensity, instrumentresponse)
-    #TODO Probably the following line is useless
-    MultipolesArray = Array(LinRange(10,3000,100))
     for (root, dirs, files) in walkdir(PmmDirectory)
         for file in files
             file_extension = file[findlast(isequal('.'),file):end]
@@ -117,13 +116,16 @@ function EvaluateCℓGeneral!(PmmDirectory::String,
                 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
                 ReadPowerSpectrumBackground(joinpath(root, "p_mm"),
                 CosmologicalGrid.MultipolesArray)
+                ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+                #TODO probably we can obtain flexibility with a dictionary
+                intrinsicalignment = ReadIntrinsicAlignment(Dict(CosmoDict))
+                bias = ReadBias(Dict(CosmoDict))
                 CopyConvolvedDensity = deepcopy(convolveddensity)
-                CopyConvolvedDensity.ShiftArray =
-                ones(10).*CosmoDict["ShiftParameter"]
-                ShiftConvolvedDensityGrid!(CosmologicalGrid,
-                CopyConvolvedDensity)
+                #CopyConvolvedDensity.ShiftArray = ones(10).*CosmoDict["ShiftParameter"]
+                #ShiftConvolvedDensityGrid!(CosmologicalGrid, CopyConvolvedDensity)
                 DictProbes = InitializeProbes(ProbesDict, CopyConvolvedDensity,
-                w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
+                w0waCDMCosmology, intrinsicalignment, bias, CosmologicalGrid,
+                BackgroundQuantities, PathInput)
                 ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
                 InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
                 BackgroundQuantities, PowerSpectrum, BSplineCubic())

@@ -211,18 +211,18 @@ This struct contains the parameter for the bias model measured by
 b(z)= A +\\frac{B}{1+\\exp \\left( \\left(D-z \\right)C   \\right)}
 ```
 """
-@kwdef struct EuclidBias <: AbstractBias
+@kwdef mutable struct EuclidBias <: AbstractBias
     A::Float64 = 1.0
     B::Float64 = 2.5
     C::Float64 = 2.8
     D::Float64 = 1.6
 end
 
-@kwdef struct ExtendedNLIA <: AbstractIntrinsicAlignment
-    A::Float64 = 1.72
-    β::Float64 = 2.17
-    C::Float64 = 0.0134
-    η::Float64 = -0.41
+@kwdef mutable struct ExtendedNLIA <: AbstractIntrinsicAlignment
+    𝓐IA::Float64 = 1.72
+    βIA::Float64 = 2.17
+    𝓒IA::Float64 = 0.0134
+    ηIA::Float64 = -0.41
 end
 
 """
