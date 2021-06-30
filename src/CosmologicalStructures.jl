@@ -13,7 +13,6 @@ abstract type AbstractCℓ end
 abstract type Abstract∂Cℓ end
 abstract type AbstractBias end
 abstract type LensingEfficiencyMethod end
-struct PiecewiseBias <: AbstractBias end
 abstract type AbstractIntrinsicAlignment end
 abstract type AbstractFFTLog end
 
@@ -201,6 +200,11 @@ values for all tomographic bins and redshift values in the [`CosmologicalGrid`](
     BiasKind::AbstractBias = PiecewiseBias()
 end
 
+
+@kwdef mutable struct PiecewiseBias <: AbstractBias
+    BiasMultiplier::AbstractArray{Float64, 1} = ones(10)
+end
+
 """
     EuclidBias()
 
@@ -217,6 +221,8 @@ b(z)= A +\\frac{B}{1+\\exp \\left( \\left(D-z \\right)C   \\right)}
     C::Float64 = 2.8
     D::Float64 = 1.6
 end
+
+struct AbsentIA <: AbstractIntrinsicAlignment end
 
 @kwdef mutable struct ExtendedNLIA <: AbstractIntrinsicAlignment
     𝓐IA::Float64 = 1.72
