@@ -7,6 +7,12 @@ function IncrementedValue(value, step)
     return myvalue
 end
 
+
+"""
+    CreateCosmologies(DictCosmo::Dict, steps::Array)
+
+This function creates a dictionary containing all combinations required for forecasts.
+"""
 function CreateCosmologies(DictCosmo::Dict, steps::Array)
     MyDict = Dict{String,Array{Any,1}}()
     for (key, value) in DictCosmo
@@ -15,32 +21,16 @@ function CreateCosmologies(DictCosmo::Dict, steps::Array)
                 CopyDictCosmo = deepcopy(DictCosmo)
                 myvalue = IncrementedValue(value[1], mystep)
                 CopyDictCosmo[key] = [myvalue]
-                w0waCDMCosmology = CosmoCentral.w0waCDMCosmology(
-                w0 = CopyDictCosmo["w0"][1], wa = CopyDictCosmo["wa"][1],
-                Mν = CopyDictCosmo["Mν"][1], H0 = CopyDictCosmo["H0"][1],
-                ΩM = CopyDictCosmo["ΩM"][1], ΩB = CopyDictCosmo["ΩB"][1],
-                ΩDE = CopyDictCosmo["ΩDE"][1], Ωk = CopyDictCosmo["Ωk"][1],
-                Ωr = CopyDictCosmo["Ωr"][1], ns = CopyDictCosmo["ns"][1],
-                σ8 = CopyDictCosmo["σ8"][1])
+                w0waCDMCosmology = ReadCosmologyForecast(CopyDictCosmo)
                 MyDict["dvar_"*key*"_step_p_"*string(index)] = [w0waCDMCosmology]
                 myvalue = IncrementedValue(value[1], -mystep)
                 CopyDictCosmo[key] = [myvalue]
-                w0waCDMCosmology = CosmoCentral.w0waCDMCosmology(w0 =
-                CopyDictCosmo["w0"][1], wa = CopyDictCosmo["wa"][1],
-                Mν = CopyDictCosmo["Mν"][1], H0 = CopyDictCosmo["H0"][1],
-                ΩM = CopyDictCosmo["ΩM"][1], ΩB = CopyDictCosmo["ΩB"][1],
-                ΩDE = CopyDictCosmo["ΩDE"][1], Ωk = CopyDictCosmo["Ωk"][1],
-                Ωr = CopyDictCosmo["Ωr"][1], ns = CopyDictCosmo["ns"][1],
-                σ8 = CopyDictCosmo["σ8"][1])
+                w0waCDMCosmology = ReadCosmologyForecast(CopyDictCosmo)
                 MyDict["dvar_"*key*"_step_m_"*string(index)] = [w0waCDMCosmology]
             end
         end
     end
-    w0waCDMCosmology = CosmoCentral.w0waCDMCosmology(
-    w0 = DictCosmo["w0"][1], wa = DictCosmo["wa"][1], Mν = DictCosmo["Mν"][1],
-    H0 = DictCosmo["H0"][1], ΩM = DictCosmo["ΩM"][1], ΩB = DictCosmo["ΩB"][1],
-    ΩDE = DictCosmo["ΩDE"][1], Ωk = DictCosmo["Ωk"][1], Ωr = DictCosmo["Ωr"][1],
-    ns = DictCosmo["ns"][1], σ8 = DictCosmo["σ8"][1])
+    w0waCDMCosmology = ReadCosmologyForecast(DictCosmo)
     MyDict["dvar_central_step_0"] = [w0waCDMCosmology]
     return MyDict
 end
@@ -205,7 +195,8 @@ function InitializeProbes(DictInput::Dict,
         LensingFunction = InstantiateWL(DictInput::Dict)
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
-        LensingFunction)
+        LensingFunction, "../inputs/scaledmeanlum-E2Sa.txt")
+        #TODO: remove this hardcoded part!!!
         push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]

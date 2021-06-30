@@ -40,6 +40,22 @@ function ReadCosmology(CosmoDict::Dict)
     return Cosmology
 end
 
+function ReadCosmologyForecast(CosmoDict::Dict)
+    Cosmology = w0waCDMCosmology(
+    w0 = CosmoDict["w0"][1],
+    wa = CosmoDict["wa"][1],
+    Mν = CosmoDict["Mν"][1],
+    H0 = CosmoDict["H0"][1],
+    ΩM = CosmoDict["ΩM"][1],
+    ΩB = CosmoDict["ΩB"][1],
+    ΩDE = CosmoDict["ΩDE"][1],
+    Ωk = CosmoDict["Ωk"][1],
+    Ωr = CosmoDict["Ωr"][1],
+    ns = CosmoDict["ns"][1],
+    σ8 = CosmoDict["σ8"][1])
+    return Cosmology
+end 
+
 function ReadCosmology(CosmoDict::JSON3.Object)
     Cosmology = w0waCDMCosmology(
     w0 = CosmoDict["w0"],
