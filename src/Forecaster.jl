@@ -457,7 +457,7 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
     ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
     analyticaldensity, instrumentresponse)
     #TODO: these three for loops are quite similar. The only difference is the cycled 
-    #dictionary. Maybe we can create a single function to call three times?
+    #dictionary. Maybe we can create a single function to call multiple times?
     for (key, value) in Cosmologies
         w0waCDMCosmology = value[1]
         IA = IntrinsicAlignment["dvar_central_step_0"][1]
