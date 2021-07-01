@@ -76,39 +76,37 @@ function CreateCosmologies(DictCosmo::Dict, IADict::Dict, IAModel::String, BiasD
     return MyDictCosmo, MyDictIA, MyDictBias
 end
 
-function CreateDirectories(Cosmologies::Dict, DictCosmo::Dict, IntrinsicAlignment::Dict, 
+function CreateDirectoriesForecast(Cosmologies::Dict, DictCosmo::Dict, IntrinsicAlignment::Dict, 
     DictIA::Dict, Bias::Dict, DictBias::Dict, path::String)
     mkdir(path)
     mkdir(path*"PowerSpectrum")
+    CreateDirectoriesPmmCℓ(Cosmologies, path, "PowerSpectrum", true)
     mkdir(path*"Angular")
+    CreateDirectoriesPmmCℓ(Cosmologies, path, "Angular", true)
+    CreateDirectoriesPmmCℓ(IntrinsicAlignment, path, "Angular", false)
+    CreateDirectoriesPmmCℓ(Bias, path, "Angular", false)
     mkdir(path*"Derivative/")
-    for (key, value) in Cosmologies
-        mkdir(path*"Angular/"*key)
-        mkdir(path*"PowerSpectrum/"*key)
+    CreateDirectoriesDerivative(DictCosmo, path)
+    CreateDirectoriesDerivative(DictIA, path)
+    CreateDirectoriesDerivative(DictBias, path)
+end
+
+function CreateDirectoriesPmmCℓ(DictionaryParams::Dict, PathFolder::String, NameFolder::String, 
+    central::Bool)
+    if central
+        mkdir(PathFolder*"/"*NameFolder*"/"*"dvar_central_step_0")
     end
-    for (key, value) in IntrinsicAlignment
+    for (key, value) in DictionaryParams
         if key != "dvar_central_step_0"
-            mkdir(path*"Angular/"*key)
+            mkdir(PathFolder*"/"*NameFolder*"/"*key)
         end
     end
-    for (key, value) in Bias
-        if key != "dvar_central_step_0"
-            mkdir(path*"Angular/"*key)
-        end
-    end
-    for (key, value) in DictCosmo
+end
+
+function CreateDirectoriesDerivative(DictionaryParams::Dict, PathFolder::String)
+    for (key, value) in DictionaryParams
         if value[2] == "present"
-            mkdir(path*"Derivative/"*key)
-        end
-    end
-    for (key, value) in DictIA
-        if value[2] == "present"
-            mkdir(path*"Derivative/"*key)
-        end
-    end
-    for (key, value) in DictBias
-        if value[2] == "present"
-            mkdir(path*"Derivative/"*key)
+            mkdir(PathFolder*"Derivative/"*key)
         end
     end
 end
@@ -352,10 +350,8 @@ function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDe
     if DictInput["PhotometricGalaxy"]["present"]
         GCWeightFunction = InstantiateGC(DictInput::Dict)
         GCWeightFunction.BiasKind = Bias
-        GCWeightFunction =
-        InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
-        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
-        GCWeightFunction)
+        GCWeightFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities, GCWeightFunction)
         push!(DictProbes, "PhotometricGalaxy" => GCWeightFunction)
     end
     return DictProbes
