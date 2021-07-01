@@ -15,6 +15,10 @@ This function creates a dictionary containing all combinations required for fore
 """
 function CreateCosmologies(DictCosmo::Dict, IADict::Dict, IAModel::String, BiasDict::Dict,
     BiasModel::String, steps::Array)
+
+    #TODO: these three for loops are quite similar. The only difference is that there are
+    # hree different function, ReadCosmology, ReadIA, and ReadBias. Maybe we could try to
+    #define an equivalent function?
     MyDictCosmo = Dict{String,Array{Any,1}}()
     for (key, value) in DictCosmo
         if value[2] == "present"
@@ -33,9 +37,8 @@ function CreateCosmologies(DictCosmo::Dict, IADict::Dict, IAModel::String, BiasD
     end
     w0waCDMCosmology = ReadCosmologyForecast(DictCosmo)
     MyDictCosmo["dvar_central_step_0"] = [w0waCDMCosmology]
+
     MyDictIA = Dict{String,Array{Any,1}}()
-    IntrinsicAlignment = ReadIntrinsicAlignmentForecast(IADict, IAModel)
-    MyDictIA["dvar_central_step_0"] = [IntrinsicAlignment]
     for (key, value) in IADict
         if value[2] == "present"
             for (index, mystep) in enumerate(steps)
@@ -53,9 +56,8 @@ function CreateCosmologies(DictCosmo::Dict, IADict::Dict, IAModel::String, BiasD
     end
     IntrinsicAlignment = ReadIntrinsicAlignmentForecast(IADict, IAModel)
     MyDictIA["dvar_central_step_0"] = [IntrinsicAlignment]
+
     MyDictBias = Dict{String,Array{Any,1}}()
-    Bias = ReadBiasForecast(BiasDict, BiasModel)
-    MyDictBias["dvar_central_step_0"] = [Bias]
     for (key, value) in BiasDict
         if value[2] == "present"
             for (index, mystep) in enumerate(steps)
@@ -73,6 +75,7 @@ function CreateCosmologies(DictCosmo::Dict, IADict::Dict, IAModel::String, BiasD
     end
     Bias = ReadBiasForecast(BiasDict, BiasModel)
     MyDictBias["dvar_central_step_0"] = [Bias]
+
     return MyDictCosmo, MyDictIA, MyDictBias
 end
 
@@ -453,6 +456,8 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
     instrumentresponse, CosmologicalGrid)
     ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
     analyticaldensity, instrumentresponse)
+    #TODO: these three for loops are quite similar. The only difference is the cycled 
+    #dictionary. Maybe we can create a single function to call three times?
     for (key, value) in Cosmologies
         w0waCDMCosmology = value[1]
         IA = IntrinsicAlignment["dvar_central_step_0"][1]
@@ -470,6 +475,7 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
         InitializeForecastCℓ(DictProbes, BackgroundQuantities,
         w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
     end
+
     for (key, value) in IntrinsicAlignment
         if key != "dvar_central_step_0"
             w0waCDMCosmology = Cosmologies["dvar_central_step_0"][1]
@@ -489,6 +495,7 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
             w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
         end
     end
+
     for (key, value) in Bias
         if key != "dvar_central_step_0"
             w0waCDMCosmology = Cosmologies["dvar_central_step_0"][1]
