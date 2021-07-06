@@ -7,56 +7,109 @@ function IncrementedValue(value, step)
     return myvalue
 end
 
-function CreateCosmologies(DictCosmo::Dict, steps::Array)
-    MyDict = Dict{String,Array{Any,1}}()
+
+"""
+    CreateCosmologies(DictCosmo::Dict, steps::Array)
+
+This function creates a dictionary containing all combinations required for forecasts.
+"""
+function CreateCosmologies(DictCosmo::Dict, IADict::Dict, IAModel::String, BiasDict::Dict,
+    BiasModel::String, steps::Array)
+
+    #TODO: these three for loops are quite similar. The only difference is that there are
+    # hree different function, ReadCosmology, ReadIA, and ReadBias. Maybe we could try to
+    #define an equivalent function?
+    MyDictCosmo = Dict{String,Array{Any,1}}()
     for (key, value) in DictCosmo
         if value[2] == "present"
             for (index, mystep) in enumerate(steps)
                 CopyDictCosmo = deepcopy(DictCosmo)
                 myvalue = IncrementedValue(value[1], mystep)
                 CopyDictCosmo[key] = [myvalue]
-                w0waCDMCosmology = CosmoCentral.w0waCDMCosmology(
-                w0 = CopyDictCosmo["w0"][1], wa = CopyDictCosmo["wa"][1],
-                Mν = CopyDictCosmo["Mν"][1], H0 = CopyDictCosmo["H0"][1],
-                ΩM = CopyDictCosmo["ΩM"][1], ΩB = CopyDictCosmo["ΩB"][1],
-                ΩDE = CopyDictCosmo["ΩDE"][1], Ωk = CopyDictCosmo["Ωk"][1],
-                Ωr = CopyDictCosmo["Ωr"][1], ns = CopyDictCosmo["ns"][1],
-                σ8 = CopyDictCosmo["σ8"][1])
-                MyDict["dvar_"*key*"_step_p_"*string(index)] = [w0waCDMCosmology]
+                w0waCDMCosmology = ReadCosmologyForecast(CopyDictCosmo)
+                MyDictCosmo["dvar_"*key*"_step_p_"*string(index)] = [w0waCDMCosmology]
                 myvalue = IncrementedValue(value[1], -mystep)
                 CopyDictCosmo[key] = [myvalue]
-                w0waCDMCosmology = CosmoCentral.w0waCDMCosmology(w0 =
-                CopyDictCosmo["w0"][1], wa = CopyDictCosmo["wa"][1],
-                Mν = CopyDictCosmo["Mν"][1], H0 = CopyDictCosmo["H0"][1],
-                ΩM = CopyDictCosmo["ΩM"][1], ΩB = CopyDictCosmo["ΩB"][1],
-                ΩDE = CopyDictCosmo["ΩDE"][1], Ωk = CopyDictCosmo["Ωk"][1],
-                Ωr = CopyDictCosmo["Ωr"][1], ns = CopyDictCosmo["ns"][1],
-                σ8 = CopyDictCosmo["σ8"][1])
-                MyDict["dvar_"*key*"_step_m_"*string(index)] = [w0waCDMCosmology]
+                w0waCDMCosmology = ReadCosmologyForecast(CopyDictCosmo)
+                MyDictCosmo["dvar_"*key*"_step_m_"*string(index)] = [w0waCDMCosmology]
             end
         end
     end
-    w0waCDMCosmology = CosmoCentral.w0waCDMCosmology(
-    w0 = DictCosmo["w0"][1], wa = DictCosmo["wa"][1], Mν = DictCosmo["Mν"][1],
-    H0 = DictCosmo["H0"][1], ΩM = DictCosmo["ΩM"][1], ΩB = DictCosmo["ΩB"][1],
-    ΩDE = DictCosmo["ΩDE"][1], Ωk = DictCosmo["Ωk"][1], Ωr = DictCosmo["Ωr"][1],
-    ns = DictCosmo["ns"][1], σ8 = DictCosmo["σ8"][1])
-    MyDict["dvar_central_step_0"] = [w0waCDMCosmology]
-    return MyDict
+    w0waCDMCosmology = ReadCosmologyForecast(DictCosmo)
+    MyDictCosmo["dvar_central_step_0"] = [w0waCDMCosmology]
+
+    MyDictIA = Dict{String,Array{Any,1}}()
+    for (key, value) in IADict
+        if value[2] == "present"
+            for (index, mystep) in enumerate(steps)
+                CopyDictIA = deepcopy(IADict)
+                myvalue = IncrementedValue(value[1], mystep)
+                CopyDictIA[key] = [myvalue]
+                IntrinsicAlignment = ReadIntrinsicAlignmentForecast(CopyDictIA, IAModel)
+                MyDictIA["dvar_"*key*"_step_p_"*string(index)] = [IntrinsicAlignment]
+                myvalue = IncrementedValue(value[1], -mystep)
+                CopyDictIA[key] = [myvalue]
+                IntrinsicAlignment = ReadIntrinsicAlignmentForecast(CopyDictIA, IAModel)
+                MyDictIA["dvar_"*key*"_step_m_"*string(index)] = [IntrinsicAlignment]
+            end
+        end
+    end
+    IntrinsicAlignment = ReadIntrinsicAlignmentForecast(IADict, IAModel)
+    MyDictIA["dvar_central_step_0"] = [IntrinsicAlignment]
+
+    MyDictBias = Dict{String,Array{Any,1}}()
+    for (key, value) in BiasDict
+        if value[2] == "present"
+            for (index, mystep) in enumerate(steps)
+                CopyDictBias = deepcopy(BiasDict)
+                myvalue = IncrementedValue(value[1], mystep)
+                CopyDictBias[key] = [myvalue]
+                Bias = ReadBiasForecast(CopyDictBias, BiasModel)
+                MyDictBias["dvar_"*key*"_step_p_"*string(index)] = [Bias]
+                myvalue = IncrementedValue(value[1], -mystep)
+                CopyDictBias[key] = [myvalue]
+                Bias = ReadBiasForecast(CopyDictBias, BiasModel)
+                MyDictBias["dvar_"*key*"_step_m_"*string(index)] = [Bias]
+            end
+        end
+    end
+    Bias = ReadBiasForecast(BiasDict, BiasModel)
+    MyDictBias["dvar_central_step_0"] = [Bias]
+
+    return MyDictCosmo, MyDictIA, MyDictBias
 end
 
-function CreateDirectories(Cosmologies::Dict, DictCosmo::Dict, path::String)
+function CreateDirectoriesForecast(Cosmologies::Dict, DictCosmo::Dict, IntrinsicAlignment::Dict, 
+    DictIA::Dict, Bias::Dict, DictBias::Dict, path::String)
     mkdir(path)
     mkdir(path*"PowerSpectrum")
+    CreateDirectoriesPmmCℓ(Cosmologies, path, "PowerSpectrum", true)
     mkdir(path*"Angular")
+    CreateDirectoriesPmmCℓ(Cosmologies, path, "Angular", true)
+    CreateDirectoriesPmmCℓ(IntrinsicAlignment, path, "Angular", false)
+    CreateDirectoriesPmmCℓ(Bias, path, "Angular", false)
     mkdir(path*"Derivative/")
-    for (key, value) in Cosmologies
-        mkdir(path*"Angular/"*key)
-        mkdir(path*"PowerSpectrum/"*key)
+    CreateDirectoriesDerivative(DictCosmo, path)
+    CreateDirectoriesDerivative(DictIA, path)
+    CreateDirectoriesDerivative(DictBias, path)
+end
+
+function CreateDirectoriesPmmCℓ(DictionaryParams::Dict, PathFolder::String, NameFolder::String, 
+    central::Bool)
+    if central
+        mkdir(PathFolder*"/"*NameFolder*"/"*"dvar_central_step_0")
     end
-    for (key, value) in DictCosmo
+    for (key, value) in DictionaryParams
+        if key != "dvar_central_step_0"
+            mkdir(PathFolder*"/"*NameFolder*"/"*key)
+        end
+    end
+end
+
+function CreateDirectoriesDerivative(DictionaryParams::Dict, PathFolder::String)
+    for (key, value) in DictionaryParams
         if value[2] == "present"
-            mkdir(path*"Derivative/"*key)
+            mkdir(PathFolder*"Derivative/"*key)
         end
     end
 end
@@ -109,8 +162,8 @@ function InstantiateComputeWeightFunctionGrid(
     return LensingFunction
 end
 
-function Forecast∂Cℓ!(DictCosmo::Dict,
-    PathInput::String, PathConfig::String, Steps::Array)
+function Forecast∂Cℓ!(DictCosmo::Dict, IADict::Dict, BiasDict::Dict, PathInput::String,
+    PathConfig::String, Steps::Array)
     ProbesDict = JSON.parsefile(PathConfig)
     CoefficientsArray = GetProbesArray(ProbesDict)
     for Coefficient in CoefficientsArray
@@ -127,6 +180,70 @@ function Forecast∂Cℓ!(DictCosmo::Dict,
         ∂cℓ = zeros(size(CℓArray, 1),
         size(CℓArray, 2), size(CℓArray, 3))
         for (key, value) in DictCosmo
+            if value[2] == "present"
+                stepvalues[length(Steps) + 1] = value[1]
+                for (index, mystep) in enumerate(Steps)
+                    cℓminus = ReadCℓ(
+                    PathInput*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl",
+                    Coefficient)
+                    cℓplus = ReadCℓ(
+                    PathInput*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl",
+                    Coefficient)
+                    CℓArray[:, :, :, length(Steps) + 1 - index] .=
+                    cℓminus.CℓArray
+                    CℓArray[:, :, :, length(Steps) + 1 + index] .=
+                    cℓplus.CℓArray
+                    stepvalues[length(Steps) + 1 - index] =
+                    IncrementedValue(value[1], -mystep)
+                    stepvalues[length(Steps) + 1 + index] =
+                    IncrementedValue(value[1],  mystep)
+                end
+                for idx_a in 1:size(CentralCosmologyCL.CℓArray, 2)
+                    for idx_b in 1:size(CentralCosmologyCL.CℓArray, 3)
+                        for idx_l in 1:size(CentralCosmologyCL.CℓArray, 1)
+                            y = CℓArray[idx_l, idx_a, idx_b, :]
+                            der = SteMDerivative(stepvalues, y)
+                            ∂cℓ[idx_l, idx_a, idx_b] = der
+                        end
+                    end
+                end
+                Write∂Cℓ!(∂cℓ,
+                PathInput*"/Derivative/"*key*"/"*key, Coefficient)
+            end
+        end
+        for (key, value) in IADict
+            if value[2] == "present"
+                stepvalues[length(Steps) + 1] = value[1]
+                for (index, mystep) in enumerate(Steps)
+                    cℓminus = ReadCℓ(
+                    PathInput*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl",
+                    Coefficient)
+                    cℓplus = ReadCℓ(
+                    PathInput*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl",
+                    Coefficient)
+                    CℓArray[:, :, :, length(Steps) + 1 - index] .=
+                    cℓminus.CℓArray
+                    CℓArray[:, :, :, length(Steps) + 1 + index] .=
+                    cℓplus.CℓArray
+                    stepvalues[length(Steps) + 1 - index] =
+                    IncrementedValue(value[1], -mystep)
+                    stepvalues[length(Steps) + 1 + index] =
+                    IncrementedValue(value[1],  mystep)
+                end
+                for idx_a in 1:size(CentralCosmologyCL.CℓArray, 2)
+                    for idx_b in 1:size(CentralCosmologyCL.CℓArray, 3)
+                        for idx_l in 1:size(CentralCosmologyCL.CℓArray, 1)
+                            y = CℓArray[idx_l, idx_a, idx_b, :]
+                            der = SteMDerivative(stepvalues, y)
+                            ∂cℓ[idx_l, idx_a, idx_b] = der
+                        end
+                    end
+                end
+                Write∂Cℓ!(∂cℓ,
+                PathInput*"/Derivative/"*key*"/"*key, Coefficient)
+            end
+        end
+        for (key, value) in BiasDict
             if value[2] == "present"
                 stepvalues[length(Steps) + 1] = value[1]
                 for (index, mystep) in enumerate(Steps)
@@ -205,7 +322,8 @@ function InitializeProbes(DictInput::Dict,
         LensingFunction = InstantiateWL(DictInput::Dict)
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
-        LensingFunction)
+        LensingFunction, "../inputs/scaledmeanlum-E2Sa.txt")
+        #TODO: remove the previous hardcoded line!
         push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]
@@ -235,10 +353,8 @@ function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDe
     if DictInput["PhotometricGalaxy"]["present"]
         GCWeightFunction = InstantiateGC(DictInput::Dict)
         GCWeightFunction.BiasKind = Bias
-        GCWeightFunction =
-        InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
-        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
-        GCWeightFunction)
+        GCWeightFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
+        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities, GCWeightFunction)
         push!(DictProbes, "PhotometricGalaxy" => GCWeightFunction)
     end
     return DictProbes
@@ -278,7 +394,6 @@ function InitializeForecastCℓ(ProbesDict::Dict,
     sort!(ProbesArray)
     for key_A in ProbesArray
         for key_B in ProbesArray
-            #TODO is this if-else necessary?
             if key_B*"_"*key_A in CoefficientsArray
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
@@ -328,9 +443,10 @@ function InitializeForecastCℓ(ProbesDict::Dict,
     end
 end
 
-function ForecastCℓ!(Cosmologies::Dict, PathInput::String,
-    PathOutput::String, CosmologicalGrid::CosmologicalGrid, PathConfig::String)
-    ProbesDict = JSON.parsefile(PathConfig)
+function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict, 
+    PathInputPmm::String, PathOutputCℓ::String, CosmologicalGrid::CosmologicalGrid,
+    PathConfigCℓ::String)
+    ProbesDict = JSON.parsefile(PathConfigCℓ)
     analyticaldensity = AnalitycalDensity()
     NormalizeAnalitycalDensity!(analyticaldensity)
     instrumentresponse = InstrumentResponse()
@@ -340,18 +456,63 @@ function ForecastCℓ!(Cosmologies::Dict, PathInput::String,
     instrumentresponse, CosmologicalGrid)
     ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
     analyticaldensity, instrumentresponse)
+    #TODO: these three for loops are quite similar. The only difference is the cycled 
+    #dictionary. Maybe we can create a single function to call multiple times?
     for (key, value) in Cosmologies
         w0waCDMCosmology = value[1]
+        IA = IntrinsicAlignment["dvar_central_step_0"][1]
+        bias = Bias["dvar_central_step_0"][1]
         PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
-        ReadPowerSpectrumBackground(PathInput*key*"/p_mm",
+        ReadPowerSpectrumBackground(PathInputPmm*key*"/p_mm",
         CosmologicalGrid.MultipolesArray)
         CosmologicalGrid.MultipolesArray[1,1]
         DictProbes = InitializeProbes(ProbesDict, convolveddensity,
-        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
+        w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
+        "../inputs/scaledmeanlum-E2Sa.txt")
         ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
         InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
         BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
         InitializeForecastCℓ(DictProbes, BackgroundQuantities,
-        w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutput, key)
+        w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
+    end
+
+    for (key, value) in IntrinsicAlignment
+        if key != "dvar_central_step_0"
+            w0waCDMCosmology = Cosmologies["dvar_central_step_0"][1]
+            IA = value[1]
+            bias = Bias["dvar_central_step_0"][1]
+            PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+            ReadPowerSpectrumBackground(PathInputPmm*"dvar_central_step_0"*"/p_mm",
+            CosmologicalGrid.MultipolesArray)
+            CosmologicalGrid.MultipolesArray[1,1]
+            DictProbes = InitializeProbes(ProbesDict, convolveddensity,
+            w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
+            "../inputs/scaledmeanlum-E2Sa.txt")
+            ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+            InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
+            BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+            InitializeForecastCℓ(DictProbes, BackgroundQuantities,
+            w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
+        end
+    end
+
+    for (key, value) in Bias
+        if key != "dvar_central_step_0"
+            w0waCDMCosmology = Cosmologies["dvar_central_step_0"][1]
+            IA = IntrinsicAlignment["dvar_central_step_0"][1]
+            bias = value[1]
+            PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+            ReadPowerSpectrumBackground(PathInputPmm*"dvar_central_step_0"*"/p_mm",
+            CosmologicalGrid.MultipolesArray)
+            CosmologicalGrid.MultipolesArray[1,1]
+            DictProbes = InitializeProbes(ProbesDict, convolveddensity,
+            w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
+            "../inputs/scaledmeanlum-E2Sa.txt")
+            ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+            InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
+            BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+            InitializeForecastCℓ(DictProbes, BackgroundQuantities,
+            w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
+        end
     end
 end

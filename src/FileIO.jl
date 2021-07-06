@@ -40,6 +40,22 @@ function ReadCosmology(CosmoDict::Dict)
     return Cosmology
 end
 
+function ReadCosmologyForecast(CosmoDict::Dict)
+    Cosmology = w0waCDMCosmology(
+    w0 = CosmoDict["w0"][1],
+    wa = CosmoDict["wa"][1],
+    Mν = CosmoDict["Mν"][1],
+    H0 = CosmoDict["H0"][1],
+    ΩM = CosmoDict["ΩM"][1],
+    ΩB = CosmoDict["ΩB"][1],
+    ΩDE = CosmoDict["ΩDE"][1],
+    Ωk = CosmoDict["Ωk"][1],
+    Ωr = CosmoDict["Ωr"][1],
+    ns = CosmoDict["ns"][1],
+    σ8 = CosmoDict["σ8"][1])
+    return Cosmology
+end
+
 function ReadCosmology(CosmoDict::JSON3.Object)
     Cosmology = w0waCDMCosmology(
     w0 = CosmoDict["w0"],
@@ -65,12 +81,44 @@ function ReadIntrinsicAlignment(CosmoDict::Dict)
     return intrinsicalignment
 end
 
+
+function ReadIntrinsicAlignmentForecast(IADict::Dict, IAModel::String)
+    if IAModel == "ExtendedNLIA"
+        intrinsicalignment = ExtendedNLIA()
+        intrinsicalignment.𝓐IA = IADict["𝓐IA"][1]
+        intrinsicalignment.βIA = IADict["βIA"][1]
+        intrinsicalignment.𝓒IA = IADict["𝓒IA"][1]
+        intrinsicalignment.ηIA = IADict["ηIA"][1]
+    elseif IAModel == "None"
+        intrinsicalignment = AbsentIA()
+    else
+        ErrorException("Intrinsc Alignment model not defined correctly.")
+    end
+    return intrinsicalignment
+end
+
 function ReadBias(CosmoDict::Dict)
     bias = EuclidBias()
     bias.A = CosmoDict["A"]
     bias.B = CosmoDict["B"]
     bias.C = CosmoDict["C"]
     bias.D = CosmoDict["D"]
+    return bias
+end
+
+function ReadBiasForecast(BiasDict::Dict, BiasModel::String)
+    if BiasModel == "EuclidBias"
+        bias = EuclidBias()
+        bias.A = BiasDict["A"][1]
+        bias.B = BiasDict["B"][1]
+        bias.C = BiasDict["C"][1]
+        bias.D = BiasDict["D"][1]
+    elseif BiasModel == "PiecewiseBias"
+        bias = PiecewiseBias()
+        bias.BiasMultiplier = BiasDict["BiasMultiplier"]
+    else
+        ErrorException("Bias model not defined correctly.")
+    end
     return bias
 end
 
