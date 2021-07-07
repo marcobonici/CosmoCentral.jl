@@ -429,7 +429,9 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
     ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
     analyticaldensity, instrumentresponse)
     #TODO: these three for loops are quite similar. The only difference is the cycled 
-    #dictionary. Maybe we can create a macro?
+    #dictionary. Maybe we can create a macro? The only difficulty is that we are iterating
+    #over different dictionaries. maybe we can write some if in the dficitonaries to decide 
+    #which expr return?
     for (key, value) in Cosmologies
         w0waCDMCosmology = value[1]
         IA = IntrinsicAlignment["dvar_central_step_0"][1]
