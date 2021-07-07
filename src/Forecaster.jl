@@ -8,78 +8,47 @@ function IncrementedValue(value, step)
 end
 
 
+macro IterateParameters(ReferenceDict, VariedDict, ReadMethod, Steps, Model)
+    quote
+        for (key, value) in $(esc(ReferenceDict))
+            if value[2] == "present"
+                for (index, mystep) in enumerate($(esc(Steps)))
+                    CopyDictCosmo = deepcopy($(esc(ReferenceDict)))
+                    myvalue = IncrementedValue(value[1], mystep)
+                    CopyDictCosmo[key] = [myvalue]
+                    iterated = $(ReadMethod)(CopyDictCosmo, $(esc(Model)))
+                    $(esc(VariedDict))["dvar_"*key*"_step_p_"*string(index)] = [iterated]
+                    myvalue = IncrementedValue(value[1], -mystep)
+                    CopyDictCosmo[key] = [myvalue]
+                    iterated = $(ReadMethod)(CopyDictCosmo, $(esc(Model)))
+                    $(esc(VariedDict))["dvar_"*key*"_step_m_"*string(index)] = [iterated]
+                end
+            end
+        end
+        iterated = $(ReadMethod)($(esc(ReferenceDict)), $(esc(Model)))
+        $(esc(VariedDict))["dvar_central_step_0"] = [iterated]
+    end
+end
+
 """
     CreateCosmologies(DictCosmo::Dict, steps::Array)
 
 This function creates a dictionary containing all combinations required for forecasts.
 """
-function CreateCosmologies(DictCosmo::Dict, IADict::Dict, IAModel::String, BiasDict::Dict,
-    BiasModel::String, steps::Array)
-
-    #TODO: these three for loops are quite similar. The only difference is that there are
-    # hree different function, ReadCosmology, ReadIA, and ReadBias. Maybe we could try to
-    #define an equivalent function?
+function CreateCosmologies(DictCosmo::Dict, CosmoModel::String, IADict::Dict, 
+    IAModel::String, BiasDict::Dict, BiasModel::String, steps::Array)
     MyDictCosmo = Dict{String,Array{Any,1}}()
-    for (key, value) in DictCosmo
-        if value[2] == "present"
-            for (index, mystep) in enumerate(steps)
-                CopyDictCosmo = deepcopy(DictCosmo)
-                myvalue = IncrementedValue(value[1], mystep)
-                CopyDictCosmo[key] = [myvalue]
-                w0waCDMCosmology = ReadCosmologyForecast(CopyDictCosmo)
-                MyDictCosmo["dvar_"*key*"_step_p_"*string(index)] = [w0waCDMCosmology]
-                myvalue = IncrementedValue(value[1], -mystep)
-                CopyDictCosmo[key] = [myvalue]
-                w0waCDMCosmology = ReadCosmologyForecast(CopyDictCosmo)
-                MyDictCosmo["dvar_"*key*"_step_m_"*string(index)] = [w0waCDMCosmology]
-            end
-        end
-    end
-    w0waCDMCosmology = ReadCosmologyForecast(DictCosmo)
-    MyDictCosmo["dvar_central_step_0"] = [w0waCDMCosmology]
+    @IterateParameters DictCosmo MyDictCosmo ReadCosmologyForecast steps CosmoModel
 
     MyDictIA = Dict{String,Array{Any,1}}()
-    for (key, value) in IADict
-        if value[2] == "present"
-            for (index, mystep) in enumerate(steps)
-                CopyDictIA = deepcopy(IADict)
-                myvalue = IncrementedValue(value[1], mystep)
-                CopyDictIA[key] = [myvalue]
-                IntrinsicAlignment = ReadIntrinsicAlignmentForecast(CopyDictIA, IAModel)
-                MyDictIA["dvar_"*key*"_step_p_"*string(index)] = [IntrinsicAlignment]
-                myvalue = IncrementedValue(value[1], -mystep)
-                CopyDictIA[key] = [myvalue]
-                IntrinsicAlignment = ReadIntrinsicAlignmentForecast(CopyDictIA, IAModel)
-                MyDictIA["dvar_"*key*"_step_m_"*string(index)] = [IntrinsicAlignment]
-            end
-        end
-    end
-    IntrinsicAlignment = ReadIntrinsicAlignmentForecast(IADict, IAModel)
-    MyDictIA["dvar_central_step_0"] = [IntrinsicAlignment]
+    @IterateParameters IADict MyDictIA ReadIntrinsicAlignmentForecast steps IAModel
 
     MyDictBias = Dict{String,Array{Any,1}}()
-    for (key, value) in BiasDict
-        if value[2] == "present"
-            for (index, mystep) in enumerate(steps)
-                CopyDictBias = deepcopy(BiasDict)
-                myvalue = IncrementedValue(value[1], mystep)
-                CopyDictBias[key] = [myvalue]
-                Bias = ReadBiasForecast(CopyDictBias, BiasModel)
-                MyDictBias["dvar_"*key*"_step_p_"*string(index)] = [Bias]
-                myvalue = IncrementedValue(value[1], -mystep)
-                CopyDictBias[key] = [myvalue]
-                Bias = ReadBiasForecast(CopyDictBias, BiasModel)
-                MyDictBias["dvar_"*key*"_step_m_"*string(index)] = [Bias]
-            end
-        end
-    end
-    Bias = ReadBiasForecast(BiasDict, BiasModel)
-    MyDictBias["dvar_central_step_0"] = [Bias]
-
+    @IterateParameters BiasDict MyDictBias ReadBiasForecast steps BiasModel
     return MyDictCosmo, MyDictIA, MyDictBias
 end
 
-function CreateDirectoriesForecast(Cosmologies::Dict, DictCosmo::Dict, IntrinsicAlignment::Dict, 
+function CreateDirectoriesForecast!(Cosmologies::Dict, DictCosmo::Dict, IntrinsicAlignment::Dict, 
     DictIA::Dict, Bias::Dict, DictBias::Dict, path::String)
     mkdir(path)
     mkdir(path*"PowerSpectrum")
@@ -179,6 +148,7 @@ function Forecast∂Cℓ!(DictCosmo::Dict, IADict::Dict, BiasDict::Dict, PathInp
         stepvalues = zeros(2*length(Steps)+1)
         ∂cℓ = zeros(size(CℓArray, 1),
         size(CℓArray, 2), size(CℓArray, 3))
+        #TODO: those three loops are quite similar. Macro?
         for (key, value) in DictCosmo
             if value[2] == "present"
                 stepvalues[length(Steps) + 1] = value[1]
@@ -277,6 +247,8 @@ function Forecast∂Cℓ!(DictCosmo::Dict, IADict::Dict, BiasDict::Dict, PathInp
         end
     end
 end
+
+#TODO: maybe we can create a macro?
 
 function InstantiateWL(DictInput::Dict)
     LensingFunction = WLWeightFunction()
@@ -457,7 +429,7 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
     ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
     analyticaldensity, instrumentresponse)
     #TODO: these three for loops are quite similar. The only difference is the cycled 
-    #dictionary. Maybe we can create a single function to call multiple times?
+    #dictionary. Maybe we can create a macro?
     for (key, value) in Cosmologies
         w0waCDMCosmology = value[1]
         IA = IntrinsicAlignment["dvar_central_step_0"][1]
