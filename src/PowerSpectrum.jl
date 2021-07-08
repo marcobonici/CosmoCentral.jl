@@ -79,6 +79,8 @@ function InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
 end
 
 function ExtractGrowthFactor!(PowerSpectrum::PowerSpectrum)
+    PowerSpectrum.GrowthFactor = zeros(
+        length(PowerSpectrum.PowerSpectrumLinArray[1,:]))
     for zidx in 1:length(PowerSpectrum.GrowthFactor)
         PowerSpectrum.GrowthFactor[zidx] =
         sqrt(PowerSpectrum.PowerSpectrumLinArray[1,zidx]./

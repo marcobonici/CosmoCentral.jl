@@ -76,7 +76,7 @@ function ComputeBackgroundQuantitiesGrid!(CosmologicalGrid::CosmologicalGrid,
     end
 end
 
-function ComputeLogSpacedχGrid(CosmologicalGrid::CosmologicalGrid,
+function ComputeLogSpacedχGrid!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities)
     Zχ = Dierckx.Spline1D(BackgroundQuantities.rZArray, CosmologicalGrid.ZArray)
     χArray = CosmoCentral.LogSpaced(BackgroundQuantities.rZArray[1],
@@ -90,7 +90,17 @@ function ComputeBackgroundQuantitiesOverLogSpacedχGrid(
     w0waCDMCosmology::w0waCDMCosmology)
     ComputeBackgroundQuantitiesGrid!(CosmologicalGrid, BackgroundQuantities,
     w0waCDMCosmology)
-    ComputeLogSpacedχGrid(CosmologicalGrid, BackgroundQuantities)
+    ComputeLogSpacedχGrid!(CosmologicalGrid, BackgroundQuantities)
     ComputeBackgroundQuantitiesGrid!(CosmologicalGrid, BackgroundQuantities,
     w0waCDMCosmology)
+end
+
+function ExtractGrowthFactor!(BackgroundQuantities::BackgroundQuantities,
+    PowerSpectrum::PowerSpectrum)
+    BackgroundQuantities.DZArray = zeros(length(PowerSpectrum.PowerSpectrumLinArray[1,:]))
+    for zidx in 1:length(BackgroundQuantities.DZArray)
+        BackgroundQuantities.DZArray[zidx] =
+        sqrt(PowerSpectrum.PowerSpectrumLinArray[1,zidx]./
+        PowerSpectrum.PowerSpectrumLinArray[1,1])
+    end
 end

@@ -1,5 +1,4 @@
 using CosmoCentral
-#include("/home/mbonici/Desktop/CosmoCentral.jl/src/CosmoCentral.jl")
 using Test
 using QuadGK
 using NumericalIntegration
@@ -33,6 +32,7 @@ length(GCWeightFunction.WeightFunctionArray[:, 1])))
 classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
 input_path_pmm = pwd()*"/p_mm"
 input_path_Cℓ = pwd()*"/cl"
+CosmoCentral.classy.Class()
 
 @testset "Evaluation of background quantities" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., w0waCDMCosmology)
@@ -176,7 +176,6 @@ end
 
 @testset "Check the Power Spectrum evaluated over the Limber Grid" begin
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
-    print(input_path_pmm)
     PowerSpectrum, BackgroundQuantitiesLoaded, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
     CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
@@ -227,7 +226,7 @@ end
 end
 
 @testset "Test Angular coefficients evaluation" begin
-    CℓLoaded = CosmoCentral.ReadCℓ(input_path_Cℓ)
+    CℓLoaded = CosmoCentral.ReadCℓ(input_path_Cℓ, "PhotometricGalaxy_PhotometricGalaxy")
     MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
@@ -238,10 +237,10 @@ end
     length(GCWeightFunction.WeightFunctionArray[:, 1]),
     length(GCWeightFunction.WeightFunctionArray[:, 1])))
     CosmoCentral.ComputeCℓ!(Cℓ, GCWeightFunction, GCWeightFunction, BackgroundQuantities,
-    w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomTrapz())
+    w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
     @test isapprox(CℓLoaded.CℓArray,
     Cℓ.CℓArray, rtol=1e-6)
     CosmoCentral.WriteCℓ!("PhotometricGalaxy_PhotometricGalaxy", Cℓ, "new_cl")
-    CℓReloaded = CosmoCentral.ReadCℓ("new_cl")
+    CℓReloaded = CosmoCentral.ReadCℓ("new_cl", "PhotometricGalaxy_PhotometricGalaxy")
     @test isapprox(CℓReloaded.CℓArray, Cℓ.CℓArray, rtol=1e-9)
 end

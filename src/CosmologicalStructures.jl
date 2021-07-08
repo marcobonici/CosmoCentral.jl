@@ -1,6 +1,5 @@
 abstract type AbstractCosmology end
 abstract type AbstractCosmologicalGrid end
-abstract type AngularCoefficientsGrid end
 abstract type AbstractBackgroundQuantities end
 abstract type BoltzmannSolverParams end
 abstract type AbstractDensity end
@@ -11,10 +10,9 @@ abstract type AbstractSourceFunction end
 abstract type AbstractTransferFunction end
 abstract type AbstractPowerSpectrum end
 abstract type AbstractCℓ end
-abstract type AbstractderCℓ end
+abstract type Abstract∂Cℓ end
 abstract type AbstractBias end
 abstract type LensingEfficiencyMethod end
-struct PiecewiseBias <: AbstractBias end
 abstract type AbstractIntrinsicAlignment end
 abstract type AbstractFFTLog end
 
@@ -73,9 +71,10 @@ end
 This struct contains the arrays with the values of the Hubble parameter ``H(z)``
 and the comoving distance ``r(z)``.
 """
-@kwdef struct BackgroundQuantities <: AbstractBackgroundQuantities
+@kwdef mutable struct BackgroundQuantities <: AbstractBackgroundQuantities
     HZArray::Vector{Float64} = zeros(500)
     rZArray::Vector{Float64} = zeros(500)
+    DZArray::Vector{Float64} = zeros(500)
 end
 
 """
@@ -201,6 +200,11 @@ values for all tomographic bins and redshift values in the [`CosmologicalGrid`](
     BiasKind::AbstractBias = PiecewiseBias()
 end
 
+
+@kwdef mutable struct PiecewiseBias <: AbstractBias
+    BiasMultiplier::AbstractArray{Float64, 1} = ones(10)
+end
+
 """
     EuclidBias()
 
@@ -211,18 +215,20 @@ This struct contains the parameter for the bias model measured by
 b(z)= A +\\frac{B}{1+\\exp \\left( \\left(D-z \\right)C   \\right)}
 ```
 """
-@kwdef struct EuclidBias <: AbstractBias
+@kwdef mutable struct EuclidBias <: AbstractBias
     A::Float64 = 1.0
     B::Float64 = 2.5
     C::Float64 = 2.8
     D::Float64 = 1.6
 end
 
-@kwdef struct ExtendedNLIA <: AbstractIntrinsicAlignment
-    A::Float64 = 1.72
-    β::Float64 = -0.41
-    C::Float64 = 0.0134
-    η::Float64 = 2.17
+struct AbsentIA <: AbstractIntrinsicAlignment end
+
+@kwdef mutable struct ExtendedNLIA <: AbstractIntrinsicAlignment
+    𝓐IA::Float64 = 1.72
+    βIA::Float64 = 2.17
+    𝓒IA::Float64 = 0.0134
+    ηIA::Float64 = -0.41
 end
 
 """
@@ -263,7 +269,7 @@ Limber ``k-z`` grid.
 end
 
 """
-    Cℓ()
+    Cℓ(CℓArray::AbstractArray{Float64, 3})
 
 This struct contains the array with the Angular Coefficients.
 """
@@ -271,7 +277,12 @@ This struct contains the array with the Angular Coefficients.
     CℓArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
-@kwdef mutable struct ∂Cℓ <: AbstractderCℓ
+"""
+    ∂Cℓ(∂CℓArray::AbstractArray{Float64, 3})
+
+This struct contains the array with the derivatives of the Angular Coefficients.
+"""
+@kwdef mutable struct ∂Cℓ <: Abstract∂Cℓ
     ∂Cℓ::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 

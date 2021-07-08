@@ -4,6 +4,9 @@ function WriteCℓ!(Probes::String,
     Cℓ.CℓArray)
 end
 
+#TODO Probably those read-write dictionaries functions can be rewritten as a couple of 
+#macros!
+
 function WriteCosmology!(Cosmology::w0waCDMCosmology, Filename::String)
     CosmoDict = Dict{String,Float64}()
     CosmoDict["w0"]  = Cosmology.w0
@@ -40,6 +43,22 @@ function ReadCosmology(CosmoDict::Dict)
     return Cosmology
 end
 
+function ReadCosmologyForecast(CosmoDict::Dict, CosmoModel::String)
+    Cosmology = w0waCDMCosmology(
+    w0 = CosmoDict["w0"][1],
+    wa = CosmoDict["wa"][1],
+    Mν = CosmoDict["Mν"][1],
+    H0 = CosmoDict["H0"][1],
+    ΩM = CosmoDict["ΩM"][1],
+    ΩB = CosmoDict["ΩB"][1],
+    ΩDE = CosmoDict["ΩDE"][1],
+    Ωk = CosmoDict["Ωk"][1],
+    Ωr = CosmoDict["Ωr"][1],
+    ns = CosmoDict["ns"][1],
+    σ8 = CosmoDict["σ8"][1])
+    return Cosmology
+end
+
 function ReadCosmology(CosmoDict::JSON3.Object)
     Cosmology = w0waCDMCosmology(
     w0 = CosmoDict["w0"],
@@ -56,30 +75,61 @@ function ReadCosmology(CosmoDict::JSON3.Object)
     return Cosmology
 end
 
-function ReadCℓ(Filename::String)
-    Filename *= ".h5"
-    file = HDF5.h5open(Filename, "r")
-    c_lij =
-    HDF5.read(file["cls"]["PhotometricGalaxy_PhotometricGalaxy"]["c_lij"])
-    AngularCoefficients = Cℓ(CℓArray =
-    c_lij)
-    return AngularCoefficients
+function ReadIntrinsicAlignment(CosmoDict::Dict)
+    intrinsicalignment = ExtendedNLIA()
+    intrinsicalignment.𝓐IA = CosmoDict["𝓐IA"]
+    intrinsicalignment.βIA = CosmoDict["βIA"]
+    intrinsicalignment.𝓒IA = CosmoDict["𝓒IA"]
+    intrinsicalignment.ηIA = CosmoDict["ηIA"]
+    return intrinsicalignment
+end
+
+
+function ReadIntrinsicAlignmentForecast(IADict::Dict, IAModel::String)
+    if IAModel == "ExtendedNLIA"
+        intrinsicalignment = ExtendedNLIA()
+        intrinsicalignment.𝓐IA = IADict["𝓐IA"][1]
+        intrinsicalignment.βIA = IADict["βIA"][1]
+        intrinsicalignment.𝓒IA = IADict["𝓒IA"][1]
+        intrinsicalignment.ηIA = IADict["ηIA"][1]
+    elseif IAModel == "None"
+        intrinsicalignment = AbsentIA()
+    else
+        ErrorException("Intrinsc Alignment model not defined correctly.")
+    end
+    return intrinsicalignment
+end
+
+function ReadBias(CosmoDict::Dict)
+    bias = EuclidBias()
+    bias.A = CosmoDict["A"]
+    bias.B = CosmoDict["B"]
+    bias.C = CosmoDict["C"]
+    bias.D = CosmoDict["D"]
+    return bias
+end
+
+function ReadBiasForecast(BiasDict::Dict, BiasModel::String)
+    if BiasModel == "EuclidBias"
+        bias = EuclidBias()
+        bias.A = BiasDict["A"][1]
+        bias.B = BiasDict["B"][1]
+        bias.C = BiasDict["C"][1]
+        bias.D = BiasDict["D"][1]
+    elseif BiasModel == "PiecewiseBias"
+        bias = PiecewiseBias()
+        bias.BiasMultiplier = BiasDict["BiasMultiplier"]
+    else
+        ErrorException("Bias model not defined correctly.")
+    end
+    return bias
 end
 
 function ReadCℓ(Filename::String, Probes::String)
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
-    c_lij =
-    HDF5.read(file["cls"][Probes]["c_lij"])
-    AngularCoefficients = AngularCoefficients(CℓArray =
-    c_lij)
-    return AngularCoefficients
-end
-
-function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},
-    Filename::String)
-    h5write(Filename*".h5", "dcls/PhotometricGalaxy_PhotometricGalaxy/dc_lij",
-    DerivativeArray)
+    c_lij = HDF5.read(file["cls"][Probes]["c_lij"])
+    return Cℓ(CℓArray = c_lij)
 end
 
 function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},
