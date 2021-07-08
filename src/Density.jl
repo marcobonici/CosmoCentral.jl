@@ -66,7 +66,7 @@ This function normalizes ConvolvedDensity such that the integrals of the
 convolved densities are normalized to 1.
 """
 function NormalizeConvolvedDensity!(ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity,InstrumentResponse::InstrumentResponse,
+    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse,
     CosmologicalGrid::CosmologicalGrid)
     for idx in 1:length(ConvolvedDensity.DensityNormalizationArray)
         int, err = QuadGK.quadgk(x -> ComputeConvolvedDensity(x, idx,
@@ -76,6 +76,16 @@ function NormalizeConvolvedDensity!(ConvolvedDensity::AbstractConvolvedDensity,
         ConvolvedDensity.DensityNormalizationArray[idx] /= int
     end
 end
+
+function ComputeSurfaceDensityBins!(ConvolvedDensity::AbstractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensity)
+    for idx in 1:length(ConvolvedDensity.SurfaceDensityArray)
+        int, err = QuadGK.quadgk(x -> ComputeDensity(x, AnalitycalDensity),
+        ConvolvedDensity.ZBinArray[idx], ConvolvedDensity.ZBinArray[idx+1], rtol=1e-12)
+        ConvolvedDensity.SurfaceDensityArray[idx] = int
+    end
+end
+
 
 """
     ComputeConvolvedDensityGrid!(CosmologicalGrid::CosmologicalGrid,

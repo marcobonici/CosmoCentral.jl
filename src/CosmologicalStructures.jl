@@ -15,6 +15,7 @@ abstract type AbstractBias end
 abstract type LensingEfficiencyMethod end
 abstract type AbstractIntrinsicAlignment end
 abstract type AbstractFFTLog end
+abstract type AbstractCovariance end
 
 """
     w0waCDMCosmology(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -159,6 +160,7 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
     DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)
     DensityGridArray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300)
     ShiftArray::Vector{Float64} = zeros(length(ZBinArray)-1)
+    SurfaceDensityArray = ones(10)
 end
 
 """
@@ -285,6 +287,18 @@ This struct contains the array with the derivatives of the Angular Coefficients.
 @kwdef mutable struct ∂Cℓ <: Abstract∂Cℓ
     ∂Cℓ::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
+
+"""
+    Cℓ(CℓArray::AbstractArray{Float64, 3})
+
+This struct contains the array with the Angular Coefficients.
+"""
+@kwdef mutable struct aₗₘCovariance  <: AbstractCovariance
+    Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+    Cℓ::AbstractCℓ = Cℓ()
+    Noise::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+end
+
 
 """
     InterpolationMethod
