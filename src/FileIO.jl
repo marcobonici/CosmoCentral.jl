@@ -4,6 +4,9 @@ function WriteCℓ!(Probes::String,
     Cℓ.CℓArray)
 end
 
+#TODO Probably those read-write dictionaries functions can be rewritten as a couple of 
+#macros!
+
 function WriteCosmology!(Cosmology::w0waCDMCosmology, Filename::String)
     CosmoDict = Dict{String,Float64}()
     CosmoDict["w0"]  = Cosmology.w0
@@ -40,7 +43,7 @@ function ReadCosmology(CosmoDict::Dict)
     return Cosmology
 end
 
-function ReadCosmologyForecast(CosmoDict::Dict)
+function ReadCosmologyForecast(CosmoDict::Dict, CosmoModel::String)
     Cosmology = w0waCDMCosmology(
     w0 = CosmoDict["w0"][1],
     wa = CosmoDict["wa"][1],
