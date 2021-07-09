@@ -46,5 +46,6 @@ include("SourceFunctions.jl")
 include("TransferFunctions.jl")
 include("IntrinsicAlignment.jl")
 include("Covariance.jl")
+include("Fisher.jl")
 
 end # module

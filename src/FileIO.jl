@@ -132,6 +132,13 @@ function ReadCℓ(Filename::String, Probes::String)
     return Cℓ(CℓArray = c_lij)
 end
 
+function Read∂Cℓ(Filename::String, Probes::String)
+    Filename *= ".h5"
+    file = HDF5.h5open(Filename, "r")
+    c_lij = HDF5.read(file["cls"][Probes]["c_lij"])
+    return Cℓ(CℓArray = c_lij)
+end
+
 function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},
     Filename::String, Probes::String)
     h5write(Filename*".h5", "dcls/"*Probes*"/dc_lij",

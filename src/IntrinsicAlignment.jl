@@ -20,4 +20,5 @@ function ComputeIntrinsicAlignmentGrid!(CosmologicalGrid::CosmologicalGrid,
             BackgroundQuantities.DZArray[zidx]
         end
     end
+    println(BackgroundQuantities.DZArray[1])
 end

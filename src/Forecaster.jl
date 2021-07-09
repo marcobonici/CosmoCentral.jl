@@ -126,6 +126,7 @@ function InstantiateComputeWeightFunctionGrid(
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology, CustomLensingEfficiency())
     ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, LensingFunction, ConvolvedDensity,
     BackgroundQuantities, w0waCDMCosmology, PathInput)
+    println(LensingFunction.IntrinsicAlignmentArray[1,:])
     ComputeWeightFunctionGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
     return LensingFunction
@@ -417,7 +418,7 @@ end
 
 function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict, 
     PathInputPmm::String, PathOutputCℓ::String, CosmologicalGrid::CosmologicalGrid,
-    PathConfigCℓ::String)
+    PathConfigCℓ::String, PathInputCℓ::String)
     ProbesDict = JSON.parsefile(PathConfigCℓ)
     analyticaldensity = AnalitycalDensity()
     NormalizeAnalitycalDensity!(analyticaldensity)
@@ -439,15 +440,15 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
         PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
         ReadPowerSpectrumBackground(PathInputPmm*key*"/p_mm",
         CosmologicalGrid.MultipolesArray)
-        CosmologicalGrid.MultipolesArray[1,1]
-        DictProbes = InitializeProbes(ProbesDict, convolveddensity,
-        w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
-        "../inputs/scaledmeanlum-E2Sa.txt")
+        ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+        CosmologicalGrid.MultipolesArray[1,1] #TODO wtf represents this???
+        DictProbes = InitializeProbes(ProbesDict, convolveddensity, w0waCDMCosmology, IA,
+        bias, CosmologicalGrid, BackgroundQuantities, PathInputCℓ)
         ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
-        InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
-        BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
-        InitializeForecastCℓ(DictProbes, BackgroundQuantities,
-        w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
+        InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid, BackgroundQuantities,
+        PowerSpectrum, CosmoCentral.BSplineCubic())
+        InitializeForecastCℓ(DictProbes, BackgroundQuantities, w0waCDMCosmology,
+        CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
     end
 
     for (key, value) in IntrinsicAlignment
@@ -458,10 +459,11 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
             PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
             ReadPowerSpectrumBackground(PathInputPmm*"dvar_central_step_0"*"/p_mm",
             CosmologicalGrid.MultipolesArray)
+            ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
             CosmologicalGrid.MultipolesArray[1,1]
             DictProbes = InitializeProbes(ProbesDict, convolveddensity,
             w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
-            "../inputs/scaledmeanlum-E2Sa.txt")
+            PathInputCℓ)
             ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
             InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
             BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
@@ -478,10 +480,11 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
             PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
             ReadPowerSpectrumBackground(PathInputPmm*"dvar_central_step_0"*"/p_mm",
             CosmologicalGrid.MultipolesArray)
+            ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
             CosmologicalGrid.MultipolesArray[1,1]
             DictProbes = InitializeProbes(ProbesDict, convolveddensity,
             w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
-            "../inputs/scaledmeanlum-E2Sa.txt")
+            PathInputCℓ)
             ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
             InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
             BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())

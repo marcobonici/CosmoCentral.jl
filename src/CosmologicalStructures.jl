@@ -16,6 +16,7 @@ abstract type LensingEfficiencyMethod end
 abstract type AbstractIntrinsicAlignment end
 abstract type AbstractFFTLog end
 abstract type AbstractCovariance end
+abstract type AbstractFisher end
 
 """
     w0waCDMCosmology(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -289,7 +290,17 @@ This struct contains the array with the derivatives of the Angular Coefficients.
 end
 
 """
-    Cℓ(CℓArray::AbstractArray{Float64, 3})
+    FisherMatrix()
+
+This struct contains the array with the Fisher Matrix.
+"""
+@kwdef mutable struct FisherMatrix <: AbstractFisher
+    FisherMatrix::AbstractArray{Float64, 2} = zeros(8,8)
+    FisherDict::Dict = Dict()
+end    
+
+"""
+    aₗₘCovariance()
 
 This struct contains the array with the Angular Coefficients.
 """
@@ -310,7 +321,7 @@ actually are included:
 
 - GriddedLinear, from Interpolations.jl
 
-- BSpliceCubic (recommended for its speed and accuracy), from Interpolations.jl
+- BSpliceCubic (recommended, for its speed and accuracy), from Interpolations.jl
 """
 abstract type InterpolationMethod end
 
