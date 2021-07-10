@@ -74,7 +74,7 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
         first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
         Cℓ.CℓArray = Integrand
         if any(isnan,Integrand)
-
+            
         else
             check = false
         end

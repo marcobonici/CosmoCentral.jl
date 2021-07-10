@@ -286,15 +286,15 @@ end
 This struct contains the array with the derivatives of the Angular Coefficients.
 """
 @kwdef mutable struct ∂Cℓ <: Abstract∂Cℓ
-    ∂Cℓ::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+    ∂CℓArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
 """
-    FisherMatrix()
+    Fisherαβ()
 
 This struct contains the array with the Fisher Matrix.
 """
-@kwdef mutable struct FisherMatrix <: AbstractFisher
+@kwdef mutable struct Fisherαβ <: AbstractFisher
     FisherMatrix::AbstractArray{Float64, 2} = zeros(8,8)
     FisherDict::Dict = Dict()
 end    
@@ -308,6 +308,7 @@ This struct contains the array with the Angular Coefficients.
     Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
     Cℓ::AbstractCℓ = Cℓ()
     Noise::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+    Covariance⁻¹::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 
 

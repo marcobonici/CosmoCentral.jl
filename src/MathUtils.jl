@@ -12,6 +12,22 @@ function LogSpaced(min::Float64, max::Float64, n::Int64)
 end
 
 """
+    ΔLogSpaced(min::Float64, max::Float64, n::Int64)
+
+This function evaluates ``n`` points, logarithmically spaced between
+    ``min`` and ``max``.
+"""
+function ΔLogSpaced(min::Float64, max::Float64, n::Int64)
+    λmin = log10(min)
+    λmax = log10(max)
+    Δℓ = zeros(n)
+    for i in 1:n
+        Δℓ[i] = 10^(λmin+i*(λmax-λmin)/n)-10^(λmin+(i-1)*(λmax-λmin)/n)
+    end
+    return Δℓ
+end
+
+"""
     BinSearch(x::Float64, Array::Vector{Float64})
 
 Given a value ``z`` and an Array, determines the couple of array elements where
