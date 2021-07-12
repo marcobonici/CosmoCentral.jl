@@ -382,6 +382,7 @@ function InitializeForecastCℓ(ProbesDict::Dict,
                 WriteCosmology!(w0waCDMCosmology, PathOutput*key)
             end
         end
+        WriteWeightFunctions!(key_A, ProbesDict[key_A], PathOutput*key*"/cl")
     end
 end
 

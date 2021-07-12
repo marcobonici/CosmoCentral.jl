@@ -1,8 +1,13 @@
-function WriteCℓ!(Probes::String,
-    Cℓ::AbstractCℓ, Filename::String)
+function WriteCℓ!(Probes::String, Cℓ::AbstractCℓ, Filename::String)
     h5write(Filename*".h5", "cls/"*Probes*"/c_lij",
     Cℓ.CℓArray)
 end
+
+function WriteWeightFunctions!(Probes::String, WA::AbstractWeightFunction, Filename::String)
+    h5write(Filename*".h5", "weight_functions/"*Probes*"/w_bin_z",
+    WA.WeightFunctionArray)
+end
+
 
 #TODO Probably those read-write dictionaries functions can be rewritten as a couple of 
 #macros!
