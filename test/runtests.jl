@@ -26,7 +26,7 @@ LensingEfficiencyArray = zeros(length(
 ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
 AngularCoefficients = CosmoCentral.Cℓ(
-CℓArray = zeros(length(CosmologicalGrid.MultipolesArray),
+CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters),
 length(GCWeightFunction.WeightFunctionArray[:, 1]),
 length(GCWeightFunction.WeightFunctionArray[:, 1])))
 classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
@@ -175,14 +175,14 @@ end
 
 
 @testset "Check the Power Spectrum evaluated over the Limber Grid" begin
-    MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
+    ℓBinCenters = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantitiesLoaded, CosmologicalGrid =
-    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
+    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, ℓBinCenters, Array(ones(2990)))
     CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrum, CosmoCentral.BSplineCubic())
     CosmoCentral.ComputeLimberArray!(CosmologicalGrid,
     BackgroundQuantitiesLoaded)
-    test_k_limber = (CosmologicalGrid.MultipolesArray[1]+0.5) /
+    test_k_limber = (CosmologicalGrid.ℓBinCenters[1]+0.5) /
     BackgroundQuantitiesLoaded.rZArray[1]
     @test test_k_limber == CosmologicalGrid.KLimberArray[1, 1]
     test_Omega_cdm = w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
@@ -205,9 +205,7 @@ end
     CosmoCentral.WritePowerSpectrumBackground(PowerSpectrum,
     BackgroundQuantitiesLoaded, CosmologicalGrid, "new_p_mm")
     NewPowerSpectrum, NewBackgroundQuantitiesLoaded, NewCosmologicalGrid =
-    CosmoCentral.ReadPowerSpectrumBackground(
-    "new_p_mm",
-    MultipolesArray)
+    CosmoCentral.ReadPowerSpectrumBackground("new_p_mm", ℓBinCenters, Array(ones(2990)))
     @test isapprox(PowerSpectrum.PowerSpectrumNonlinArray,
     NewPowerSpectrum.PowerSpectrumNonlinArray, rtol=1e-6)
     @test isapprox(PowerSpectrum.PowerSpectrumLinArray,
@@ -217,7 +215,7 @@ end
     @test isapprox(BackgroundQuantitiesLoaded.rZArray,
     NewBackgroundQuantitiesLoaded.rZArray, rtol=1e-6)
     PowerSpectrumDierckx, BackgroundQuantitiesLoaded, CosmologicalGrid =
-    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
+    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, ℓBinCenters, Array(ones(2990)))
     CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
     BackgroundQuantitiesLoaded, PowerSpectrumDierckx,
     CosmoCentral.RectBivSplineDierckx())
@@ -227,13 +225,13 @@ end
 
 @testset "Test Angular coefficients evaluation" begin
     CℓLoaded = CosmoCentral.ReadCℓ(input_path_Cℓ, "PhotometricGalaxy_PhotometricGalaxy")
-    MultipolesArray = Array(LinRange(10.5, 2999.5, 2990))
+    ℓBinCenters = Array(LinRange(10.5, 2999.5, 2990))
     PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
-    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, MultipolesArray)
+    CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, ℓBinCenters, Array(ones(2990)))
     CosmoCentral.ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
     CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
     BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
-    Cℓ = CosmoCentral.Cℓ(CℓArray = zeros(length(CosmologicalGrid.MultipolesArray),
+    Cℓ = CosmoCentral.Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters),
     length(GCWeightFunction.WeightFunctionArray[:, 1]),
     length(GCWeightFunction.WeightFunctionArray[:, 1])))
     CosmoCentral.ComputeCℓ!(Cℓ, GCWeightFunction, GCWeightFunction, BackgroundQuantities,

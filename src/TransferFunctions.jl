@@ -8,11 +8,11 @@ function EvaluateTransferFunction(CosmologicalGrid::CosmologicalGrid,
         κTransferFunction.LensingSourceFunction.SourceFunctionArray[iidx, :] .*
         PowerSpectrum.GrowthFactor)
         Kl, κTransferFunction.TransferFunctionArray[iidx, :, :] =
-        CosmoCentral.EvaluateFFTLog(FFTLog, CosmologicalGrid.MultipolesArray)
+        CosmoCentral.EvaluateFFTLog(FFTLog, CosmologicalGrid.ℓBinCenters)
         κTransferFunction.TransferFunctionArray[iidx, :, :] =
         κTransferFunction.TransferFunctionArray[iidx, :, :] ./
-        Kl ./ Kl .* CosmologicalGrid.MultipolesArray .*
-        (CosmologicalGrid.MultipolesArray .+ 1)
+        Kl ./ Kl .* CosmologicalGrid.ℓBinCenters .*
+        (CosmologicalGrid.ℓBinCenters .+ 1)
         CosmologicalGrid.KBeyondLimberArray = Kl
     end
 end

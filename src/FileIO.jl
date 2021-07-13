@@ -186,13 +186,13 @@ end
 
 """
     ReadPowerSpectrumBackground(Filename::String,
-    MultipolesArray::Vector{Float64})
+    ℓBinCenters::Vector{Float64})
 
 This function reads the Power Spectrum, the Background quantities and the
 Cosmological Grid from a HDF5 file.
 """
-function ReadPowerSpectrumBackground(Filename::String,
-    MultipolesArray::Vector{Float64})
+function ReadPowerSpectrumBackground(Filename::String, ℓBinCenters::Vector{Float64},
+    ℓBinWidths::Vector{Float64})
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
     nonlin_p_mm_k_z = HDF5.read(file["power_spectrum"]["nonlin_p_mm_k_z"])
@@ -204,16 +204,16 @@ function ReadPowerSpectrumBackground(Filename::String,
     BackgroundQuantitiesRead = BackgroundQuantities(HZArray = hubble_array,
     rZArray = comoving_distance_array)
     CosmologicalGridRead = CosmologicalGrid(ZArray = z_grid, KArray = k_grid,
-    MultipolesArray = MultipolesArray)
+    ℓBinCenters = ℓBinCenters, ℓBinWidths = ℓBinWidths)
     PowerSpectrumRead = PowerSpectrum(PowerSpectrumLinArray = lin_p_mm_k_z,
     PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGridRead.MultipolesArray),
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGridRead.ℓBinCenters),
     length(CosmologicalGridRead.ZArray)))
     return PowerSpectrumRead, BackgroundQuantitiesRead, CosmologicalGridRead
 end
 
 function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
-    MultipolesArray::Vector{Float64})
+    ℓBinCenters::Vector{Float64})
     c_0 = 2.99792458e5
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
@@ -227,10 +227,15 @@ function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
     dimensionless_hubble_array*67,
     rZArray = dimensionless_comoving_distance_array*c_0/67)
     CosmologicalGrid = CosmologicalGrid(ZArray = z_grid, KArray = k_grid,
-    MultipolesArray = MultipolesArray)
+    ℓBinCenters = ℓBinCenters)
     PowerSpectrum = PowerSpectrum(PowerSpectrumLinArray = lin_p_mm_k_z,
     PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.ℓBinCenters),
     length(CosmologicalGrid.ZArray)))
     return PowerSpectrum, BackgroundQuantities, CosmologicalGrid
+end
+
+function WriteCosmologicalGrid!(Filename::String, cosmogrid::CosmologicalGrid)
+    h5write(Filename*".h5", "cosmologicalgrid/l_bin_centers", cosmogrid.ℓBinCenters)
+    h5write(Filename*".h5", "cosmologicalgrid/l_bin_widths", cosmogrid.ℓBinWidths)
 end

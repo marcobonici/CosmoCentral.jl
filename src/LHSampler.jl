@@ -48,7 +48,7 @@ function EvaluatePowerSpectraLHS(Cosmologies::Dict, Path::String,
         PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
         length(CosmologicalGrid.ZArray)),
         InterpolatedPowerSpectrum = zeros(length(
-        CosmologicalGrid.MultipolesArray), length(CosmologicalGrid.ZArray)))
+        CosmologicalGrid.ℓBinCenters), length(CosmologicalGrid.ZArray)))
         EvaluatePowerSpectrum!(ClassyParams, CosmologicalGrid, PowerSpectrum)
         WritePowerSpectrumBackground(PowerSpectrum, BackgroundQuantities,
         CosmologicalGrid, Path*key*"/p_mm")
@@ -82,8 +82,8 @@ function EvaluateCℓLHS!(Cosmologies::Dict, PathInput::String,
         w0waCDMCosmology = value[1]
         PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
         ReadPowerSpectrumBackground(PathInput*key*"/p_mm",
-        CosmologicalGrid.MultipolesArray)
-        CosmologicalGrid.MultipolesArray[1,1]
+        CosmologicalGrid.ℓBinCenters)
+        CosmologicalGrid.ℓBinCenters[1,1]
         DictProbes = InitializeProbes(ProbesDict, ConvolvedDensity,
         w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities)
         ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
@@ -115,7 +115,7 @@ function EvaluateCℓGeneral!(PmmDirectory::String,
                 w0waCDMCosmology = CosmoCentral.ReadCosmology(Dict(CosmoDict))
                 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
                 ReadPowerSpectrumBackground(joinpath(root, "p_mm"),
-                CosmologicalGrid.MultipolesArray)
+                CosmologicalGrid.ℓBinCenters)
                 ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
                 #TODO probably we can obtain flexibility with a dictionary
                 intrinsicalignment = ReadIntrinsicAlignment(Dict(CosmoDict))
@@ -152,7 +152,7 @@ function EvaluateCℓDoubleShift(PmmDirectory::String,
     ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity,
     AnalitycalDensity, InstrumentResponse)
     #TODO Probably the following line is useless
-    MultipolesArray = Array(LinRange(10,3000,100))
+    ℓBinCenters = Array(LinRange(10,3000,100))
     for (root, dirs, files) in walkdir(PmmDirectory)
         for file in files
             file_extension = file[findlast(isequal('.'),file):end]
@@ -161,7 +161,7 @@ function EvaluateCℓDoubleShift(PmmDirectory::String,
                 w0waCDMCosmology = CosmoCentral.ReadCosmology(Dict(CosmoDict))
                 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
                 ReadPowerSpectrumBackground(joinpath(root, "p_mm"),
-                CosmologicalGrid.MultipolesArray)
+                CosmologicalGrid.ℓBinCenters)
                 ShiftParameter_i = CosmoDict["ShiftParameter_i"]
                 ShiftParameter_j = CosmoDict["ShiftParameter_j"]
                 ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
@@ -181,7 +181,7 @@ function EvaluateCℓDoubleShift(PmmDirectory::String,
                             push!(CℓKeyArray, key_A*"_"*key_B)
                             cℓ = Cℓ(
                             CℓArray
-                            = zeros(length(CosmologicalGrid.MultipolesArray),
+                            = zeros(length(CosmologicalGrid.ℓBinCenters),
                             10, 10))
                             push!(CℓArray, cℓ)
                         end
@@ -244,7 +244,7 @@ function InitializeComputeCℓDoubleNuisance(ProbesDict::Dict,
                 push!(CℓKeyArray, key_A*"_"*key_B)
                 cℓ = Cℓ(
                 CℓArray
-                = zeros(length(CosmologicalGrid.MultipolesArray),
+                = zeros(length(CosmologicalGrid.ℓBinCenters),
                 length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
                 length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
                 ComputeCℓ!(cℓ,

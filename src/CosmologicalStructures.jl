@@ -60,8 +60,9 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
 @kwdef mutable struct CosmologicalGrid <: AbstractCosmologicalGrid
     ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
     KArray::Vector{Float64} = LogSpaced(1e-5, 50., 1000)
-    MultipolesArray::Vector{Float64} = LinRange(10., 3000., 2991)
-    KLimberArray::AbstractArray{Float64, 2} = zeros(length(MultipolesArray),
+    ℓBinCenters::Vector{Float64} = LinRange(10., 3000., 2991)
+    ℓBinWidths::Vector{Float64} = LinRange(10., 3000., 2991)
+    KLimberArray::AbstractArray{Float64, 2} = zeros(length(ℓBinCenters),
     length(ZArray))
     KBeyondLimberArray::AbstractArray{Float64, 2} = zeros(100, 1000)
 end

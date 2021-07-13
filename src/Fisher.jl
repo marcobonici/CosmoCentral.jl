@@ -1,7 +1,7 @@
 function EvaluateFisherMatrixElement!(fishermatrix::Fisherαβ, Cov::aₗₘCovariance,
     ∂Cℓα::∂Cℓ, ∂Cℓβ::∂Cℓ, cosmogrid::CosmologicalGrid, Parα::String, Parβ::String)
     fisherelement = 0
-    for ℓidx in 1:length(cosmogrid.MultipolesArray)
+    for ℓidx in 1:length(cosmogrid.ℓBinCenters)
         for i in 1:length(∂Cℓα.∂CℓArray[1,:,1])
             for j in 1:length(∂Cℓα.∂CℓArray[1,1,:])
                 for m in 1:length(∂Cℓβ.∂CℓArray[1,:,1])

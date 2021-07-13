@@ -97,7 +97,7 @@ function ForecastPowerSpectra!(Cosmologies::Dict, Path::String,
         PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
         length(CosmologicalGrid.ZArray)),
         InterpolatedPowerSpectrum = zeros(length(
-        CosmologicalGrid.MultipolesArray), length(CosmologicalGrid.ZArray)))
+        CosmologicalGrid.ℓBinCenters), length(CosmologicalGrid.ZArray)))
         EvaluatePowerSpectrum!(ClassyParams, CosmologicalGrid, powerspectrum)
         WritePowerSpectrumBackground(powerspectrum, backgroundquantities,
         CosmologicalGrid, Path*key*"/p_mm")
@@ -370,7 +370,7 @@ function InitializeForecastCℓ(ProbesDict::Dict,
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
                 cℓ = Cℓ(CℓArray = 
-                zeros(length(CosmologicalGrid.MultipolesArray),
+                zeros(length(CosmologicalGrid.ℓBinCenters),
                 length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
                 length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
                 ComputeCℓ!(cℓ,
@@ -384,6 +384,7 @@ function InitializeForecastCℓ(ProbesDict::Dict,
         end
         WriteWeightFunctions!(key_A, ProbesDict[key_A], PathOutput*key*"/cl")
     end
+    WriteCosmologicalGrid!(PathOutput*key*"/cl", CosmologicalGrid)
 end
 
 function InitializeForecastCℓ(ProbesDict::Dict,
@@ -403,7 +404,7 @@ function InitializeForecastCℓ(ProbesDict::Dict,
             if key_B*"_"*key_A in CoefficientsArray
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
-                cℓ = Cℓ(CℓArray = zeros(length(CosmologicalGrid.MultipolesArray),
+                cℓ = Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters),
                 length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
                 length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
                 ComputeCℓ!(cℓ, ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
@@ -439,9 +440,9 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
         bias = Bias["dvar_central_step_0"][1]
         PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
         ReadPowerSpectrumBackground(PathInputPmm*key*"/p_mm",
-        CosmologicalGrid.MultipolesArray)
+        CosmologicalGrid.ℓBinCenters, CosmologicalGrid.ℓBinWidths)
         ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
-        CosmologicalGrid.MultipolesArray[1,1] #TODO wtf represents this???
+        CosmologicalGrid.ℓBinCenters[1,1] #TODO wtf represents this???
         DictProbes = InitializeProbes(ProbesDict, convolveddensity, w0waCDMCosmology, IA,
         bias, CosmologicalGrid, BackgroundQuantities, PathInputCℓ)
         ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
@@ -458,9 +459,9 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
             bias = Bias["dvar_central_step_0"][1]
             PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
             ReadPowerSpectrumBackground(PathInputPmm*"dvar_central_step_0"*"/p_mm",
-            CosmologicalGrid.MultipolesArray)
+            CosmologicalGrid.ℓBinCenters, CosmologicalGrid.ℓBinWidths)
             ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
-            CosmologicalGrid.MultipolesArray[1,1]
+            CosmologicalGrid.ℓBinCenters[1,1]
             DictProbes = InitializeProbes(ProbesDict, convolveddensity,
             w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
             PathInputCℓ)
@@ -479,9 +480,9 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
             bias = value[1]
             PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
             ReadPowerSpectrumBackground(PathInputPmm*"dvar_central_step_0"*"/p_mm",
-            CosmologicalGrid.MultipolesArray)
+            CosmologicalGrid.ℓBinCenters, CosmologicalGrid.ℓBinWidths)
             ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
-            CosmologicalGrid.MultipolesArray[1,1]
+            CosmologicalGrid.ℓBinCenters[1,1]
             DictProbes = InitializeProbes(ProbesDict, convolveddensity,
             w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
             PathInputCℓ)
