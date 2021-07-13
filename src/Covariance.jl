@@ -13,7 +13,7 @@ end
 function EvaluateNoise!(Cov::aₗₘCovariance, ConvDens::AbstractConvolvedDensity)
     for lidx in 1:length(Cov.Cℓ.CℓArray[:,1,1])
         for iidx in 1:length(Cov.Cℓ.CℓArray[1,:,1])
-            Cov.Noise[lidx, iidx, iidx] = 1 ./ 
+            Cov.Noise[lidx, iidx, iidx] = 0.3^2 ./ 
             (ConvDens.SurfaceDensityArray[iidx]*3437.746771^2)
         end
     end
@@ -23,11 +23,10 @@ end
 
 function EvaluateCovariance!(Cov::aₗₘCovariance, cosmogrid::CosmologicalGrid)
     Cov.Covariance = (Cov.Cℓ.CℓArray + Cov.Noise)
-    f_sky = 0.36
-    Δℓ =ΔLogSpaced(first(cosmogrid.MultipolesArray), last(cosmogrid.MultipolesArray),
-    length(cosmogrid.MultipolesArray))
-    for (ℓidx, ℓvalue) in enumerate(cosmogrid.MultipolesArray)
-        Cov.Covariance[ℓidx,:,:] *= sqrt(2/((2* ℓvalue+1)*f_sky*Δℓ[ℓidx]))
+    f_sky = 0.363610260832152
+    #TODO: this is hardcoded...
+    for (ℓidx, ℓvalue) in enumerate(cosmogrid.ℓBinCenters)
+        Cov.Covariance[ℓidx,:,:] *= sqrt(2/((2* ℓvalue+1)*f_sky*cosmogrid.ℓBinWidths[ℓidx]))
     end
 end
 
