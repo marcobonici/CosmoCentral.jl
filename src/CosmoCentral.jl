@@ -18,6 +18,7 @@ using SpecialFunctions
 using LatinHypercubeSampling
 using Random
 using DelimitedFiles
+using LinearAlgebra
 numpy = pyimport("numpy")
 
 const classy = PyNULL()
@@ -44,5 +45,7 @@ include("FFTLog.jl")
 include("SourceFunctions.jl")
 include("TransferFunctions.jl")
 include("IntrinsicAlignment.jl")
+include("Covariance.jl")
+include("Fisher.jl")
 
 end # module

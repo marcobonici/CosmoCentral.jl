@@ -6,7 +6,7 @@ struct BeyondLimber <: IntegrationMethod end
 """
     ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFunction,
     WeightFunctionB::AbstractWeightFunction, BackgroundQuantities::BackgroundQuantities,
-    ::w0waCDMCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
+    ::AbstractCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
     PowerSpectrum::AbstractPowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
@@ -16,7 +16,7 @@ Simpson numerical method from
 """
 function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFunction,
     WeightFunctionB::AbstractWeightFunction, BackgroundQuantities::BackgroundQuantities,
-    ::w0waCDMCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
+    ::AbstractCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
     PowerSpectrum::AbstractPowerSpectrum, ::NumericalIntegrationSimpson)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
@@ -40,7 +40,7 @@ end
     ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFunction,
     WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::AbstractBackgroundQuantities,
-    ::w0waCDMCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
+    ::AbstractCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
     PowerSpectrum::AbstractPowerSpectrum, ::CustomSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
@@ -51,7 +51,7 @@ implemented the Simpson rule. The computation is accelerated by
 function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFunction,
     WeightFunctionB::AbstractWeightFunction,
     BackgroundQuantities::AbstractBackgroundQuantities,
-    ::w0waCDMCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
+    ::AbstractCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
     PowerSpectrum::AbstractPowerSpectrum, ::CustomSimpson)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
@@ -74,7 +74,7 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
         first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
         Cℓ.CℓArray = Integrand
         if any(isnan,Integrand)
-
+            
         else
             check = false
         end
@@ -82,7 +82,7 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
 end
 
 function  ComputeCℓ!(Cℓ::AbstractCℓ, TransferFunctionA::AbstractTransferFunction,
-    TransferFunctionB::AbstractTransferFunction, ::w0waCDMCosmology,
+    TransferFunctionB::AbstractTransferFunction, ::AbstractCosmology,
     CosmologicalGrid::AbstractCosmologicalGrid, PowerSpectrum::AbstractPowerSpectrum, 
     ::BeyondLimber)
     Integrand = zeros(size(Cℓ.CℓArray))

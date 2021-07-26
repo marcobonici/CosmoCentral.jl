@@ -10,7 +10,7 @@ k_\\ell(z)=\\frac{\\ell+1/2}{r(z)}.
 """
 function ComputeLimberArray!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities)
-    for (idx_l, myl) in enumerate(CosmologicalGrid.MultipolesArray)
+    for (idx_l, myl) in enumerate(CosmologicalGrid.ℓBinCenters)
         CosmologicalGrid.KLimberArray[idx_l, :] =  (myl + 0.5) ./
         BackgroundQuantities.rZArray
     end
@@ -30,7 +30,7 @@ function InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
     InterpPmm = Dierckx.Spline2D(log10.(CosmologicalGrid.KArray),
     CosmologicalGrid.ZArray, log10.(PowerSpectrum.PowerSpectrumNonlinArray);
     kx=5, ky=5, s=0.0)
-    for (idx_l, myl) in enumerate(CosmologicalGrid.MultipolesArray)
+    for (idx_l, myl) in enumerate(CosmologicalGrid.ℓBinCenters)
         PowerSpectrum.InterpolatedPowerSpectrum[idx_l, :] =
         10 .^(InterpPmm.(log10.(CosmologicalGrid.KLimberArray[idx_l, :]),
         CosmologicalGrid.ZArray))
@@ -49,7 +49,7 @@ function InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
     BSpline(Cubic(Line(OnGrid()))))
     InterpPmm = scale(InterpPmm, x, y)
     InterpPmm = Interpolations.extrapolate(InterpPmm, Line())
-    for (idx_l, myl) in enumerate(CosmologicalGrid.MultipolesArray)
+    for (idx_l, myl) in enumerate(CosmologicalGrid.ℓBinCenters)
         PowerSpectrum.InterpolatedPowerSpectrum[idx_l, :] =
         10 .^(InterpPmm.(log10.(CosmologicalGrid.KLimberArray[idx_l, :]),
         CosmologicalGrid.ZArray))
@@ -69,7 +69,7 @@ function InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
     InterpPmm = scale(InterpPmm, x, y)
     InterpPmm = Interpolations.extrapolate(InterpPmm, Line())
     for iidx in 1:length(ConvolvedDensity.ZBinArray)-1
-        for lidx in 1:length(CosmologicalGrid.MultipolesArray)
+        for lidx in 1:length(CosmologicalGrid.ℓBinCenters)
             PowerSpectrum.InterpolatedPowerSpectrumBeyondLimber[lidx, :] =
             10 .^(InterpPmm.(log10.(
             CosmologicalGrid.KBeyondLimberArray[lidx, :]),

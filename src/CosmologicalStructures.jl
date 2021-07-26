@@ -15,6 +15,8 @@ abstract type AbstractBias end
 abstract type LensingEfficiencyMethod end
 abstract type AbstractIntrinsicAlignment end
 abstract type AbstractFFTLog end
+abstract type AbstractCovariance end
+abstract type AbstractFisher end
 
 """
     w0waCDMCosmology(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -35,7 +37,7 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 
 - ``H_0``, the value of the Hubble paramater
 """
-@kwdef struct w0waCDMCosmology <: AbstractCosmology
+@kwdef mutable struct w0waCDMCosmology <: AbstractCosmology
     w0::Float64  = -1.
     wa::Float64  = 0.
     Mν::Float64  = 0.06 #neutrino mass in eV
@@ -49,6 +51,17 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
     σ8::Float64  = 0.816
 end
 
+@kwdef mutable struct Flatw0waCDMCosmology <: AbstractCosmology
+    w0::Float64  = -1.
+    wa::Float64  = 0.
+    Mν::Float64  = 0.06 #neutrino mass in eV
+    H0::Float64  = 67.
+    ΩM::Float64  = 0.32
+    ΩB::Float64  = 0.05
+    ns::Float64  = 0.96
+    σ8::Float64  = 0.816
+end
+
 """
     CosmologicalGrid(ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300)),
     KArray::Vector{Float64} = LogSpaced(1e-5, 50., 1000))
@@ -58,8 +71,9 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
 @kwdef mutable struct CosmologicalGrid <: AbstractCosmologicalGrid
     ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300))
     KArray::Vector{Float64} = LogSpaced(1e-5, 50., 1000)
-    MultipolesArray::Vector{Float64} = LinRange(10., 3000., 2991)
-    KLimberArray::AbstractArray{Float64, 2} = zeros(length(MultipolesArray),
+    ℓBinCenters::Vector{Float64} = LinRange(10., 3000., 2991)
+    ℓBinWidths::Vector{Float64} = LinRange(10., 3000., 2991)
+    KLimberArray::AbstractArray{Float64, 2} = zeros(length(ℓBinCenters),
     length(ZArray))
     KBeyondLimberArray::AbstractArray{Float64, 2} = zeros(100, 1000)
 end
@@ -159,6 +173,7 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
     DensityNormalizationArray::Vector{Float64} = ones(length(ZBinArray)-1)
     DensityGridArray::AbstractArray{Float64, 2} = ones(length(ZBinArray)-1, 300)
     ShiftArray::Vector{Float64} = zeros(length(ZBinArray)-1)
+    SurfaceDensityArray = ones(10)
 end
 
 """
@@ -283,8 +298,31 @@ end
 This struct contains the array with the derivatives of the Angular Coefficients.
 """
 @kwdef mutable struct ∂Cℓ <: Abstract∂Cℓ
-    ∂Cℓ::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+    ∂CℓArray::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
+
+"""
+    Fisherαβ()
+
+This struct contains the array with the Fisher Matrix.
+"""
+@kwdef mutable struct Fisherαβ <: AbstractFisher
+    FisherMatrix::AbstractArray{Float64, 2} = zeros(8,8)
+    FisherDict::Dict = Dict()
+end    
+
+"""
+    aₗₘCovariance()
+
+This struct contains the array with the Angular Coefficients.
+"""
+@kwdef mutable struct aₗₘCovariance  <: AbstractCovariance
+    Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+    Cℓ::AbstractCℓ = Cℓ()
+    Noise::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+    Covariance⁻¹::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+end
+
 
 """
     InterpolationMethod
@@ -296,7 +334,7 @@ actually are included:
 
 - GriddedLinear, from Interpolations.jl
 
-- BSpliceCubic (recommended for its speed and accuracy), from Interpolations.jl
+- BSpliceCubic (recommended, for its speed and accuracy), from Interpolations.jl
 """
 abstract type InterpolationMethod end
 

@@ -1,7 +1,7 @@
 function ComputeIntrinsicAlignmentGrid!(CosmologicalGrid::CosmologicalGrid,
     LensingFunction::WLWeightFunction, ConvolvedDensity::AbstractConvolvedDensity,
     BackgroundQuantities::BackgroundQuantities, 
-    w0waCDMCosmology::w0waCDMCosmology, Path::String)
+    Cosmology::AbstractCosmology, Path::String)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     input_data = readdlm(Path, Float64)
@@ -14,7 +14,7 @@ function ComputeIntrinsicAlignmentGrid!(CosmologicalGrid::CosmologicalGrid,
             - BackgroundQuantities.HZArray[zidx] / c_0 *
             ConvolvedDensity.DensityGridArray[iidx, zidx] *
             LensingFunction.IntrinsicAlignmentModel.𝓐IA *
-            LensingFunction.IntrinsicAlignmentModel.𝓒IA * w0waCDMCosmology.ΩM *
+            LensingFunction.IntrinsicAlignmentModel.𝓒IA * Cosmology.ΩM *
             ( (1 + zvalue) ^ LensingFunction.IntrinsicAlignmentModel.ηIA ) *
             (spl(zvalue) ^ LensingFunction.IntrinsicAlignmentModel.βIA ) /
             BackgroundQuantities.DZArray[zidx]

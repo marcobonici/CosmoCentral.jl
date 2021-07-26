@@ -1,8 +1,13 @@
-function WriteCℓ!(Probes::String,
-    Cℓ::AbstractCℓ, Filename::String)
+function WriteCℓ!(Probes::String, Cℓ::AbstractCℓ, Filename::String)
     h5write(Filename*".h5", "cls/"*Probes*"/c_lij",
     Cℓ.CℓArray)
 end
+
+function WriteWeightFunctions!(Probes::String, WA::AbstractWeightFunction, Filename::String)
+    h5write(Filename*".h5", "weight_functions/"*Probes*"/w_bin_z",
+    WA.WeightFunctionArray)
+end
+
 
 #TODO Probably those read-write dictionaries functions can be rewritten as a couple of 
 #macros!
@@ -23,55 +28,104 @@ function WriteCosmology!(Cosmology::w0waCDMCosmology, Filename::String)
     JSON3.write(Filename*"/cosmology.json", CosmoDict)
 end
 
+function WriteCosmology!(Cosmology::Flatw0waCDMCosmology, Filename::String)
+    CosmoDict = Dict{String,Float64}()
+    CosmoDict["w0"]  = Cosmology.w0
+    CosmoDict["wa"]  = Cosmology.wa
+    CosmoDict["Mν"]  = Cosmology.Mν
+    CosmoDict["H0"]  = Cosmology.H0
+    CosmoDict["ΩM"]  = Cosmology.ΩM
+    CosmoDict["ΩB"]  = Cosmology.ΩB
+    CosmoDict["ns"]  = Cosmology.ns
+    CosmoDict["σ8"]  = Cosmology.σ8
+    JSON3.write(Filename*"/cosmology.json", CosmoDict)
+end
+
 function WriteParameters!(CosmoDict::Dict, Filename::String)
     JSON3.write(Filename*"/parameters.json", CosmoDict)
 end
 
 function ReadCosmology(CosmoDict::Dict)
-    Cosmology = w0waCDMCosmology(
-    w0 = CosmoDict["w0"],
-    wa = CosmoDict["wa"],
-    Mν = CosmoDict["Mν"],
-    H0 = CosmoDict["H0"],
-    ΩM = CosmoDict["ΩM"],
-    ΩB = CosmoDict["ΩB"],
-    ΩDE = CosmoDict["ΩDE"],
-    Ωk = CosmoDict["Ωk"],
-    Ωr = CosmoDict["Ωr"],
-    ns = CosmoDict["ns"],
-    σ8 = CosmoDict["σ8"])
+    if "ΩDE" in keys(CosmoDict)
+        Cosmology = w0waCDMCosmology(
+        w0 = CosmoDict["w0"],
+        wa = CosmoDict["wa"],
+        Mν = CosmoDict["Mν"],
+        H0 = CosmoDict["H0"],
+        ΩM = CosmoDict["ΩM"],
+        ΩB = CosmoDict["ΩB"],
+        ΩDE = CosmoDict["ΩDE"],
+        Ωk = CosmoDict["Ωk"],
+        Ωr = CosmoDict["Ωr"],
+        ns = CosmoDict["ns"],
+        σ8 = CosmoDict["σ8"])
+    else
+        Cosmology = Flatw0waCDMCosmology(
+        w0 = CosmoDict["w0"],
+        wa = CosmoDict["wa"],
+        Mν = CosmoDict["Mν"],
+        H0 = CosmoDict["H0"],
+        ΩM = CosmoDict["ΩM"],
+        ΩB = CosmoDict["ΩB"],
+        ns = CosmoDict["ns"],
+        σ8 = CosmoDict["σ8"])
+    end
     return Cosmology
 end
 
 function ReadCosmologyForecast(CosmoDict::Dict, CosmoModel::String)
-    Cosmology = w0waCDMCosmology(
-    w0 = CosmoDict["w0"][1],
-    wa = CosmoDict["wa"][1],
-    Mν = CosmoDict["Mν"][1],
-    H0 = CosmoDict["H0"][1],
-    ΩM = CosmoDict["ΩM"][1],
-    ΩB = CosmoDict["ΩB"][1],
-    ΩDE = CosmoDict["ΩDE"][1],
-    Ωk = CosmoDict["Ωk"][1],
-    Ωr = CosmoDict["Ωr"][1],
-    ns = CosmoDict["ns"][1],
-    σ8 = CosmoDict["σ8"][1])
+    if "ΩDE" in keys(CosmoDict)
+        Cosmology = w0waCDMCosmology(
+        w0 = CosmoDict["w0"][1],
+        wa = CosmoDict["wa"][1],
+        Mν = CosmoDict["Mν"][1],
+        H0 = CosmoDict["H0"][1],
+        ΩM = CosmoDict["ΩM"][1],
+        ΩB = CosmoDict["ΩB"][1],
+        ΩDE = CosmoDict["ΩDE"][1],
+        Ωk = CosmoDict["Ωk"][1],
+        Ωr = CosmoDict["Ωr"][1],
+        ns = CosmoDict["ns"][1],
+        σ8 = CosmoDict["σ8"][1])
+    else
+        Cosmology = Flatw0waCDMCosmology(
+            w0 = CosmoDict["w0"][1],
+            wa = CosmoDict["wa"][1],
+            Mν = CosmoDict["Mν"][1],
+            H0 = CosmoDict["H0"][1],
+            ΩM = CosmoDict["ΩM"][1],
+            ΩB = CosmoDict["ΩB"][1],
+            ns = CosmoDict["ns"][1],
+            σ8 = CosmoDict["σ8"][1])
+    end
     return Cosmology
 end
 
 function ReadCosmology(CosmoDict::JSON3.Object)
-    Cosmology = w0waCDMCosmology(
-    w0 = CosmoDict["w0"],
-    wa = CosmoDict["wa"],
-    Mν = CosmoDict["Mν"],
-    H0 = CosmoDict["H0"],
-    ΩM = CosmoDict["ΩM"],
-    ΩB = CosmoDict["ΩB"],
-    ΩDE = CosmoDict["ΩDE"],
-    Ωk = CosmoDict["Ωk"],
-    Ωr = CosmoDict["Ωr"],
-    ns = CosmoDict["ns"],
-    σ8 = CosmoDict["σ8"])
+    if "ΩDE" in keys(CosmoDict)
+        Cosmology = w0waCDMCosmology(
+        w0 = CosmoDict["w0"],
+        wa = CosmoDict["wa"],
+        Mν = CosmoDict["Mν"],
+        H0 = CosmoDict["H0"],
+        ΩM = CosmoDict["ΩM"],
+        ΩB = CosmoDict["ΩB"],
+        ΩDE = CosmoDict["ΩDE"],
+        Ωk = CosmoDict["Ωk"],
+        Ωr = CosmoDict["Ωr"],
+        ns = CosmoDict["ns"],
+        σ8 = CosmoDict["σ8"])
+    else
+        Cosmology = Flatw0waCDMCosmology(
+        w0 = CosmoDict["w0"],
+        wa = CosmoDict["wa"],
+        Mν = CosmoDict["Mν"],
+        H0 = CosmoDict["H0"],
+        ΩM = CosmoDict["ΩM"],
+        ΩB = CosmoDict["ΩB"],
+        ns = CosmoDict["ns"],
+        σ8 = CosmoDict["σ8"])
+    end
     return Cosmology
 end
 
@@ -132,12 +186,18 @@ function ReadCℓ(Filename::String, Probes::String)
     return Cℓ(CℓArray = c_lij)
 end
 
+function Read∂Cℓ(Filename::String, Probe::String)
+    Filename *= ".h5"
+    file = HDF5.h5open(Filename, "r")
+    dc_lij = HDF5.read(file["dcls"][Probe]["dc_lij"])
+    return ∂Cℓ(∂CℓArray = dc_lij)
+end
+
 function Write∂Cℓ!(DerivativeArray::AbstractArray{Float64, 3},
     Filename::String, Probes::String)
     h5write(Filename*".h5", "dcls/"*Probes*"/dc_lij",
     DerivativeArray)
 end
-
 
 """
     WritePowerSpectrumBackground(PowerSpectrum::PowerSpectrum,
@@ -175,13 +235,13 @@ end
 
 """
     ReadPowerSpectrumBackground(Filename::String,
-    MultipolesArray::Vector{Float64})
+    ℓBinCenters::Vector{Float64})
 
 This function reads the Power Spectrum, the Background quantities and the
 Cosmological Grid from a HDF5 file.
 """
-function ReadPowerSpectrumBackground(Filename::String,
-    MultipolesArray::Vector{Float64})
+function ReadPowerSpectrumBackground(Filename::String, ℓBinCenters::Vector{Float64},
+    ℓBinWidths::Vector{Float64})
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
     nonlin_p_mm_k_z = HDF5.read(file["power_spectrum"]["nonlin_p_mm_k_z"])
@@ -193,16 +253,16 @@ function ReadPowerSpectrumBackground(Filename::String,
     BackgroundQuantitiesRead = BackgroundQuantities(HZArray = hubble_array,
     rZArray = comoving_distance_array)
     CosmologicalGridRead = CosmologicalGrid(ZArray = z_grid, KArray = k_grid,
-    MultipolesArray = MultipolesArray)
+    ℓBinCenters = ℓBinCenters, ℓBinWidths = ℓBinWidths)
     PowerSpectrumRead = PowerSpectrum(PowerSpectrumLinArray = lin_p_mm_k_z,
     PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGridRead.MultipolesArray),
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGridRead.ℓBinCenters),
     length(CosmologicalGridRead.ZArray)))
     return PowerSpectrumRead, BackgroundQuantitiesRead, CosmologicalGridRead
 end
 
 function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
-    MultipolesArray::Vector{Float64})
+    ℓBinCenters::Vector{Float64})
     c_0 = 2.99792458e5
     Filename *= ".h5"
     file = HDF5.h5open(Filename, "r")
@@ -216,10 +276,15 @@ function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
     dimensionless_hubble_array*67,
     rZArray = dimensionless_comoving_distance_array*c_0/67)
     CosmologicalGrid = CosmologicalGrid(ZArray = z_grid, KArray = k_grid,
-    MultipolesArray = MultipolesArray)
+    ℓBinCenters = ℓBinCenters)
     PowerSpectrum = PowerSpectrum(PowerSpectrumLinArray = lin_p_mm_k_z,
     PowerSpectrumNonlinArray = nonlin_p_mm_k_z,
-    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.MultipolesArray),
+    InterpolatedPowerSpectrum = zeros(length(CosmologicalGrid.ℓBinCenters),
     length(CosmologicalGrid.ZArray)))
     return PowerSpectrum, BackgroundQuantities, CosmologicalGrid
+end
+
+function WriteCosmologicalGrid!(Filename::String, cosmogrid::CosmologicalGrid)
+    h5write(Filename*".h5", "cosmologicalgrid/l_bin_centers", cosmogrid.ℓBinCenters)
+    h5write(Filename*".h5", "cosmologicalgrid/l_bin_widths", cosmogrid.ℓBinWidths)
 end

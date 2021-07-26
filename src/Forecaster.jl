@@ -97,7 +97,7 @@ function ForecastPowerSpectra!(Cosmologies::Dict, Path::String,
         PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
         length(CosmologicalGrid.ZArray)),
         InterpolatedPowerSpectrum = zeros(length(
-        CosmologicalGrid.MultipolesArray), length(CosmologicalGrid.ZArray)))
+        CosmologicalGrid.ℓBinCenters), length(CosmologicalGrid.ZArray)))
         EvaluatePowerSpectrum!(ClassyParams, CosmologicalGrid, powerspectrum)
         WritePowerSpectrumBackground(powerspectrum, backgroundquantities,
         CosmologicalGrid, Path*key*"/p_mm")
@@ -107,27 +107,27 @@ end
 
 function InstantiateComputeWeightFunctionGrid(
     ConvolvedDensity::AbstractConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmology, CosmologicalGrid::CosmologicalGrid,
+    Cosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     GCWeightFunction::GCWeightFunction)
     ComputeBiasGrid!(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
     ComputeWeightFunctionGrid!(GCWeightFunction, ConvolvedDensity,
-    CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+    CosmologicalGrid, BackgroundQuantities, Cosmology)
     return GCWeightFunction
 end
 
 function InstantiateComputeWeightFunctionGrid(
     ConvolvedDensity::AbstractConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmology,
+    Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
     LensingFunction::WLWeightFunction, PathInput::String)
     ComputeLensingEfficiencyGrid!(LensingFunction, ConvolvedDensity,
-    CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology, CustomLensingEfficiency())
+    CosmologicalGrid, BackgroundQuantities, Cosmology, CustomLensingEfficiency())
     ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, LensingFunction, ConvolvedDensity,
-    BackgroundQuantities, w0waCDMCosmology, PathInput)
+    BackgroundQuantities, Cosmology, PathInput)
     ComputeWeightFunctionGrid!(LensingFunction, ConvolvedDensity,
-    CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+    CosmologicalGrid, BackgroundQuantities, Cosmology)
     return LensingFunction
 end
 
@@ -286,14 +286,14 @@ end
 
 function InitializeProbes(DictInput::Dict,
     ConvolvedDensity::AbstractConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmology,
+    Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities)
     DictProbes = Dict()
     if DictInput["Lensing"]["present"]
         LensingFunction = InstantiateWL(DictInput::Dict)
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
-        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        Cosmology, CosmologicalGrid, BackgroundQuantities,
         LensingFunction, "../inputs/scaledmeanlum-E2Sa.txt")
         #TODO: remove the previous hardcoded line!
         push!(DictProbes, "Lensing" => LensingFunction)
@@ -302,7 +302,7 @@ function InitializeProbes(DictInput::Dict,
         GCWeightFunction = InstantiateGC(DictInput::Dict)
         GCWeightFunction =
         InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
-        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        Cosmology, CosmologicalGrid, BackgroundQuantities,
         GCWeightFunction)
         push!(DictProbes, "PhotometricGalaxy" => GCWeightFunction)
     end
@@ -310,7 +310,7 @@ function InitializeProbes(DictInput::Dict,
 end
 
 function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDensity,
-    w0waCDMCosmology::w0waCDMCosmology, IntrinsicAlignment::AbstractIntrinsicAlignment,
+    Cosmology::AbstractCosmology, IntrinsicAlignment::AbstractIntrinsicAlignment,
     Bias::AbstractBias, CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities, PathInput::String)
     DictProbes = Dict()
@@ -318,7 +318,7 @@ function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDe
         LensingFunction = InstantiateWL(DictInput::Dict)
         LensingFunction.IntrinsicAlignmentModel = IntrinsicAlignment
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
-        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities,
+        Cosmology, CosmologicalGrid, BackgroundQuantities,
         LensingFunction, PathInput)
         push!(DictProbes, "Lensing" => LensingFunction)
     end
@@ -326,7 +326,7 @@ function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDe
         GCWeightFunction = InstantiateGC(DictInput::Dict)
         GCWeightFunction.BiasKind = Bias
         GCWeightFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
-        w0waCDMCosmology, CosmologicalGrid, BackgroundQuantities, GCWeightFunction)
+        Cosmology, CosmologicalGrid, BackgroundQuantities, GCWeightFunction)
         push!(DictProbes, "PhotometricGalaxy" => GCWeightFunction)
     end
     return DictProbes
@@ -355,7 +355,7 @@ end
 
 function InitializeForecastCℓ(ProbesDict::Dict,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology,
+    Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum,
     PathOutput::String, key::String)
     ProbesArray = []
@@ -370,24 +370,26 @@ function InitializeForecastCℓ(ProbesDict::Dict,
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
                 cℓ = Cℓ(CℓArray = 
-                zeros(length(CosmologicalGrid.MultipolesArray),
+                zeros(length(CosmologicalGrid.ℓBinCenters),
                 length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
                 length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
                 ComputeCℓ!(cℓ,
                 ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
-                w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
+                Cosmology, CosmologicalGrid, PowerSpectrum,
                 CosmoCentral.CustomSimpson())
                 WriteCℓ!(key_A*"_"*key_B,
                 cℓ, PathOutput*key*"/cl")
-                WriteCosmology!(w0waCDMCosmology, PathOutput*key)
+                WriteCosmology!(Cosmology, PathOutput*key)
             end
         end
+        WriteWeightFunctions!(key_A, ProbesDict[key_A], PathOutput*key*"/cl")
     end
+    WriteCosmologicalGrid!(PathOutput*key*"/cl", CosmologicalGrid)
 end
 
 function InitializeForecastCℓ(ProbesDict::Dict,
     BackgroundQuantities::BackgroundQuantities,
-    w0waCDMCosmology::w0waCDMCosmology,
+    Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid, PowerSpectrum::PowerSpectrum,
     PathOutput::String, CosmoDict::Dict, key::String)
     ProbesArray = []
@@ -402,11 +404,11 @@ function InitializeForecastCℓ(ProbesDict::Dict,
             if key_B*"_"*key_A in CoefficientsArray
             else
                 push!(CoefficientsArray, key_A*"_"*key_B)
-                cℓ = Cℓ(CℓArray = zeros(length(CosmologicalGrid.MultipolesArray),
+                cℓ = Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters),
                 length(ProbesDict[key_A].WeightFunctionArray[:, 1]),
                 length(ProbesDict[key_B].WeightFunctionArray[:, 1])))
                 ComputeCℓ!(cℓ, ProbesDict[key_A], ProbesDict[key_B], BackgroundQuantities,
-                w0waCDMCosmology, CosmologicalGrid, PowerSpectrum,
+                Cosmology, CosmologicalGrid, PowerSpectrum,
                 CosmoCentral.CustomSimpson())
                 WriteCℓ!(key_A*"_"*key_B, cℓ, PathOutput*key*"/cl")
                 WriteParameters!(CosmoDict, PathOutput*key)
@@ -417,7 +419,7 @@ end
 
 function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict, 
     PathInputPmm::String, PathOutputCℓ::String, CosmologicalGrid::CosmologicalGrid,
-    PathConfigCℓ::String)
+    PathConfigCℓ::String, PathInputCℓ::String)
     ProbesDict = JSON.parsefile(PathConfigCℓ)
     analyticaldensity = AnalitycalDensity()
     NormalizeAnalitycalDensity!(analyticaldensity)
@@ -433,60 +435,62 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
     #over different dictionaries. maybe we can write some if in the dficitonaries to decide 
     #which expr return?
     for (key, value) in Cosmologies
-        w0waCDMCosmology = value[1]
+        Cosmology = value[1]
         IA = IntrinsicAlignment["dvar_central_step_0"][1]
         bias = Bias["dvar_central_step_0"][1]
         PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
         ReadPowerSpectrumBackground(PathInputPmm*key*"/p_mm",
-        CosmologicalGrid.MultipolesArray)
-        CosmologicalGrid.MultipolesArray[1,1]
-        DictProbes = InitializeProbes(ProbesDict, convolveddensity,
-        w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
-        "../inputs/scaledmeanlum-E2Sa.txt")
+        CosmologicalGrid.ℓBinCenters, CosmologicalGrid.ℓBinWidths)
+        ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+        CosmologicalGrid.ℓBinCenters[1,1] #TODO wtf represents this???
+        DictProbes = InitializeProbes(ProbesDict, convolveddensity, Cosmology, IA,
+        bias, CosmologicalGrid, BackgroundQuantities, PathInputCℓ)
         ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
-        InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
-        BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
-        InitializeForecastCℓ(DictProbes, BackgroundQuantities,
-        w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
+        InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid, BackgroundQuantities,
+        PowerSpectrum, CosmoCentral.BSplineCubic())
+        InitializeForecastCℓ(DictProbes, BackgroundQuantities, Cosmology,
+        CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
     end
 
     for (key, value) in IntrinsicAlignment
         if key != "dvar_central_step_0"
-            w0waCDMCosmology = Cosmologies["dvar_central_step_0"][1]
+            Cosmology = Cosmologies["dvar_central_step_0"][1]
             IA = value[1]
             bias = Bias["dvar_central_step_0"][1]
             PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
             ReadPowerSpectrumBackground(PathInputPmm*"dvar_central_step_0"*"/p_mm",
-            CosmologicalGrid.MultipolesArray)
-            CosmologicalGrid.MultipolesArray[1,1]
+            CosmologicalGrid.ℓBinCenters, CosmologicalGrid.ℓBinWidths)
+            ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+            CosmologicalGrid.ℓBinCenters[1,1]
             DictProbes = InitializeProbes(ProbesDict, convolveddensity,
-            w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
-            "../inputs/scaledmeanlum-E2Sa.txt")
+            Cosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
+            PathInputCℓ)
             ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
             InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
             BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
             InitializeForecastCℓ(DictProbes, BackgroundQuantities,
-            w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
+            Cosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
         end
     end
 
     for (key, value) in Bias
         if key != "dvar_central_step_0"
-            w0waCDMCosmology = Cosmologies["dvar_central_step_0"][1]
+            Cosmology = Cosmologies["dvar_central_step_0"][1]
             IA = IntrinsicAlignment["dvar_central_step_0"][1]
             bias = value[1]
             PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
             ReadPowerSpectrumBackground(PathInputPmm*"dvar_central_step_0"*"/p_mm",
-            CosmologicalGrid.MultipolesArray)
-            CosmologicalGrid.MultipolesArray[1,1]
+            CosmologicalGrid.ℓBinCenters, CosmologicalGrid.ℓBinWidths)
+            ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+            CosmologicalGrid.ℓBinCenters[1,1]
             DictProbes = InitializeProbes(ProbesDict, convolveddensity,
-            w0waCDMCosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
-            "../inputs/scaledmeanlum-E2Sa.txt")
+            Cosmology, IA, bias, CosmologicalGrid, BackgroundQuantities, 
+            PathInputCℓ)
             ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
             InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
             BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
             InitializeForecastCℓ(DictProbes, BackgroundQuantities,
-            w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
+            Cosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
         end
     end
 end
