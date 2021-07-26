@@ -28,55 +28,104 @@ function WriteCosmology!(Cosmology::w0waCDMCosmology, Filename::String)
     JSON3.write(Filename*"/cosmology.json", CosmoDict)
 end
 
+function WriteCosmology!(Cosmology::Flatw0waCDMCosmology, Filename::String)
+    CosmoDict = Dict{String,Float64}()
+    CosmoDict["w0"]  = Cosmology.w0
+    CosmoDict["wa"]  = Cosmology.wa
+    CosmoDict["Mν"]  = Cosmology.Mν
+    CosmoDict["H0"]  = Cosmology.H0
+    CosmoDict["ΩM"]  = Cosmology.ΩM
+    CosmoDict["ΩB"]  = Cosmology.ΩB
+    CosmoDict["ns"]  = Cosmology.ns
+    CosmoDict["σ8"]  = Cosmology.σ8
+    JSON3.write(Filename*"/cosmology.json", CosmoDict)
+end
+
 function WriteParameters!(CosmoDict::Dict, Filename::String)
     JSON3.write(Filename*"/parameters.json", CosmoDict)
 end
 
 function ReadCosmology(CosmoDict::Dict)
-    Cosmology = w0waCDMCosmology(
-    w0 = CosmoDict["w0"],
-    wa = CosmoDict["wa"],
-    Mν = CosmoDict["Mν"],
-    H0 = CosmoDict["H0"],
-    ΩM = CosmoDict["ΩM"],
-    ΩB = CosmoDict["ΩB"],
-    ΩDE = CosmoDict["ΩDE"],
-    Ωk = CosmoDict["Ωk"],
-    Ωr = CosmoDict["Ωr"],
-    ns = CosmoDict["ns"],
-    σ8 = CosmoDict["σ8"])
+    if "ΩDE" in keys(CosmoDict)
+        Cosmology = w0waCDMCosmology(
+        w0 = CosmoDict["w0"],
+        wa = CosmoDict["wa"],
+        Mν = CosmoDict["Mν"],
+        H0 = CosmoDict["H0"],
+        ΩM = CosmoDict["ΩM"],
+        ΩB = CosmoDict["ΩB"],
+        ΩDE = CosmoDict["ΩDE"],
+        Ωk = CosmoDict["Ωk"],
+        Ωr = CosmoDict["Ωr"],
+        ns = CosmoDict["ns"],
+        σ8 = CosmoDict["σ8"])
+    else
+        Cosmology = Flatw0waCDMCosmology(
+        w0 = CosmoDict["w0"],
+        wa = CosmoDict["wa"],
+        Mν = CosmoDict["Mν"],
+        H0 = CosmoDict["H0"],
+        ΩM = CosmoDict["ΩM"],
+        ΩB = CosmoDict["ΩB"],
+        ns = CosmoDict["ns"],
+        σ8 = CosmoDict["σ8"])
+    end
     return Cosmology
 end
 
 function ReadCosmologyForecast(CosmoDict::Dict, CosmoModel::String)
-    Cosmology = w0waCDMCosmology(
-    w0 = CosmoDict["w0"][1],
-    wa = CosmoDict["wa"][1],
-    Mν = CosmoDict["Mν"][1],
-    H0 = CosmoDict["H0"][1],
-    ΩM = CosmoDict["ΩM"][1],
-    ΩB = CosmoDict["ΩB"][1],
-    ΩDE = CosmoDict["ΩDE"][1],
-    Ωk = CosmoDict["Ωk"][1],
-    Ωr = CosmoDict["Ωr"][1],
-    ns = CosmoDict["ns"][1],
-    σ8 = CosmoDict["σ8"][1])
+    if "ΩDE" in keys(CosmoDict)
+        Cosmology = w0waCDMCosmology(
+        w0 = CosmoDict["w0"][1],
+        wa = CosmoDict["wa"][1],
+        Mν = CosmoDict["Mν"][1],
+        H0 = CosmoDict["H0"][1],
+        ΩM = CosmoDict["ΩM"][1],
+        ΩB = CosmoDict["ΩB"][1],
+        ΩDE = CosmoDict["ΩDE"][1],
+        Ωk = CosmoDict["Ωk"][1],
+        Ωr = CosmoDict["Ωr"][1],
+        ns = CosmoDict["ns"][1],
+        σ8 = CosmoDict["σ8"][1])
+    else
+        Cosmology = Flatw0waCDMCosmology(
+            w0 = CosmoDict["w0"][1],
+            wa = CosmoDict["wa"][1],
+            Mν = CosmoDict["Mν"][1],
+            H0 = CosmoDict["H0"][1],
+            ΩM = CosmoDict["ΩM"][1],
+            ΩB = CosmoDict["ΩB"][1],
+            ns = CosmoDict["ns"][1],
+            σ8 = CosmoDict["σ8"][1])
+    end
     return Cosmology
 end
 
 function ReadCosmology(CosmoDict::JSON3.Object)
-    Cosmology = w0waCDMCosmology(
-    w0 = CosmoDict["w0"],
-    wa = CosmoDict["wa"],
-    Mν = CosmoDict["Mν"],
-    H0 = CosmoDict["H0"],
-    ΩM = CosmoDict["ΩM"],
-    ΩB = CosmoDict["ΩB"],
-    ΩDE = CosmoDict["ΩDE"],
-    Ωk = CosmoDict["Ωk"],
-    Ωr = CosmoDict["Ωr"],
-    ns = CosmoDict["ns"],
-    σ8 = CosmoDict["σ8"])
+    if "ΩDE" in keys(CosmoDict)
+        Cosmology = w0waCDMCosmology(
+        w0 = CosmoDict["w0"],
+        wa = CosmoDict["wa"],
+        Mν = CosmoDict["Mν"],
+        H0 = CosmoDict["H0"],
+        ΩM = CosmoDict["ΩM"],
+        ΩB = CosmoDict["ΩB"],
+        ΩDE = CosmoDict["ΩDE"],
+        Ωk = CosmoDict["Ωk"],
+        Ωr = CosmoDict["Ωr"],
+        ns = CosmoDict["ns"],
+        σ8 = CosmoDict["σ8"])
+    else
+        Cosmology = Flatw0waCDMCosmology(
+        w0 = CosmoDict["w0"],
+        wa = CosmoDict["wa"],
+        Mν = CosmoDict["Mν"],
+        H0 = CosmoDict["H0"],
+        ΩM = CosmoDict["ΩM"],
+        ΩB = CosmoDict["ΩB"],
+        ns = CosmoDict["ns"],
+        σ8 = CosmoDict["σ8"])
+    end
     return Cosmology
 end
 
