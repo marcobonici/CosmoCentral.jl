@@ -1,17 +1,27 @@
 function EvaluateFisherMatrixElement!(fishermatrix::Fisherαβ, Cov::aₗₘCovariance,
     ∂Cℓα::∂Cℓ, ∂Cℓβ::∂Cℓ, cosmogrid::CosmologicalGrid, Parα::String, Parβ::String)
+    AMatrix = mymatmul(∂Cℓα.∂CℓArray,Cov.Covariance⁻¹)
+    BMatrix = mymatmul(∂Cℓβ.∂CℓArray,Cov.Covariance⁻¹)
+    Fisherℓ = mymatmul(AMatrix, BMatrix)
     fisherelement = 0
-    for ℓidx in 1:length(cosmogrid.ℓBinCenters)
-        for i in 1:length(∂Cℓα.∂CℓArray[1,:,1])
-            for j in 1:length(∂Cℓα.∂CℓArray[1,1,:])
-                for m in 1:length(∂Cℓβ.∂CℓArray[1,:,1])
-                    for n in 1:length(∂Cℓβ.∂CℓArray[1,1,:])
-                        fisherelement += ∂Cℓα.∂CℓArray[ℓidx, i, j] * Cov.Covariance⁻¹[ℓidx, j, m] *
-                        ∂Cℓβ.∂CℓArray[ℓidx, m, n] * Cov.Covariance⁻¹[ℓidx, n, i]
-                    end
+    @avx for ℓ in 1:size(Fisherℓ)[1]
+        for i in 1:size(Fisherℓ)[2]
+            fisherelement += Fisherℓ[ℓ, i, i]
+        end
+    end
+    return fisherelement
+end
+
+function mymatmul(A::Array{Float64, 3}, B::Array{Float64, 3})
+    C = zeros(size(A))
+    @avx for l in 1:length(A[:,1,1])
+        for i in 1:length(A[1,:,1])
+            for j in 1:length(B[1,1,:])
+                for k in 1:length(B[1,:,1])
+                    C[l,i,j] += A[l,i,k]*B[l,k,j]
                 end
             end
         end
     end
-    fishermatrix.FisherDict[Parα*"_"*Parβ] = fisherelement
+    return C
 end

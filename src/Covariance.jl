@@ -2,8 +2,8 @@ function InstantiateEvaluateCovariance(cℓ::AbstractCℓ, ConvDens::AbstractCon
     cosmogrid::CosmologicalGrid)
     Cov = aₗₘCovariance()
     Cov.Cℓ = cℓ
-    Cov.Noise      = similar(cℓ.CℓArray) .* 0.
-    Cov.Covariance = similar(cℓ.CℓArray) .* 0.
+    Cov.Noise      = zeros(size(cℓ.CℓArray))
+    Cov.Covariance = zeros(size(cℓ.CℓArray))
     EvaluateNoise!(Cov, ConvDens)
     EvaluateCovariance!(Cov, cosmogrid)
     InvertCovariance!(Cov)
