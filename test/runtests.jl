@@ -7,7 +7,7 @@ using Interpolations
 
 numpy = pyimport("numpy")
 
-w0waCDMCosmology = CosmoCentral.w0waCDMCosmology()
+w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 AnalitycalDensity = CosmoCentral.AnalitycalDensity()
 InstrumentResponse = CosmoCentral.InstrumentResponse()
 ConvolvedDensity = CosmoCentral.ConvolvedDensity()
