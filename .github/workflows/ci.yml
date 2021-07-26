@@ -4,12 +4,10 @@ on:
     branches:
       - main
       - develop
-      - refactor_flatw0wacdm
   push:
     branches:
       - main
       - develop
-      - refactor_flatw0wacdm
     tags: '*'
 jobs:
   test:
