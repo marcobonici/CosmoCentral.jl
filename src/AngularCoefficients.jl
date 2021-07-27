@@ -57,29 +57,35 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
                        #physical constants involved in calculations
     check = true
     while check == true
-        Integrand = similar(Cℓ.CℓArray) .*0
-        Simpson_weights = SimpsonWeightArray(length(CosmologicalGrid.ZArray))
-        @avx for i ∈ axes(Cℓ.CℓArray,2),
-            j ∈ axes(Cℓ.CℓArray,3),
-            l ∈ axes(Cℓ.CℓArray,1)
-            for z ∈ axes(CosmologicalGrid.ZArray,1)
-                Integrand[l,i,j] += c_0 *
-                WeightFunctionA.WeightFunctionArray[i, z] *
-                WeightFunctionB.WeightFunctionArray[j, z] /
-                (BackgroundQuantities.HZArray[z] * BackgroundQuantities.rZArray[z]^2) *
-                PowerSpectrum.InterpolatedPowerSpectrum[l,z] * Simpson_weights[z]
-            end
-        end
-        Integrand .*= (last(CosmologicalGrid.ZArray)-
-        first(CosmologicalGrid.ZArray))/(length(CosmologicalGrid.ZArray)-1)
-        Cℓ.CℓArray = Integrand
-        if any(isnan,Integrand)
+        SimpsonWeights = SimpsonWeightArray(length(CosmologicalGrid.ZArray))
+        Cℓ.CℓArray = CustomCℓIntegrator!(SimpsonWeights, Cℓ.CℓArray,
+        WeightFunctionA.WeightFunctionArray , WeightFunctionB.WeightFunctionArray,
+        CosmologicalGrid.ZArray, BackgroundQuantities.HZArray, BackgroundQuantities.rZArray,
+        PowerSpectrum.InterpolatedPowerSpectrum)
+        if any(isnan,Cℓ.CℓArray)
             
         else
             check = false
         end
     end
 end
+
+function CustomCℓIntegrator!(SimpsonWeights::Array{Float64}, CℓArray::Array{Float64, 3},
+    WArrayA::Array{Float64, 2}, WArrayB::Array{Float64, 2}, ZArray::Array{Float64},
+    HZArray::Array{Float64}, rZArray::Array{Float64}, InterpolatedPmm::Array{Float64, 2})
+    c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
+                       #physical constants involved in calculations
+    @avx for i ∈ axes(CℓArray,2),
+        j ∈ axes(CℓArray,3),
+        l ∈ axes(CℓArray,1)
+        for z ∈ axes(ZArray,1)
+            CℓArray[l,i,j] += c_0 * WArrayA[i, z] * WArrayB[j, z] /
+            (HZArray[z] * rZArray[z]^2) * InterpolatedPmm[l,z] * SimpsonWeights[z]
+        end
+    end
+    CℓArray .*= (last(ZArray)-first(ZArray)) / (length(ZArray)-1)
+end
+    
 
 function  ComputeCℓ!(Cℓ::AbstractCℓ, TransferFunctionA::AbstractTransferFunction,
     TransferFunctionB::AbstractTransferFunction, ::AbstractCosmology,
