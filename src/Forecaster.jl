@@ -494,3 +494,43 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
         end
     end
 end
+
+function ExtractVariedParameters(InputList::Vector{Dict{String, Vector{Any}}})
+    OutputList = []
+    for myDict in InputList
+        for (key, value) in myDict
+            if value[2] == "present"
+                push!(OutputList, key)
+            end
+        end
+    end
+    return OutputList
+end
+
+function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
+    Fisher = Fisherαβ()
+    VariedParameters = ExtractVariedParameters(InputList)
+    AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = CosmoCentral.InstrumentResponse()
+    ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+    CosmologicalGrid)
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse)
+    ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
+
+    Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
+    #TODO now only LL, but this need definitely to be more flexible
+    Cov = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid)
+    for Parα in VariedParameters
+        ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
+        for Parβ in VariedParameters
+            ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, "Lensing_Lensing")
+            EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
+        end
+    end
+    return Fisher
+end
