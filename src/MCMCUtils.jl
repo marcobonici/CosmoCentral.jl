@@ -36,5 +36,7 @@ function EvaluateCℓMCMCStep(Cosmology::AbstractCosmology, Density::AbstractCon
     length(WLW.WeightFunctionArray[:, 1])))
     ComputeCℓ!(CℓLL, WLW, WLW, backgroundquantities, Cosmology,
     CosmoGrid, Pmm, CustomSimpson())
+    FudgeFactor = 0.9919859719438879
+    CℓLL.CℓArray ./= FudgeFactor
     return CℓLL
 end

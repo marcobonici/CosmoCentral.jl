@@ -58,9 +58,11 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
     check = true
     while check == true
         SimpsonWeights = SimpsonWeightArray(length(CosmologicalGrid.ZArray))
+        ZStep = (last(CosmologicalGrid.ZArray)-first(CosmologicalGrid.ZArray)) /
+        (length(CosmologicalGrid.ZArray)-1)
         Cℓ.CℓArray = CustomCℓIntegrator!(SimpsonWeights, Cℓ.CℓArray,
-        WeightFunctionA.WeightFunctionArray , WeightFunctionB.WeightFunctionArray,
-        CosmologicalGrid.ZArray, BackgroundQuantities.HZArray, BackgroundQuantities.rZArray,
+        WeightFunctionA.WeightFunctionArray, WeightFunctionB.WeightFunctionArray,
+        ZStep, BackgroundQuantities.HZArray, BackgroundQuantities.rZArray,
         PowerSpectrum.InterpolatedPowerSpectrum)
         if any(isnan,Cℓ.CℓArray)
             
@@ -71,19 +73,19 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
 end
 
 function CustomCℓIntegrator!(SimpsonWeights::Array{Float64}, CℓArray::Array{Float64, 3},
-    WArrayA::Array{Float64, 2}, WArrayB::Array{Float64, 2}, ZArray::Array{Float64},
+    WArrayA::Array{Float64, 2}, WArrayB::Array{Float64, 2}, ZStep::Float64,
     HZArray::Array{Float64}, rZArray::Array{Float64}, InterpolatedPmm::Array{Float64, 2})
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     @avx for i ∈ axes(CℓArray,2),
         j ∈ axes(CℓArray,3),
         l ∈ axes(CℓArray,1)
-        for z ∈ axes(ZArray,1)
+        for z ∈ axes(rZArray,1)
             CℓArray[l,i,j] += c_0 * WArrayA[i, z] * WArrayB[j, z] /
             (HZArray[z] * rZArray[z]^2) * InterpolatedPmm[l,z] * SimpsonWeights[z]
         end
     end
-    CℓArray .*= (last(ZArray)-first(ZArray)) / (length(ZArray)-1)
+    CℓArray .*= ZStep
 end
     
 
