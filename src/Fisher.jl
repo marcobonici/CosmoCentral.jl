@@ -30,3 +30,30 @@ function SumℓAndTrace(Fisherℓ::Array{Float64, 3})
     end
     return fisherelement
 end
+
+function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::CℓCovariance,
+    ∂Cℓα::∂Cℓ, ∂Cℓβ::∂Cℓ, Parα::String, Parβ::String)
+    ℓnumber = length(∂Cℓα.∂CℓArray[:,1,1])
+    inumber = length(∂Cℓα.∂CℓArray[1,:,1])
+    L = EliminationMatrix(inumber)
+
+    vecp∂CℓαᵀCov⁻¹ = zeros(1,floor(Int,inumber*0.5*(inumber+1)))
+    Fisherℓ = zeros(ℓnumber,1,1)
+    fisherelement = 0
+    for ℓ in 1:ℓnumber
+        vec∂Cℓα = vec(∂Cℓα.∂CℓArray[ℓ,:,:])
+        vecp∂Cℓα = zeros(floor(Int,inumber*0.5*(inumber+1)))
+        LinearAlgebra.mul!(vecp∂Cℓα, L, vec∂Cℓα)
+        
+        vec∂Cℓβ = vec(∂Cℓβ.∂CℓArray[ℓ,:,:])
+        vecp∂Cℓβ = zeros(floor(Int,inumber*0.5*(inumber+1)))
+        LinearAlgebra.mul!(vecp∂Cℓβ, L, vec∂Cℓβ)
+
+        Covariance⁻¹ = Cov.Covariance⁻¹[ℓ,:,:]
+        LinearAlgebra.mul!(vecp∂CℓαᵀCov⁻¹, transpose(vecp∂Cℓα), Covariance⁻¹)
+        fisher_temp = zeros(1,1)
+        LinearAlgebra.mul!(fisher_temp, vecp∂CℓαᵀCov⁻¹, vecp∂Cℓβ)
+        fisherelement += fisher_temp[1,1]
+    end
+    FisherMatrix.FisherDict[Parα*"_"*Parβ] = fisherelement
+end

@@ -38,7 +38,7 @@ function EvaluateCovariance!(Cov::aₗₘCovariance, cosmogrid::CosmologicalGrid
     end
 end
 
-function InvertCovariance!(Cov::aₗₘCovariance)
+function InvertCovariance!(Cov::AbstractCovariance)
     for ℓidx in 1:length(Cov.Covariance[:,1,1])
         Cov.Covariance⁻¹[ℓidx,:,:] = inv(Cov.Covariance[ℓidx,:,:])
     end
@@ -46,17 +46,24 @@ end
 
 function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
     Cov = CℓCovariance()
-    ℓnumber = length(Covaₗₘ.Cℓ[1,:,:])
-    inumber = length(Covaₗₘ.Cℓ[:,1,:])
+    ℓnumber = length(Covaₗₘ.Cℓ.CℓArray[:,1,1])
+    inumber = length(Covaₗₘ.Cℓ.CℓArray[1,1,:])
     D = DuplicationMatrix(inumber)
     Dᵀ = Transpose(D)
-    DᵀkronCovaₗₘ = zeros(floor(Int,n*0.5*(n+1)),n*n)
+    kronCovaₗₘ = zeros(inumber^2,inumber^2)
+    DᵀkronCovaₗₘ = zeros( floor(Int,inumber*0.5*(inumber+1)),inumber^2)
     Cov.Covariance = zeros(ℓnumber, floor(Int,inumber*0.5*(inumber+1)),
+    floor(Int,inumber*0.5*(inumber+1)))
+    Cov.Covariance = zeros(size(Cov.Covariance))
+    Cov.Covariance⁻¹ = zeros(size(Cov.Covariance))
+    TempCov = zeros(floor(Int,inumber*0.5*(inumber+1)),
     floor(Int,inumber*0.5*(inumber+1)))
     for ℓ in 1:ℓnumber
         kronCovaₗₘ = kron(Covaₗₘ.Covariance[ℓ,:,:], Covaₗₘ.Covariance[ℓ,:,:])
         LinearAlgebra.mul!(DᵀkronCovaₗₘ, Dᵀ, kronCovaₗₘ)
-        LinearAlgebra.mul!(DᵀkronEBDCov.Covariance[ℓnumber,:,:], DᵀkronCovaₗₘ, D)
+        LinearAlgebra.mul!(TempCov, DᵀkronCovaₗₘ, D)
+        Cov.Covariance[ℓ,:,:] = TempCov
+        Cov.Covariance⁻¹[ℓ,:,:] = inv(Cov.Covariance[ℓ,:,:])
     end
     return Cov
 end

@@ -522,7 +522,7 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
 
     Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
-    #TODO now only LL, but this need definitely to be more flexible
+    #TODO now only LL, but this need to be more flexible...maybe list with probes?
     Cov = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
     "Lensing")
     for Parα in VariedParameters
@@ -530,6 +530,38 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
         for Parβ in VariedParameters
             ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, "Lensing_Lensing")
             EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
+        end
+    end
+    return Fisher
+end
+
+function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid,
+    ciccio::String)
+    Fisher = Fisherαβ()
+    VariedParameters = ExtractVariedParameters(InputList)
+    AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = CosmoCentral.InstrumentResponse()
+    ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+    CosmologicalGrid)
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse)
+    ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
+
+    Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
+    #TODO now only LL, but this need to be more flexible...maybe list with probes?
+    Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
+    "Lensing")
+    CovCℓ = InstantiateEvaluateCovariance(Covaₗₘ)
+    
+    for Parα in VariedParameters
+        ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
+        for Parβ in VariedParameters
+            ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, "Lensing_Lensing")
+            EvaluateFisherMatrixElement!(Fisher, CovCℓ, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
         end
     end
     return Fisher
