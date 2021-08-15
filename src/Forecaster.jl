@@ -121,11 +121,11 @@ function InstantiateComputeWeightFunctionGrid(
     Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    LensingFunction::WLWeightFunction, PathInput::String)
+    LensingFunction::WLWeightFunction)
     ComputeLensingEfficiencyGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, Cosmology, CustomLensingEfficiency())
     ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, LensingFunction, ConvolvedDensity,
-    BackgroundQuantities, Cosmology, PathInput)
+    BackgroundQuantities, Cosmology)
     ComputeWeightFunctionGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, Cosmology)
     return LensingFunction
@@ -294,8 +294,7 @@ function InitializeProbes(DictInput::Dict,
         LensingFunction = InstantiateWL(DictInput::Dict)
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         Cosmology, CosmologicalGrid, BackgroundQuantities,
-        LensingFunction, "../inputs/scaledmeanlum-E2Sa.txt")
-        #TODO: remove the previous hardcoded line!
+        LensingFunction)
         push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]
@@ -319,7 +318,7 @@ function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDe
         LensingFunction.IntrinsicAlignmentModel = IntrinsicAlignment
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         Cosmology, CosmologicalGrid, BackgroundQuantities,
-        LensingFunction, PathInput)
+        LensingFunction)
         push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]
@@ -524,7 +523,8 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
 
     Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
     #TODO now only LL, but this need definitely to be more flexible
-    Cov = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid)
+    Cov = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
+    "Lensing")
     for Parα in VariedParameters
         ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
         for Parβ in VariedParameters

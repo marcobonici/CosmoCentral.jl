@@ -1,24 +1,32 @@
 function InstantiateEvaluateCovariance(cℓ::AbstractCℓ, ConvDens::AbstractConvolvedDensity,
-    cosmogrid::CosmologicalGrid)
+    cosmogrid::CosmologicalGrid, ProbeA::String, ProbeB::String)
     Cov = aₗₘCovariance()
     Cov.Cℓ = cℓ
     Cov.Noise      = zeros(size(cℓ.CℓArray))
     Cov.Covariance = zeros(size(cℓ.CℓArray))
-    EvaluateNoise!(Cov, ConvDens)
+    EvaluateNoise!(Cov, ConvDens, ProbeA::String, ProbeB::String)
     EvaluateCovariance!(Cov, cosmogrid)
     InvertCovariance!(Cov)
     return Cov
 end
 
-function EvaluateNoise!(Cov::aₗₘCovariance, ConvDens::AbstractConvolvedDensity)
-    for lidx in 1:length(Cov.Cℓ.CℓArray[:,1,1])
-        for iidx in 1:length(Cov.Cℓ.CℓArray[1,:,1])
-            Cov.Noise[lidx, iidx, iidx] = 0.3^2 ./ 
-            (ConvDens.SurfaceDensityArray[iidx]*3437.746771^2)
+function EvaluateNoise!(Cov::aₗₘCovariance, ConvDens::AbstractConvolvedDensity,
+    ProbeA::String, ProbeB::String)
+    if ProbeA == ProbeB
+        if ProbeA =="Lensing"
+            probe_factor = 0.3
+        else
+            probe_factor = 1.0
+        end
+        for lidx in 1:length(Cov.Cℓ.CℓArray[:,1,1])
+            for iidx in 1:length(Cov.Cℓ.CℓArray[1,:,1])
+                Cov.Noise[lidx, iidx, iidx] = probe_factor^2 ./ 
+                (ConvDens.SurfaceDensityArray[iidx]*3437.746771^2)
+                #TODO: the multiplication here is to convert from square degrees to
+                #steradians. This should be done better...
+            end
         end
     end
-    #TODO: the multiplication here is to convert from square degrees to steradians. This
-    #should be done better...
 end
 
 function EvaluateCovariance!(Cov::aₗₘCovariance, cosmogrid::CosmologicalGrid)
@@ -34,4 +42,21 @@ function InvertCovariance!(Cov::aₗₘCovariance)
     for ℓidx in 1:length(Cov.Covariance[:,1,1])
         Cov.Covariance⁻¹[ℓidx,:,:] = inv(Cov.Covariance[ℓidx,:,:])
     end
+end
+
+function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
+    Cov = CℓCovariance()
+    ℓnumber = length(Covaₗₘ.Cℓ[1,:,:])
+    inumber = length(Covaₗₘ.Cℓ[:,1,:])
+    D = DuplicationMatrix(inumber)
+    Dᵀ = Transpose(D)
+    DᵀkronCovaₗₘ = zeros(floor(Int,n*0.5*(n+1)),n*n)
+    Cov.Covariance = zeros(ℓnumber, floor(Int,inumber*0.5*(inumber+1)),
+    floor(Int,inumber*0.5*(inumber+1)))
+    for ℓ in 1:ℓnumber
+        kronCovaₗₘ = kron(Covaₗₘ.Covariance[ℓ,:,:], Covaₗₘ.Covariance[ℓ,:,:])
+        LinearAlgebra.mul!(DᵀkronCovaₗₘ, Dᵀ, kronCovaₗₘ)
+        LinearAlgebra.mul!(DᵀkronEBDCov.Covariance[ℓnumber,:,:], DᵀkronCovaₗₘ, D)
+    end
+    return Cov
 end

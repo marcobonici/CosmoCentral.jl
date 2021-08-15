@@ -27,8 +27,7 @@ function EvaluateCℓMCMCStep(Cosmology::AbstractCosmology, Density::AbstractCon
     ComputeLensingEfficiencyGrid!(WLW, Density, CosmoGrid,
     backgroundquantities, Cosmology, CustomLensingEfficiency())
     ComputeIntrinsicAlignmentGrid!(CosmoGrid, WLW, Density,
-    backgroundquantities, Cosmology, "../inputs/scaledmeanlum-E2Sa.txt")
-    #TODO pay attention at this path!
+    backgroundquantities, Cosmology)
     ComputeWeightFunctionGrid!(WLW, Density, CosmoGrid, backgroundquantities,
     Cosmology)
     CℓLL = Cℓ(CℓArray = zeros(length(CosmoGrid.ℓBinCenters),
