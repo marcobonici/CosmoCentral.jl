@@ -51,7 +51,7 @@ function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
     D = DuplicationMatrix(inumber)
     Dᵀ = Transpose(D)
     kronCovaₗₘ = zeros(inumber^2,inumber^2)
-    DᵀkronCovaₗₘ = zeros( floor(Int,inumber*0.5*(inumber+1)),inumber^2)
+    DᵀkronCovaₗₘ = zeros(floor(Int,inumber*0.5*(inumber+1)),inumber^2)
     Cov.Covariance = zeros(ℓnumber, floor(Int,inumber*0.5*(inumber+1)),
     floor(Int,inumber*0.5*(inumber+1)))
     Cov.Covariance = zeros(size(Cov.Covariance))
@@ -59,11 +59,11 @@ function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
     TempCov = zeros(floor(Int,inumber*0.5*(inumber+1)),
     floor(Int,inumber*0.5*(inumber+1)))
     for ℓ in 1:ℓnumber
-        kronCovaₗₘ = kron(Covaₗₘ.Covariance[ℓ,:,:], Covaₗₘ.Covariance[ℓ,:,:])
+        kronCovaₗₘ = kron(Covaₗₘ.Covariance⁻¹[ℓ,:,:], Covaₗₘ.Covariance⁻¹[ℓ,:,:])
         LinearAlgebra.mul!(DᵀkronCovaₗₘ, Dᵀ, kronCovaₗₘ)
         LinearAlgebra.mul!(TempCov, DᵀkronCovaₗₘ, D)
-        Cov.Covariance[ℓ,:,:] = TempCov
-        Cov.Covariance⁻¹[ℓ,:,:] = inv(Cov.Covariance[ℓ,:,:])
+        Cov.Covariance⁻¹[ℓ,:,:] = TempCov
+        Cov.Covariance[ℓ,:,:] = inv(Cov.Covariance⁻¹[ℓ,:,:])
     end
     return Cov
 end

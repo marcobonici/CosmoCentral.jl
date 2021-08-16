@@ -38,7 +38,7 @@ function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::CℓCovaria
     L = EliminationMatrix(inumber)
 
     vecp∂CℓαᵀCov⁻¹ = zeros(1,floor(Int,inumber*0.5*(inumber+1)))
-    Fisherℓ = zeros(ℓnumber,1,1)
+    fisher_temp = zeros(1,1)
     fisherelement = 0
     for ℓ in 1:ℓnumber
         vec∂Cℓα = vec(∂Cℓα.∂CℓArray[ℓ,:,:])
@@ -51,7 +51,6 @@ function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::CℓCovaria
 
         Covariance⁻¹ = Cov.Covariance⁻¹[ℓ,:,:]
         LinearAlgebra.mul!(vecp∂CℓαᵀCov⁻¹, transpose(vecp∂Cℓα), Covariance⁻¹)
-        fisher_temp = zeros(1,1)
         LinearAlgebra.mul!(fisher_temp, vecp∂CℓαᵀCov⁻¹, vecp∂Cℓβ)
         fisherelement += fisher_temp[1,1]
     end
