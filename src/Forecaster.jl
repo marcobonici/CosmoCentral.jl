@@ -121,11 +121,11 @@ function InstantiateComputeWeightFunctionGrid(
     Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    LensingFunction::WLWeightFunction, PathInput::String)
+    LensingFunction::WLWeightFunction)
     ComputeLensingEfficiencyGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, Cosmology, CustomLensingEfficiency())
     ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, LensingFunction, ConvolvedDensity,
-    BackgroundQuantities, Cosmology, PathInput)
+    BackgroundQuantities, Cosmology)
     ComputeWeightFunctionGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, Cosmology)
     return LensingFunction
@@ -294,8 +294,7 @@ function InitializeProbes(DictInput::Dict,
         LensingFunction = InstantiateWL(DictInput::Dict)
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         Cosmology, CosmologicalGrid, BackgroundQuantities,
-        LensingFunction, "../inputs/scaledmeanlum-E2Sa.txt")
-        #TODO: remove the previous hardcoded line!
+        LensingFunction)
         push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]
@@ -319,7 +318,7 @@ function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDe
         LensingFunction.IntrinsicAlignmentModel = IntrinsicAlignment
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         Cosmology, CosmologicalGrid, BackgroundQuantities,
-        LensingFunction, PathInput)
+        LensingFunction)
         push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]
@@ -492,5 +491,104 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
             InitializeForecastCℓ(DictProbes, BackgroundQuantities,
             Cosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
         end
+    end
+end
+
+function ExtractVariedParameters(InputList::Vector{Dict{String, Vector{Any}}})
+    OutputList = []
+    for myDict in InputList
+        for (key, value) in myDict
+            if value[2] == "present"
+                push!(OutputList, key)
+            end
+        end
+    end
+    return OutputList
+end
+
+function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
+    Fisher = Fisherαβ()
+    VariedParameters = ExtractVariedParameters(InputList)
+    Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.ParametersList = VariedParameters
+    Fisher.SelectedParametersList = VariedParameters
+    AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = CosmoCentral.InstrumentResponse()
+    ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+    CosmologicalGrid)
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse)
+    ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
+
+    Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
+    #TODO now only LL, but this need to be more flexible...maybe list with probes?
+    Cov = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
+    "Lensing")
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, Cov)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
+    return Fisher
+end
+
+function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid,
+    ciccio::String)
+    Fisher = Fisherαβ()
+    VariedParameters = ExtractVariedParameters(InputList)
+    Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.ParametersList = VariedParameters
+    Fisher.SelectedParametersList = VariedParameters
+    #here we instantiate the density again to evaluate the noise. Maybe it could be better
+    #if we evaluated the density once for all, we passed it to Cℓ evaluator and then to
+    #Fisher, in order to be more safe.
+    AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = CosmoCentral.InstrumentResponse()
+    ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+    CosmologicalGrid)
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse)
+    ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
+
+    Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
+    #TODO now only LL, but this need to be more flexible...maybe list with probes?
+    Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
+    "Lensing")
+    CovCℓ = InstantiateEvaluateCovariance(Covaₗₘ)
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, CovCℓ)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
+    return Fisher
+end
+
+function EvaluateFisherMatrix!(VariedParameters::Vector{Any}, Fisher::AbstractFisher,
+    Path∂Cℓ::String, Cov::AbstractCovariance)
+    for (indexα, Parα) in enumerate(VariedParameters)
+        ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
+        for (indexβ, Parβ) in enumerate(VariedParameters)
+            ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, "Lensing_Lensing")
+            EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
+            Fisher.FisherMatrix[indexα, indexβ] = Fisher.FisherDict[Parα*"_"*Parβ]
+        end
+    end
+end
+
+function SelectMatrixAndMarginalize!(VariedParameters::Vector{Any}, Fisher::AbstractFisher)
+    for (idx, Par) in enumerate(reverse(VariedParameters))
+        reverse_index = length(VariedParameters)-idx+1
+        if Fisher.FisherMatrix[reverse_index, reverse_index] == 0
+            Fisher.FisherMatrix = Fisher.FisherMatrix[1:end .!= reverse_index,
+            1:end .!= reverse_index]
+            Fisher.SelectedParametersList =
+            Fisher.SelectedParametersList[1:end .!= reverse_index]
+        end
+    end
+    Fisher.CorrelationMatrix = inv(Fisher.FisherMatrix)
+    for (idxα, Parα) in enumerate(Fisher.SelectedParametersList)
+        Fisher.MarginalizedErrors[Parα] = sqrt(Fisher.CorrelationMatrix[idxα, idxα])
     end
 end

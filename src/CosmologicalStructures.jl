@@ -308,18 +308,34 @@ This struct contains the array with the Fisher Matrix.
 """
 @kwdef mutable struct Fisherαβ <: AbstractFisher
     FisherMatrix::AbstractArray{Float64, 2} = zeros(8,8)
+    CorrelationMatrix::AbstractArray{Float64, 2} = zeros(8,8)
     FisherDict::Dict = Dict()
+    ParametersList::Vector{Any} = []
+    SelectedParametersList::Vector{Any} = []
+    MarginalizedErrors::Dict = Dict()
 end    
 
 """
     aₗₘCovariance()
 
-This struct contains the array with the Angular Coefficients.
+This struct contains the Covariance in the field perspective, i.e. when the observables are
+    the .
 """
 @kwdef mutable struct aₗₘCovariance  <: AbstractCovariance
     Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
     Cℓ::AbstractCℓ = Cℓ()
     Noise::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+    Covariance⁻¹::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
+end
+
+"""
+    CₗCovariance()
+
+This struct contains the Covariance in the estimator perspective, i.e. when the observables
+    are the ``C_{\\ell}``.
+"""
+@kwdef mutable struct CℓCovariance  <: AbstractCovariance
+    Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
     Covariance⁻¹::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
 end
 

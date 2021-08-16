@@ -47,5 +47,6 @@ include("TransferFunctions.jl")
 include("IntrinsicAlignment.jl")
 include("Covariance.jl")
 include("Fisher.jl")
+include("MCMCUtils.jl")
 
 end # module
