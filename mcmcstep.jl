@@ -5,6 +5,7 @@ using CosmoCentral
 w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 using Distributed
 using Dates
+using ClusterManagers
 
 n_process = 10
 #add  n_processes on the long queue
