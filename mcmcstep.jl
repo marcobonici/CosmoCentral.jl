@@ -2,7 +2,6 @@
 using Turing
 
 using CosmoCentral
-w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 using Distributed
 using Dates
 using ClusterManagers
@@ -18,6 +17,8 @@ end
 
 @everywhere using Turing
 @everywhere using CosmoCentral
+@everywhere w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
+println("Loaded central cosmology")
 
 # Define a model on all processes.
 @everywhere @model function gdemo(CℓData, Cov, ConvolvedDensity, EuclidBias, EuclidIA,
