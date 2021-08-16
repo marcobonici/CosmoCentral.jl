@@ -510,6 +510,9 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
     Fisher = Fisherαβ()
     VariedParameters = ExtractVariedParameters(InputList)
+    Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.ParametersList = VariedParameters
+    Fisher.SelectedParametersList = VariedParameters
     AnalitycalDensity = CosmoCentral.AnalitycalDensity()
     NormalizeAnalitycalDensity!(AnalitycalDensity)
     InstrumentResponse = CosmoCentral.InstrumentResponse()
@@ -525,13 +528,8 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     #TODO now only LL, but this need to be more flexible...maybe list with probes?
     Cov = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
     "Lensing")
-    for Parα in VariedParameters
-        ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
-        for Parβ in VariedParameters
-            ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, "Lensing_Lensing")
-            EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
-        end
-    end
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, Cov)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
     return Fisher
 end
 
@@ -540,6 +538,12 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     ciccio::String)
     Fisher = Fisherαβ()
     VariedParameters = ExtractVariedParameters(InputList)
+    Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.ParametersList = VariedParameters
+    Fisher.SelectedParametersList = VariedParameters
+    #here we instantiate the density again to evaluate the noise. Maybe it could be better
+    #if we evaluated the density once for all, we passed it to Cℓ evaluator and then to
+    #Fisher, in order to be more safe.
     AnalitycalDensity = CosmoCentral.AnalitycalDensity()
     NormalizeAnalitycalDensity!(AnalitycalDensity)
     InstrumentResponse = CosmoCentral.InstrumentResponse()
@@ -556,13 +560,35 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
     "Lensing")
     CovCℓ = InstantiateEvaluateCovariance(Covaₗₘ)
-    
-    for Parα in VariedParameters
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, CovCℓ)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
+    return Fisher
+end
+
+function EvaluateFisherMatrix!(VariedParameters::Vector{Any}, Fisher::AbstractFisher,
+    Path∂Cℓ::String, Cov::AbstractCovariance)
+    for (indexα, Parα) in enumerate(VariedParameters)
         ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
-        for Parβ in VariedParameters
+        for (indexβ, Parβ) in enumerate(VariedParameters)
             ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, "Lensing_Lensing")
-            EvaluateFisherMatrixElement!(Fisher, CovCℓ, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
+            EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
+            Fisher.FisherMatrix[indexα, indexβ] = Fisher.FisherDict[Parα*"_"*Parβ]
         end
     end
-    return Fisher
+end
+
+function SelectMatrixAndMarginalize!(VariedParameters::Vector{Any}, Fisher::AbstractFisher)
+    for (idx, Par) in enumerate(reverse(VariedParameters))
+        reverse_index = length(VariedParameters)-idx+1
+        if Fisher.FisherMatrix[reverse_index, reverse_index] == 0
+            Fisher.FisherMatrix = Fisher.FisherMatrix[1:end .!= reverse_index,
+            1:end .!= reverse_index]
+            Fisher.SelectedParametersList =
+            Fisher.SelectedParametersList[1:end .!= reverse_index]
+        end
+    end
+    Fisher.CorrelationMatrix = inv(Fisher.FisherMatrix)
+    for (idxα, Parα) in enumerate(Fisher.SelectedParametersList)
+        Fisher.MarginalizedErrors[Parα] = sqrt(Fisher.CorrelationMatrix[idxα, idxα])
+    end
 end
