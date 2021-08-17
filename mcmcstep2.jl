@@ -9,9 +9,11 @@ println("Loaded central cosmology")
 @model function gdemo(vecpCℓData, Cov, ConvolvedDensity, EuclidBias, EuclidIA,
     CosmologicalGrid)
     w₀ ~ Uniform(-1.5, -0.5)
+    wₐ ~ Uniform(-0.5, 0.5)
 
     Cosmology = CosmoCentral.Flatw0waCDMCosmology()
     w0waCDMCosmology.w0 = w₀
+    w0waCDMCosmology.wa = wₐ
     CℓMCMC = CosmoCentral.EvaluateCℓMCMCStep(w0waCDMCosmology, ConvolvedDensity, EuclidBias,
     EuclidIA, CosmologicalGrid)
 
