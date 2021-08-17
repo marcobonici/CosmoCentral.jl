@@ -6,7 +6,7 @@ using CosmoCentral
 w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 println("Loaded central cosmology")
 
-@model function gdemo(CℓData, Cov, ConvolvedDensity, EuclidBias, EuclidIA,
+@model function gdemo(vecpCℓData, Cov, ConvolvedDensity, EuclidBias, EuclidIA,
     CosmologicalGrid)
     w₀ ~ Uniform(-1.5, -0.5)
 
@@ -15,22 +15,17 @@ println("Loaded central cosmology")
     CℓMCMC = CosmoCentral.EvaluateCℓMCMCStep(w0waCDMCosmology, ConvolvedDensity, EuclidBias,
     EuclidIA, CosmologicalGrid)
 
-    ℓnumber = length(CℓData.CℓArray[:,1,1])
-    inumber = length(CℓData.CℓArray[1,:,1])
+    ℓnumber = length(CℓMCMC.CℓArray[:,1,1])
+    inumber = length(CℓMCMC.CℓArray[1,:,1])
     L = CosmoCentral.EliminationMatrix(inumber)
 
-    vecpCℓData = zeros(1,floor(Int,inumber*0.5*(inumber+1)))
     vecpCℓMCMC = zeros(1,floor(Int,inumber*0.5*(inumber+1)))
     for ℓ in 1:ℓnumber
-        vecCℓData = vec(CℓData.CℓArray[ℓ,:,:])
-        vecpCℓData = zeros(floor(Int,inumber*0.5*(inumber+1)))
-        LinearAlgebra.mul!(vecpCℓData, L, vecCℓData)
-
         vecCℓMCMC = vec(CℓMCMC.CℓArray[ℓ,:,:])
         vecpCℓMCMC = zeros(floor(Int,inumber*0.5*(inumber+1)))
         LinearAlgebra.mul!(vecpCℓMCMC, L, vecCℓMCMC)
 
-        vecpCℓMCMC ~ MvNormal(vecpCℓData, Cov.Covariance[ℓ,:,:])
+        vecpCℓData[ℓ,:] ~ MvNormal(vecpCℓMCMC, Cov.Covariance[ℓ,:,:])
     end
 end
 MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
@@ -63,15 +58,24 @@ EuclidIA, CosmologicalGrid)
 Covaₗₘ = CosmoCentral.InstantiateEvaluateCovariance(CℓData, ConvolvedDensity, CosmologicalGrid, "Lensing",
 "Lensing")
 CovCℓ = CosmoCentral.InstantiateEvaluateCovariance(Covaₗₘ)
+inumber = 10
+L = CosmoCentral.EliminationMatrix(inumber)
+vecpCℓData = zeros(100,floor(Int,inumber*0.5*(inumber+1)))
 for ℓ in 1:length(CℓData.CℓArray[:,1,1])
+    vecCℓData = vec(CℓData.CℓArray[ℓ,:,:])
+    vecpCℓDataT = zeros(floor(Int,inumber*0.5*(inumber+1)))
+    LinearAlgebra.mul!(vecpCℓDataT, L, vecCℓData)
+    vecpCℓData[ℓ,:] = vecpCℓDataT
     Matrix = (CovCℓ.Covariance[ℓ,:,:] .+ transpose(CovCℓ.Covariance[ℓ,:,:])) ./2
     CovCℓ.Covariance[ℓ,:,:] = Matrix
 end
 println(size(CovCℓ.Covariance[1,:,:]))
 
 
-model = gdemo(CℓData, CovCℓ, ConvolvedDensity, EuclidBias, EuclidIA,
+
+
+model = gdemo(vecpCℓData, CovCℓ, ConvolvedDensity, EuclidBias, EuclidIA,
 CosmologicalGrid)
 
-chains = sample(model, MH(), 600; save_state = true)
+chains = sample(model, MH(), 100; save_state = true)
 write("first_chain-file.jls", chains)
