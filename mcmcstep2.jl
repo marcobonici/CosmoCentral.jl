@@ -10,10 +10,14 @@ println("Loaded central cosmology")
     CosmologicalGrid)
     w₀ ~ Uniform(-1.5, -0.5)
     wₐ ~ Uniform(-0.5, 0.5)
+    ΩM ~ Uniform(0.2, 0.4)
+    ns ~ Uniform(0.8, 1.1)
 
-    Cosmology = CosmoCentral.Flatw0waCDMCosmology()
+    w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
     w0waCDMCosmology.w0 = w₀
     w0waCDMCosmology.wa = wₐ
+    w0waCDMCosmology.ΩM = ΩM
+    w0waCDMCosmology.ns = ns
     CℓMCMC = CosmoCentral.EvaluateCℓMCMCStep(w0waCDMCosmology, ConvolvedDensity, EuclidBias,
     EuclidIA, CosmologicalGrid)
 
@@ -79,5 +83,5 @@ println(size(CovCℓ.Covariance[1,:,:]))
 model = gdemo(vecpCℓData, CovCℓ, ConvolvedDensity, EuclidBias, EuclidIA,
 CosmologicalGrid)
 
-chains = sample(model, MH(), 100; save_state = true)
+chains = sample(model, MH(), 300; save_state = true)
 write("first_chain-file.jls", chains)
