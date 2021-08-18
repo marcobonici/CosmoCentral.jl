@@ -1,24 +1,21 @@
 # Load Turing and MCMCChains.
 using Turing
-
 using CosmoCentral
 using Distributed
 using Dates
 using ClusterManagers
+using PyCall
+using LinearAlgebra
 
-n_process = 10
+n_process = 6
 #add  n_processes on the long queue
 for i in 1:n_process
     time = string(Dates.now())
-    ClusterManagers.addprocs_lsf(1; bsub_flags = `-q long -o Turing/outfiles/$time.out -e Turing/outfiles/$time.err -n 2 `)
+    ClusterManagers.addprocs_lsf(1; bsub_flags = `-q long -o Turing/outfiles/$time.out -e Turing/outfiles/$time.err -M 3000 -m g2farm7.ge.infn.it`)
 end
 
-@everywhere ENV["PYTHON"] = Sys.which("python")
-using Pkg
-@everywhere using Pkg
-@everywhere Pkg.build("PyCall")
-using PyCall
-@everywhere using PyCall
+@everywhere using Distributed, Turing, LinearAlgebra, PyCall
+@everywhere using CosmoCentral
 
 @everywhere w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 println("Loaded central cosmology")
@@ -101,5 +98,5 @@ println(size(CovCℓ.Covariance[1,:,:]))
 @everywhere model = gdemo(vecpCℓData, CovCℓ, ConvolvedDensity, EuclidBias, EuclidIA,
 CosmologicalGrid)
 
-chains = sample(model, MH(), MCMCDistributed(), 300, n_process; save_state = true)
+chains = sample(model, MH(), MCMCDistributed(), 10, n_process; save_state = true)
 write("first_chain-file.jls", chains)
