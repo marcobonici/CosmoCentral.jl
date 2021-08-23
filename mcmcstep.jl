@@ -4,17 +4,17 @@ using CosmoCentral
 using Distributed
 using Dates
 using ClusterManagers
-using PyCall
 using LinearAlgebra
 
-n_process = 6
+n_process = 100
+n_step = 400
 #add  n_processes on the long queue
 for i in 1:n_process
     time = string(Dates.now())
-    ClusterManagers.addprocs_lsf(1; bsub_flags = `-q long -o Turing/outfiles/$time.out -e Turing/outfiles/$time.err -M 3000 -m g2farm7.ge.infn.it`)
+    ClusterManagers.addprocs_lsf(1; bsub_flags = `-q long -o Turing/outfiles/$time.out -e Turing/outfiles/$time.err -M 3000 -R 'hname!=teo26.ge.infn.it && hname!=teo25.ge.infn.it && hname!=teo27.ge.infn.it && hname!=teo28.ge.infn.it && hname!=g2farm7.ge.infn.it && hname!=totem04.ge.infn.it && hname!=totem07.ge.infn.it && hname!=totem08.ge.infn.it &&  hname!=g2farm8.ge.infn.it && hname!=teo22.ge.infn.it && hname!=teo24.ge.infn.it && hname!=teo28.ge.infn.it'`)
 end
 
-@everywhere using Distributed, Turing, LinearAlgebra, PyCall
+@everywhere using Distributed, Turing, LinearAlgebra
 @everywhere using CosmoCentral
 
 @everywhere w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
@@ -22,15 +22,13 @@ println("Loaded central cosmology")
 
 @everywhere @model function gdemo(vecpCℓData, Cov, ConvolvedDensity, EuclidBias, EuclidIA,
     CosmologicalGrid)
-    w₀ ~ Uniform(-1.5, -0.5)
-    wₐ ~ Uniform(-0.5, 0.5)
-    ΩM ~ Uniform(0.2, 0.4)
-    ns ~ Uniform(0.8, 1.1)
+    w₀ ~ Uniform(-1.32, -0.72)
+    wₐ ~ Uniform(-0.68, 0.72)
+    ns ~ Uniform(0.92, 1.0)
 
     w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
     w0waCDMCosmology.w0 = w₀
     w0waCDMCosmology.wa = wₐ
-    w0waCDMCosmology.ΩM = ΩM
     w0waCDMCosmology.ns = ns
     CℓMCMC = CosmoCentral.EvaluateCℓMCMCStep(w0waCDMCosmology, ConvolvedDensity, EuclidBias,
     EuclidIA, CosmologicalGrid)
@@ -49,9 +47,9 @@ println("Loaded central cosmology")
     end
 end
 
+
 @everywhere MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
 @everywhere MultipolesArray = zeros(100)
-#MultipolesWidths = vcat(CosmoCentral.Difference(MultipolesArrayTemp), ones(2000))
 @everywhere MultipolesWidths = CosmoCentral.Difference(MultipolesArrayTemp)
 @everywhere for i in 1:100
     MultipolesArray[i] = (MultipolesArrayTemp[i+1]+MultipolesArrayTemp[i])/2
@@ -95,8 +93,9 @@ println(size(CovCℓ.Covariance[1,:,:]))
 
 
 
+
 @everywhere model = gdemo(vecpCℓData, CovCℓ, ConvolvedDensity, EuclidBias, EuclidIA,
 CosmologicalGrid)
 
-chains = sample(model, MH(), MCMCDistributed(), 10, n_process; save_state = true)
-write("first_chain-file.jls", chains)
+chains = sample(model, MH(), MCMCDistributed(), n_step, n_process; save_state = true)
+write("chain_one.jls", chains)
