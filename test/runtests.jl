@@ -251,7 +251,7 @@ end
     DictCosmo = Dict{String,Array{Any,1}}()
     DictCosmo["w0"]  = [-1.,   "present"]
     DictCosmo["wa"]  = [0.,    "present"]
-    DictCosmo["Mν"]  = [0.06,  "false"]
+    DictCosmo["Mν"]  = [0.06,  "present"]
     DictCosmo["H0"]  = [67.,   "present"]
     DictCosmo["ΩM"]  = [0.32,  "present"]
     DictCosmo["ΩB"]  = [0.05,  "present"]
@@ -290,5 +290,6 @@ end
     Path∂Cℓ = pwd()*"/test_forecast/Derivative"
     InputList = [DictCosmo, DictIA, DictBias]
     Fisher = CosmoCentral.ForecastFisherαβ(PathCentralCℓ, Path∂Cℓ, InputList, CosmologicalGrid)
+    @test isapprox(Fisher.FisherDict["wa_wa"], 595.7541745729502, rtol=1e-9)
     @test isapprox(Fisher.MarginalizedErrors["wa"], 0.5000874887241124, rtol=1e-9)
 end
