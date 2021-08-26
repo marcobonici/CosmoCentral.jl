@@ -245,6 +245,9 @@ end
 end
 
 @testset "Test Fisher Forecast" begin
+    run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`)
+    run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`)
+    run(`tar xvf forecast_pmm.tar.xz`)
     DictCosmo = Dict{String,Array{Any,1}}()
     DictCosmo["w0"]  = [-1.,   "present"]
     DictCosmo["wa"]  = [0.,    "present"]
