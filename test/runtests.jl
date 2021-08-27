@@ -289,11 +289,19 @@ end
     PathCentralCℓ = pwd()*"/test_forecast/Angular/dvar_central_step_0/cl"
     Path∂Cℓ = pwd()*"/test_forecast/Derivative"
     InputList = [DictCosmo, DictIA, DictBias]
-    Fisher = CosmoCentral.ForecastFisherαβ(PathCentralCℓ, Path∂Cℓ, InputList, CosmologicalGrid)
+    Fisheraₗₘ = CosmoCentral.ForecastFisherαβ(PathCentralCℓ, Path∂Cℓ, InputList,
+    CosmologicalGrid)
+    FisherCℓ = CosmoCentral.ForecastFisherαβ(PathCentralCℓ, Path∂Cℓ, InputList,
+    CosmologicalGrid, "test")
     CheckFisher = CosmoCentral.ReadFisher("CheckFisher", "Lensing_Lensing")
     CosmoCentral.SelectMatrixAndMarginalize!(CheckFisher.ParametersList, CheckFisher)
-    @test isapprox(CheckFisher.FisherMatrix, Fisher.FisherMatrix, rtol=1e-6)
-    for key in Fisher.SelectedParametersList
-        @test isapprox(CheckFisher.MarginalizedErrors[key], Fisher.MarginalizedErrors[key], rtol=1e-6)
+    @test isapprox(CheckFisher.FisherMatrix, Fisheraₗₘ.FisherMatrix, rtol=1e-6)
+    @test isapprox(CheckFisher.FisherMatrix, FisherCℓ.FisherMatrix, rtol=1e-6)
+    for key in Fisheraₗₘ.SelectedParametersList
+        @test isapprox(CheckFisher.MarginalizedErrors[key],
+        Fisheraₗₘ.MarginalizedErrors[key], rtol=1e-6)
+        @test isapprox(CheckFisher.MarginalizedErrors[key],
+        FisherCℓ.MarginalizedErrors[key], rtol=1e-6)
     end
 end
+aₗₘ
