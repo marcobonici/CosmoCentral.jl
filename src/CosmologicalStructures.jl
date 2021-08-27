@@ -310,8 +310,8 @@ This struct contains the array with the Fisher Matrix.
     FisherMatrix::AbstractArray{Float64, 2} = zeros(8,8)
     CorrelationMatrix::AbstractArray{Float64, 2} = zeros(8,8)
     FisherDict::Dict = Dict()
-    ParametersList::Vector{Any} = []
-    SelectedParametersList::Vector{Any} = []
+    ParametersList::Vector{String} = []
+    SelectedParametersList::Vector{String} = []
     MarginalizedErrors::Dict = Dict()
 end    
 

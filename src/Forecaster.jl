@@ -565,7 +565,7 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     return Fisher
 end
 
-function EvaluateFisherMatrix!(VariedParameters::Vector{Any}, Fisher::AbstractFisher,
+function EvaluateFisherMatrix!(VariedParameters::Vector{}, Fisher::AbstractFisher,
     Path∂Cℓ::String, Cov::AbstractCovariance)
     for (indexα, Parα) in enumerate(VariedParameters)
         ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
@@ -577,7 +577,7 @@ function EvaluateFisherMatrix!(VariedParameters::Vector{Any}, Fisher::AbstractFi
     end
 end
 
-function SelectMatrixAndMarginalize!(VariedParameters::Vector{Any}, Fisher::AbstractFisher)
+function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::AbstractFisher)
     for (idx, Par) in enumerate(reverse(VariedParameters))
         reverse_index = length(VariedParameters)-idx+1
         if Fisher.FisherMatrix[reverse_index, reverse_index] == 0

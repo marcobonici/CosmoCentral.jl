@@ -244,10 +244,10 @@ end
     @test isapprox(CℓReloaded.CℓArray, Cℓ.CℓArray, rtol=1e-9)
 end
 
-@testset "Test Fisher Forecast" begin
-    run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`)
-    run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`)
-    run(`tar xvf forecast_pmm.tar.xz`)
+@testset "Test Fisher Forecast: Integration Test" begin
+    run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`);
+    run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`);
+    run(`tar xvf forecast_pmm.tar.xz`);
     DictCosmo = Dict{String,Array{Any,1}}()
     DictCosmo["w0"]  = [-1.,   "present"]
     DictCosmo["wa"]  = [0.,    "present"]
@@ -290,5 +290,10 @@ end
     Path∂Cℓ = pwd()*"/test_forecast/Derivative"
     InputList = [DictCosmo, DictIA, DictBias]
     Fisher = CosmoCentral.ForecastFisherαβ(PathCentralCℓ, Path∂Cℓ, InputList, CosmologicalGrid)
-    @test isapprox(Fisher.FisherDict["wa_wa"], 595.7541745729502, rtol=1e-6)
+    CheckFisher = CosmoCentral.ReadFisher("CheckFisher", "Lensing_Lensing")
+    CosmoCentral.SelectMatrixAndMarginalize!(CheckFisher.ParametersList, CheckFisher)
+    @test isapprox(CheckFisher.FisherMatrix, Fisher.FisherMatrix, rtol=1e-6)
+    for key in Fisher.SelectedParametersList
+        @test isapprox(CheckFisher.MarginalizedErrors[key], Fisher.MarginalizedErrors[key], rtol=1e-6)
+    end
 end
