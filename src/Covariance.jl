@@ -62,8 +62,11 @@ function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
         kronCovaₗₘ = kron(Covaₗₘ.Covariance⁻¹[ℓ,:,:], Covaₗₘ.Covariance⁻¹[ℓ,:,:])
         LinearAlgebra.mul!(DᵀkronCovaₗₘ, Dᵀ, kronCovaₗₘ)
         LinearAlgebra.mul!(TempCov, DᵀkronCovaₗₘ, D)
-        Cov.Covariance⁻¹[ℓ,:,:] = TempCov
+        Cov.Covariance⁻¹[ℓ,:,:] = TempCov 
         Cov.Covariance[ℓ,:,:] = inv(Cov.Covariance⁻¹[ℓ,:,:])
+        Matrix = (Cov.Covariance[ℓ,:,:] .+ transpose(Cov.Covariance[ℓ,:,:])) ./2
+        Cov.Covariance[ℓ,:,:] = Matrix
+        Cov.Covariance⁻¹[ℓ,:,:] = inv(Cov.Covariance[ℓ,:,:])
     end
     return Cov
 end
