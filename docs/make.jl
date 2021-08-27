@@ -3,7 +3,7 @@ using CosmoCentral
 using Plots
 using PlotThemes
 
-
+ENV["GKSwstype"] = "100"
 
 push!(LOAD_PATH,"../src/")
 
