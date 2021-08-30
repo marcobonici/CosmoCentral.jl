@@ -8,4 +8,5 @@ CosmoCentral.LogSpaced
 CosmoCentral.BinSearch
 CosmoCentral.CustomRegression
 CosmoCentral.CWindow
+CosmoCentral.DuplicationMatrix
 ```

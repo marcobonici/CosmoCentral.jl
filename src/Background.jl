@@ -48,12 +48,12 @@ function ComputeHubbleFactor(z::Float64, AbstractCosmology::AbstractCosmology)
 end
 
 """
-    ComputeComovingDistance(z::Float64, AbstractCosmology::AbstractCosmology)
+    Computeχ(z::Float64, AbstractCosmology::AbstractCosmology)
 
 This function, given the value of the cosmological parameters, evaluate the
-Comoving Distance. It is evaluated as:
+Comoving Distance χ. It is evaluated as:
 ```math
-r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dz'}{E(z')}
+\\chi(z)=\\frac{c}{H_0}\\int_0^z \\frac{dz'}{E(z')}
 ```
 """
 function Computeχ(z::Float64,

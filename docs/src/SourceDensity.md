@@ -20,7 +20,7 @@ CosmoCentral.NormalizeAnalitycalDensity!
 
 ## Convolved Source Density
 
-In real surveys we do not deal with the exactr distributions due to errors in
+In real surveys we do not deal with the exact distributions due to errors in
 the measurement of the source redshifts. The redshift errors are accounted for
 convolving the source density with a redshift measurement error.
 

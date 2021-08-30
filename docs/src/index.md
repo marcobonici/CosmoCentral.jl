@@ -6,19 +6,20 @@ it can evaluate:
 - Background quantities for ``w_0 w_a``CDM cosmologies
 - Source densities, with an analitycal in input
 - Angular Correlation functions, ``C_{ℓ}``'s, for Galaxy Clustering and Weak Lensing using the Limber approximation
-- Derivatives of ``C_{ℓ}``'s with respect to Cosmological Parameters
+- Derivatives of ``C_{ℓ}``'s with respect to Cosmological Parameters 
+- Fisher Matrices and Marginalized errors
 
 We aim to include also:
-- Include other effects to the probes considered
+- Include other effects to the probes considered (e.g. magnification bias, redshift space distortions etc.)
 - Angular Correlation functions, for other probes
-- Evaluation of Angular Correlation functions beyond Limber approximation
-- Fisher Matrix evaluation
+- Evaluation of ``C_{ℓ}``'s beyond Limber approximation
+- Plot of Fisher Matrix 2D contours
 
 
 
 ### Authors
 
-- Marco Bonici, Dipartimento di Fisica, Università degli Studi di Genova (UniGe)
+- Marco Bonici, INAF - Institute of Space Astrophysics and Cosmic Physics (IASF), Milano
 
 
 ## Usage
@@ -32,7 +33,7 @@ w0waCDMCosmology = CosmoCentral.w0waCDMCosmology()
 z = 1.
 CosmoCentral.ComputeAdimensionalHubbleFactor(z, w0waCDMCosmology)
 CosmoCentral.ComputeHubbleFactor(z, w0waCDMCosmology)
-CosmoCentral.ComputeComovingDistance(z, w0waCDMCosmology)
+CosmoCentral.Computeχ(z, w0waCDMCosmology)
 ```
 
 ## Contributing

@@ -318,8 +318,8 @@ end
 """
     aₗₘCovariance()
 
-This struct contains the Covariance in the field perspective, i.e. when the observables are
-    the .
+This struct contains the Covariance in the field perspective, i.e. when the observables are the 
+``a_{\\ell m}``'s.
 """
 @kwdef mutable struct aₗₘCovariance  <: AbstractCovariance
     Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
@@ -329,10 +329,10 @@ This struct contains the Covariance in the field perspective, i.e. when the obse
 end
 
 """
-    CₗCovariance()
+    CℓCovariance()
 
 This struct contains the Covariance in the estimator perspective, i.e. when the observables
-    are the ``C_{\\ell}``.
+are the ``C_{\\ell}``'s.
 """
 @kwdef mutable struct CℓCovariance  <: AbstractCovariance
     Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
