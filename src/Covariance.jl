@@ -1,3 +1,19 @@
+"""
+    InstantiateEvaluateCovariance(cℓ::AbstractCℓ, ConvDens::AbstractConvolvedDensity,
+    cosmogrid::CosmologicalGrid, ProbeA::String, ProbeB::String)
+
+This function evaluates and returns the [`aₗₘCovariance`](@ref), according to the following
+formula:
+```math
+\\Sigma_{i j}^{\\mathrm{AB}}(\\ell)=\\sqrt{\\frac{2}{(2 \\ell+1) \\Delta \\ell
+f_{\\mathrm{sky}}}}\\left(C_{i j}^{\\mathrm{AB}}(\\ell)+N_{i j}^{\\mathrm{AB}}(\\ell)
+\\right),
+```
+where ``\\mathrm{A}`` and ``\\mathrm{B}`` are the probes, ``\\mathrm{i}`` and
+``\\mathrm{j}`` are the tomographic bins, ``\\ell`` and ``\\Delta\\ell`` are respectively the
+central value and width of the considered multipole bin, ``f_{\\mathrm{sky}}`` is the sky
+fraction covered by the field considered, ``N_{i j}^{\\mathrm{AB}}`` is the noise matrix.
+"""
 function InstantiateEvaluateCovariance(cℓ::AbstractCℓ, ConvDens::AbstractConvolvedDensity,
     cosmogrid::CosmologicalGrid, ProbeA::String, ProbeB::String)
     Cov = aₗₘCovariance()
@@ -44,6 +60,19 @@ function InvertCovariance!(Cov::AbstractCovariance)
     end
 end
 
+"""
+    InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
+
+This function evaluates and returns the [`CℓCovariance`](@ref), using the following formula:
+
+
+
+```math
+\\boldsymbol{\\Xi}(\\ell)= \\left(\\boldsymbol{D}_{n}^{T}\\left( \\left(\\boldsymbol{\\Sigma}(\\ell)\\right)^{-1} \\otimes
+\\left(\\boldsymbol{\\Sigma}(\\ell)\\right)^{-1}\\right) \\boldsymbol{D}_{n}\\right)^{-1}
+```
+where ``\\boldsymbol{D}_{n}`` is the [`DuplicationMatrix`](@ref).
+"""
 function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
     Cov = CℓCovariance()
     ℓnumber = length(Covaₗₘ.Cℓ.CℓArray[:,1,1])

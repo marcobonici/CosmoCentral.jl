@@ -88,27 +88,19 @@ end
 
 
 """
-    ComputeLensingEfficiencyGrid!(
-        LensingFunction::WLWeightFunction,
-        AnalitycalDensity::AnalitycalDensity,
-        InstrumentResponse::InstrumentResponse,
-        ConvolvedDensity::AbstractConvolvedDensity,
-        CosmologicalGrid::CosmologicalGrid,
-        BackgroundQuantities::BackgroundQuantities,
-        Cosmology::AbstractCosmology,
-        ::StandardLensingEfficiency)
+    ComputeLensingEfficiencyGrid!(LensingFunction::WLWeightFunction,
+    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse,
+    ConvolvedDensity::AbstractConvolvedDensity, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities, Cosmology::AbstractCosmology,
+    ::StandardLensingEfficiency)
 
 This function evaluates the Lensing Efficiency over the ``z``
 grid and for all tomographic bins ``i``.
 """
-function ComputeLensingEfficiencyGrid!(
-    LensingFunction::WLWeightFunction,
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse,
-    ConvolvedDensity::AbstractConvolvedDensity,
-    CosmologicalGrid::CosmologicalGrid,
-    BackgroundQuantities::BackgroundQuantities,
-    Cosmology::AbstractCosmology,
+function ComputeLensingEfficiencyGrid!(LensingFunction::WLWeightFunction,
+    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse,
+    ConvolvedDensity::AbstractConvolvedDensity, CosmologicalGrid::CosmologicalGrid,
+    BackgroundQuantities::BackgroundQuantities, Cosmology::AbstractCosmology,
     ::StandardLensingEfficiency)
     for idx_ZBinArray in 1:length(ConvolvedDensity.ZBinArray)-1
         for idx_ZArray in 1:length(CosmologicalGrid.ZArray)

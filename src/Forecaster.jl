@@ -506,6 +506,22 @@ function ExtractVariedParameters(InputList::Vector{Dict{String, Vector{Any}}})
     return OutputList
 end
 
+"""
+    ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
+
+This function evaluate the Fisher Matrix according to the following formula:
+```math
+F_{\\alpha \\beta}=\\sum_{\\ell=\\ell_{\\min }}^{\\ell_{\\max }} \\operatorname{Tr}\\left
+\\{[\\boldsymbol{\\Sigma}(\\ell)]^{-1} \\frac{\\partial \\mathbf{C}(\\ell)}{\\partial 
+\\alpha}[\\boldsymbol{\\Sigma}(\\ell)]^{-1} \\frac{\\partial \\mathbf{C}(\\ell)}{\\partial
+\\beta}\\right\\},
+```
+where ``\\alpha`` and ``\\beta`` are parameters of the Fisher Matrix, ``\\ell`` are the
+multipoles, ``\\Sigma`` is the Covariance Matrix of the  Field Approach and
+``\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}`` is the Matrix of the derivatives
+of the ``C_\\ell`` wrt parameter ``\\alpha``.
+"""
 function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
     Fisher = Fisherαβ()
@@ -533,6 +549,24 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     return Fisher
 end
 
+
+"""
+    ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid,
+    ciccio::String)
+
+This function evaluate the Fisher Matrix according to the following formula:
+```math
+F_{\\alpha \\beta}=\\sum_{\\ell=\\ell_{\\min }}^{\\ell_{\\max }} \\operatorname{vecp}
+\\left(\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}\\right)^{T}
+\\left(\\boldsymbol{\\Xi}(\\ell)\\right)^{-1} \\operatorname{vecp}\\left(\\frac{\\partial
+\\mathbf{C}(\\ell)} {\\partial \\beta}\\right),
+```
+where ``\\alpha`` and ``\\beta`` are parameters of the Fisher Matrix, ``\\ell`` are the
+multipoles, ``\\Xi`` is the Covariance Matrix of the  Field Approach
+[`CℓCovariance`](@ref) and ``\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}``
+is the Matrix of the derivatives of the ``C_\\ell`` wrt parameter ``\\alpha``.
+"""
 function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid,
     ciccio::String)
