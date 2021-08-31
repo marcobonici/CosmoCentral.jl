@@ -15,7 +15,7 @@ CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
 ZArray=Array(LinRange(0.001, 4.0, 500)))
 BackgroundQuantities = CosmoCentral.BackgroundQuantities(HZArray=
 zeros(length(CosmologicalGrid.ZArray)),
-rZArray=zeros(length(CosmologicalGrid.ZArray)))
+χZArray=zeros(length(CosmologicalGrid.ZArray)))
 GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray =
 zeros(length(ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
@@ -52,7 +52,7 @@ CosmoCentral.classy.Class()
     end
     CosmoCentral.ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
     BackgroundQuantities, w0waCDMCosmology)
-    @test test_r_array ==BackgroundQuantities.rZArray
+    @test test_r_array ==BackgroundQuantities.χZArray
     @test test_H_array ==BackgroundQuantities.HZArray
 end
 
@@ -184,7 +184,7 @@ end
     CosmoCentral.ComputeLimberArray!(CosmologicalGrid,
     BackgroundQuantitiesLoaded)
     test_k_limber = (CosmologicalGrid.ℓBinCenters[1]+0.5) /
-    BackgroundQuantitiesLoaded.rZArray[1]
+    BackgroundQuantitiesLoaded.χZArray[1]
     @test test_k_limber == CosmologicalGrid.KLimberArray[1, 1]
     test_Omega_cdm = w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
     w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2)
@@ -213,8 +213,8 @@ end
     NewPowerSpectrum.PowerSpectrumLinArray, rtol=1e-6)
     @test isapprox(BackgroundQuantitiesLoaded.HZArray,
     NewBackgroundQuantitiesLoaded.HZArray, rtol=1e-6)
-    @test isapprox(BackgroundQuantitiesLoaded.rZArray,
-    NewBackgroundQuantitiesLoaded.rZArray, rtol=1e-6)
+    @test isapprox(BackgroundQuantitiesLoaded.χZArray,
+    NewBackgroundQuantitiesLoaded.χZArray, rtol=1e-6)
     PowerSpectrumDierckx, BackgroundQuantitiesLoaded, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, ℓBinCenters, Array(ones(2990)))
     CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
