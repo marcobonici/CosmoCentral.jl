@@ -79,15 +79,15 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
 end
 
 """
-    BackgroundQuantities(HZArray::Vector{Float64},
-    rZArray::Vector{Float64})
+    BackgroundQuantities(HZArray::Vector{Float64}, χZArray::Vector{Float64}),
+    DZArray::Vector{Float64}
 
 This struct contains the arrays with the values of the Hubble parameter ``H(z)``
-and the comoving distance ``r(z)``.
+and the comoving distance ``\\chi(z)``.
 """
 @kwdef mutable struct BackgroundQuantities <: AbstractBackgroundQuantities
     HZArray::Vector{Float64} = zeros(500)
-    rZArray::Vector{Float64} = zeros(500)
+    χZArray::Vector{Float64} = zeros(500)
     DZArray::Vector{Float64} = zeros(500)
 end
 

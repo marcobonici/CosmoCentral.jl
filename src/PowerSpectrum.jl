@@ -12,7 +12,7 @@ function ComputeLimberArray!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities)
     for (idx_l, myl) in enumerate(CosmologicalGrid.ℓBinCenters)
         CosmologicalGrid.KLimberArray[idx_l, :] =  (myl + 0.5) ./
-        BackgroundQuantities.rZArray
+        BackgroundQuantities.χZArray
     end
 end
 
@@ -64,7 +64,7 @@ function InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid::CosmologicalGrid,
     y = LinRange(first(CosmologicalGrid.ZArray), last(CosmologicalGrid.ZArray),
     length(CosmologicalGrid.ZArray))
     InterpPmm = Interpolations.interpolate(
-    log10.(PowerSpectrum.PowerSpectrumLinArray),
+    log10.(PowerSpectrum.PowerSpectrumNonlinArray),
     BSpline(Cubic(Line(OnGrid()))))
     InterpPmm = scale(InterpPmm, x, y)
     InterpPmm = Interpolations.extrapolate(InterpPmm, Line())

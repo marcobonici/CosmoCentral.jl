@@ -156,10 +156,10 @@ function ComputeLensingEfficiencyGrid!(
             for idx_ZArrayInt in 1:length(CosmologicalGrid.ZArray)
                 LensingFunction.LensingEfficiencyArray[idx_ZBinArray,
                 idx_ZArray] += ConvolvedDensity.DensityGridArray[idx_ZBinArray,
-                idx_ZArrayInt] * (BackgroundQuantities.rZArray[idx_ZArrayInt] -
-                BackgroundQuantities.rZArray[idx_ZArray]) /
-                BackgroundQuantities.rZArray[idx_ZArrayInt] /
-                BackgroundQuantities.rZArray[idx_ZArray] *
+                idx_ZArrayInt] * (BackgroundQuantities.χZArray[idx_ZArrayInt] -
+                BackgroundQuantities.χZArray[idx_ZArray]) /
+                BackgroundQuantities.χZArray[idx_ZArrayInt] /
+                BackgroundQuantities.χZArray[idx_ZArray] *
                 Weight_Matrix[idx_ZArray, idx_ZArrayInt]
             end
         end
@@ -212,7 +212,7 @@ function ComputeWeightFunctionGrid!(
             LensingFunction.WeightFunctionArray[idx_ZBinArray, idx_ZArray] =
             1.5 * (Cosmology.H0/c_0)^2 * Cosmology.ΩM *
             (1. + CosmologicalGrid.ZArray[idx_ZArray]) *
-            BackgroundQuantities.rZArray[idx_ZArray]^2 *
+            BackgroundQuantities.χZArray[idx_ZArray]^2 *
             LensingFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray] +
             LensingFunction.IntrinsicAlignmentArray[idx_ZBinArray, idx_ZArray]
         end

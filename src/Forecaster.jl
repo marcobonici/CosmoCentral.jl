@@ -88,7 +88,7 @@ function ForecastPowerSpectra!(Cosmologies::Dict, Path::String,
     for (key, value) in Cosmologies
         backgroundquantities = BackgroundQuantities(
         HZArray = zeros(length(CosmologicalGrid.ZArray)),
-        rZArray=zeros(length(CosmologicalGrid.ZArray)))
+        χZArray=zeros(length(CosmologicalGrid.ZArray)))
         ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
         backgroundquantities, value[1])
         ClassyParams = Initializeclassy(value[1])

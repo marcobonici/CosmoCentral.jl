@@ -212,7 +212,7 @@ function WritePowerSpectrumBackground(PowerSpectrum::AbstractPowerSpectrum,
     CosmologicalGrid::AbstractCosmologicalGrid, Filename::String)
     h5write(Filename*".h5",
     "cosmology/comoving_distance_array",
-    BackgroundQuantities.rZArray)
+    BackgroundQuantities.χZArray)
     h5write(Filename*".h5",
     "cosmology/hubble_array",
     BackgroundQuantities.HZArray)
@@ -251,7 +251,7 @@ function ReadPowerSpectrumBackground(Filename::String, ℓBinCenters::Vector{Flo
     comoving_distance_array = HDF5.read(file["cosmology"]["comoving_distance_array"])
     hubble_array = HDF5.read(file["cosmology"]["hubble_array"])
     BackgroundQuantitiesRead = BackgroundQuantities(HZArray = hubble_array,
-    rZArray = comoving_distance_array)
+    χZArray = comoving_distance_array)
     CosmologicalGridRead = CosmologicalGrid(ZArray = z_grid, KArray = k_grid,
     ℓBinCenters = ℓBinCenters, ℓBinWidths = ℓBinWidths)
     PowerSpectrumRead = PowerSpectrum(PowerSpectrumLinArray = lin_p_mm_k_z,
@@ -274,7 +274,7 @@ function ReadPowerSpectrumBackgroundSeyfert(Filename::String,
     dimensionless_hubble_array = HDF5.read(file["cosmology"]["dimensionless_hubble_array"])
     BackgroundQuantities = BackgroundQuantities(HZArray =
     dimensionless_hubble_array*67,
-    rZArray = dimensionless_comoving_distance_array*c_0/67)
+    χZArray = dimensionless_comoving_distance_array*c_0/67)
     CosmologicalGrid = CosmologicalGrid(ZArray = z_grid, KArray = k_grid,
     ℓBinCenters = ℓBinCenters)
     PowerSpectrum = PowerSpectrum(PowerSpectrumLinArray = lin_p_mm_k_z,
