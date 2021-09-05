@@ -115,7 +115,7 @@ function EvaluateCℓGeneral!(PmmDirectory::String,
                 w0waCDMCosmology = CosmoCentral.ReadCosmology(Dict(CosmoDict))
                 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
                 ReadPowerSpectrumBackground(joinpath(root, "p_mm"),
-                CosmologicalGrid.ℓBinCenters)
+                CosmologicalGrid.ℓBinCenters, CosmologicalGrid.ℓBinWidths)
                 ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
                 #TODO probably we can obtain flexibility with a dictionary
                 intrinsicalignment = ReadIntrinsicAlignment(Dict(CosmoDict))
