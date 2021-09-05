@@ -88,7 +88,7 @@ function ForecastPowerSpectra!(Cosmologies::Dict, Path::String,
     for (key, value) in Cosmologies
         backgroundquantities = BackgroundQuantities(
         HZArray = zeros(length(CosmologicalGrid.ZArray)),
-        rZArray=zeros(length(CosmologicalGrid.ZArray)))
+        χZArray=zeros(length(CosmologicalGrid.ZArray)))
         ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
         backgroundquantities, value[1])
         ClassyParams = Initializeclassy(value[1])
@@ -506,6 +506,22 @@ function ExtractVariedParameters(InputList::Vector{Dict{String, Vector{Any}}})
     return OutputList
 end
 
+"""
+    ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
+
+This function evaluate the Fisher Matrix according to the following formula:
+```math
+F_{\\alpha \\beta}=\\sum_{\\ell=\\ell_{\\min }}^{\\ell_{\\max }} \\operatorname{Tr}\\left
+\\{[\\boldsymbol{\\Sigma}(\\ell)]^{-1} \\frac{\\partial \\mathbf{C}(\\ell)}{\\partial 
+\\alpha}[\\boldsymbol{\\Sigma}(\\ell)]^{-1} \\frac{\\partial \\mathbf{C}(\\ell)}{\\partial
+\\beta}\\right\\},
+```
+where ``\\alpha`` and ``\\beta`` are parameters of the Fisher Matrix, ``\\ell`` are the
+multipoles, ``\\Sigma`` is the Covariance Matrix of the  Field Approach and
+``\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}`` is the Matrix of the derivatives
+of the ``C_\\ell`` wrt parameter ``\\alpha``.
+"""
 function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
     Fisher = Fisherαβ()
@@ -533,6 +549,24 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     return Fisher
 end
 
+
+"""
+    ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid,
+    ciccio::String)
+
+This function evaluate the Fisher Matrix according to the following formula:
+```math
+F_{\\alpha \\beta}=\\sum_{\\ell=\\ell_{\\min }}^{\\ell_{\\max }} \\operatorname{vecp}
+\\left(\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}\\right)^{T}
+\\left(\\boldsymbol{\\Xi}(\\ell)\\right)^{-1} \\operatorname{vecp}\\left(\\frac{\\partial
+\\mathbf{C}(\\ell)} {\\partial \\beta}\\right),
+```
+where ``\\alpha`` and ``\\beta`` are parameters of the Fisher Matrix, ``\\ell`` are the
+multipoles, ``\\Xi`` is the Covariance Matrix of the  Field Approach
+[`CℓCovariance`](@ref) and ``\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}``
+is the Matrix of the derivatives of the ``C_\\ell`` wrt parameter ``\\alpha``.
+"""
 function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid,
     ciccio::String)
@@ -565,7 +599,7 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
     return Fisher
 end
 
-function EvaluateFisherMatrix!(VariedParameters::Vector{Any}, Fisher::AbstractFisher,
+function EvaluateFisherMatrix!(VariedParameters::Vector{}, Fisher::AbstractFisher,
     Path∂Cℓ::String, Cov::AbstractCovariance)
     for (indexα, Parα) in enumerate(VariedParameters)
         ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
@@ -577,7 +611,7 @@ function EvaluateFisherMatrix!(VariedParameters::Vector{Any}, Fisher::AbstractFi
     end
 end
 
-function SelectMatrixAndMarginalize!(VariedParameters::Vector{Any}, Fisher::AbstractFisher)
+function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::AbstractFisher)
     for (idx, Par) in enumerate(reverse(VariedParameters))
         reverse_index = length(VariedParameters)-idx+1
         if Fisher.FisherMatrix[reverse_index, reverse_index] == 0

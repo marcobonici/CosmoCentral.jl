@@ -1,7 +1,7 @@
 function EvaluateCℓMCMCStep(Cosmology::AbstractCosmology, Density::AbstractConvolvedDensity,
     Bias::AbstractBias, IA::AbstractIntrinsicAlignment, CosmoGrid::AbstractCosmologicalGrid)
     backgroundquantities = BackgroundQuantities(HZArray= zeros(length(CosmoGrid.ZArray)),
-    rZArray=zeros(length(CosmoGrid.ZArray)))
+    χZArray=zeros(length(CosmoGrid.ZArray)))
     ComputeBackgroundQuantitiesGrid!(CosmoGrid, backgroundquantities, Cosmology)
     ClassyParams = Initializeclassy(Cosmology)
     Pmm = PowerSpectrum(PowerSpectrumLinArray =

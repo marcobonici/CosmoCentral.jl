@@ -48,12 +48,12 @@ function ComputeHubbleFactor(z::Float64, AbstractCosmology::AbstractCosmology)
 end
 
 """
-    ComputeComovingDistance(z::Float64, AbstractCosmology::AbstractCosmology)
+    Computeχ(z::Float64, AbstractCosmology::AbstractCosmology)
 
 This function, given the value of the cosmological parameters, evaluate the
-Comoving Distance. It is evaluated as:
+Comoving Distance χ. It is evaluated as:
 ```math
-r(z)=\\frac{c}{H_0}\\int_0^z \\frac{dz'}{E(z')}
+\\chi(z)=\\frac{c}{H_0}\\int_0^z \\frac{dz'}{E(z')}
 ```
 """
 function Computeχ(z::Float64,
@@ -79,16 +79,16 @@ function ComputeBackgroundQuantitiesGrid!(CosmologicalGrid::CosmologicalGrid,
     for idx_ZArray in 1:length(CosmologicalGrid.ZArray)
         BackgroundQuantities.HZArray[idx_ZArray] = ComputeHubbleFactor(
         CosmologicalGrid.ZArray[idx_ZArray], AbstractCosmology)
-        BackgroundQuantities.rZArray[idx_ZArray] = Computeχ(
+        BackgroundQuantities.χZArray[idx_ZArray] = Computeχ(
         CosmologicalGrid.ZArray[idx_ZArray], AbstractCosmology)
     end
 end
 
 function ComputeLogSpacedχGrid!(CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities)
-    Zχ = Dierckx.Spline1D(BackgroundQuantities.rZArray, CosmologicalGrid.ZArray)
-    χArray = CosmoCentral.LogSpaced(BackgroundQuantities.rZArray[1],
-    last(BackgroundQuantities.rZArray), length(BackgroundQuantities.rZArray))
+    Zχ = Dierckx.Spline1D(BackgroundQuantities.χZArray, CosmologicalGrid.ZArray)
+    χArray = CosmoCentral.LogSpaced(BackgroundQuantities.χZArray[1],
+    last(BackgroundQuantities.χZArray), length(BackgroundQuantities.χZArray))
     CosmologicalGrid.ZArray = Zχ.(χArray)
 end
 

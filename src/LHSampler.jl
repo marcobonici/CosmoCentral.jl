@@ -39,7 +39,7 @@ function EvaluatePowerSpectraLHS(Cosmologies::Dict, Path::String,
         println(key, value[1])
         BackgroundQuantities = BackgroundQuantities(
         HZArray = zeros(length(CosmologicalGrid.ZArray)),
-        rZArray=zeros(length(CosmologicalGrid.ZArray)))
+        χZArray=zeros(length(CosmologicalGrid.ZArray)))
         ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
         BackgroundQuantities, value[1])
         ClassyParams = Initializeclassy(value[1])

@@ -15,7 +15,7 @@ CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
 ZArray=Array(LinRange(0.001, 4.0, 500)))
 BackgroundQuantities = CosmoCentral.BackgroundQuantities(HZArray=
 zeros(length(CosmologicalGrid.ZArray)),
-rZArray=zeros(length(CosmologicalGrid.ZArray)))
+χZArray=zeros(length(CosmologicalGrid.ZArray)))
 GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray =
 zeros(length(ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
@@ -52,7 +52,7 @@ CosmoCentral.classy.Class()
     end
     CosmoCentral.ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
     BackgroundQuantities, w0waCDMCosmology)
-    @test test_r_array ==BackgroundQuantities.rZArray
+    @test test_r_array ==BackgroundQuantities.χZArray
     @test test_H_array ==BackgroundQuantities.HZArray
 end
 
@@ -184,7 +184,7 @@ end
     CosmoCentral.ComputeLimberArray!(CosmologicalGrid,
     BackgroundQuantitiesLoaded)
     test_k_limber = (CosmologicalGrid.ℓBinCenters[1]+0.5) /
-    BackgroundQuantitiesLoaded.rZArray[1]
+    BackgroundQuantitiesLoaded.χZArray[1]
     @test test_k_limber == CosmologicalGrid.KLimberArray[1, 1]
     test_Omega_cdm = w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
     w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2)
@@ -213,8 +213,8 @@ end
     NewPowerSpectrum.PowerSpectrumLinArray, rtol=1e-6)
     @test isapprox(BackgroundQuantitiesLoaded.HZArray,
     NewBackgroundQuantitiesLoaded.HZArray, rtol=1e-6)
-    @test isapprox(BackgroundQuantitiesLoaded.rZArray,
-    NewBackgroundQuantitiesLoaded.rZArray, rtol=1e-6)
+    @test isapprox(BackgroundQuantitiesLoaded.χZArray,
+    NewBackgroundQuantitiesLoaded.χZArray, rtol=1e-6)
     PowerSpectrumDierckx, BackgroundQuantitiesLoaded, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, ℓBinCenters, Array(ones(2990)))
     CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
@@ -244,10 +244,10 @@ end
     @test isapprox(CℓReloaded.CℓArray, Cℓ.CℓArray, rtol=1e-9)
 end
 
-@testset "Test Fisher Forecast" begin
-    run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`)
-    run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`)
-    run(`tar xvf forecast_pmm.tar.xz`)
+@testset "Test Fisher Forecast: Integration Test" begin
+    run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`);
+    run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`);
+    run(`tar xvf forecast_pmm.tar.xz`);
     DictCosmo = Dict{String,Array{Any,1}}()
     DictCosmo["w0"]  = [-1.,   "present"]
     DictCosmo["wa"]  = [0.,    "present"]
@@ -289,6 +289,18 @@ end
     PathCentralCℓ = pwd()*"/test_forecast/Angular/dvar_central_step_0/cl"
     Path∂Cℓ = pwd()*"/test_forecast/Derivative"
     InputList = [DictCosmo, DictIA, DictBias]
-    Fisher = CosmoCentral.ForecastFisherαβ(PathCentralCℓ, Path∂Cℓ, InputList, CosmologicalGrid)
-    @test isapprox(Fisher.FisherDict["wa_wa"], 595.7541745729502, rtol=1e-6)
+    Fisheraₗₘ = CosmoCentral.ForecastFisherαβ(PathCentralCℓ, Path∂Cℓ, InputList,
+    CosmologicalGrid)
+    FisherCℓ = CosmoCentral.ForecastFisherαβ(PathCentralCℓ, Path∂Cℓ, InputList,
+    CosmologicalGrid, "test")
+    CheckFisher = CosmoCentral.ReadFisher("CheckFisher", "Lensing_Lensing")
+    CosmoCentral.SelectMatrixAndMarginalize!(CheckFisher.ParametersList, CheckFisher)
+    @test isapprox(CheckFisher.FisherMatrix, Fisheraₗₘ.FisherMatrix, rtol=1e-6)
+    @test isapprox(CheckFisher.FisherMatrix, FisherCℓ.FisherMatrix, rtol=1e-6)
+    for key in Fisheraₗₘ.SelectedParametersList
+        @test isapprox(CheckFisher.MarginalizedErrors[key],
+        Fisheraₗₘ.MarginalizedErrors[key], rtol=1e-6)
+        @test isapprox(CheckFisher.MarginalizedErrors[key],
+        FisherCℓ.MarginalizedErrors[key], rtol=1e-6)
+    end
 end

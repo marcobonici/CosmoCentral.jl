@@ -79,15 +79,15 @@ This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``
 end
 
 """
-    BackgroundQuantities(HZArray::Vector{Float64},
-    rZArray::Vector{Float64})
+    BackgroundQuantities(HZArray::Vector{Float64}, χZArray::Vector{Float64}),
+    DZArray::Vector{Float64}
 
 This struct contains the arrays with the values of the Hubble parameter ``H(z)``
-and the comoving distance ``r(z)``.
+and the comoving distance ``\\chi(z)``.
 """
 @kwdef mutable struct BackgroundQuantities <: AbstractBackgroundQuantities
     HZArray::Vector{Float64} = zeros(500)
-    rZArray::Vector{Float64} = zeros(500)
+    χZArray::Vector{Float64} = zeros(500)
     DZArray::Vector{Float64} = zeros(500)
 end
 
@@ -310,16 +310,16 @@ This struct contains the array with the Fisher Matrix.
     FisherMatrix::AbstractArray{Float64, 2} = zeros(8,8)
     CorrelationMatrix::AbstractArray{Float64, 2} = zeros(8,8)
     FisherDict::Dict = Dict()
-    ParametersList::Vector{Any} = []
-    SelectedParametersList::Vector{Any} = []
+    ParametersList::Vector{String} = []
+    SelectedParametersList::Vector{String} = []
     MarginalizedErrors::Dict = Dict()
 end    
 
 """
     aₗₘCovariance()
 
-This struct contains the Covariance in the field perspective, i.e. when the observables are
-    the .
+This struct contains the Covariance in the field perspective, i.e. when the observables are the 
+``a_{\\ell m}``'s.
 """
 @kwdef mutable struct aₗₘCovariance  <: AbstractCovariance
     Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)
@@ -329,10 +329,10 @@ This struct contains the Covariance in the field perspective, i.e. when the obse
 end
 
 """
-    CₗCovariance()
+    CℓCovariance()
 
 This struct contains the Covariance in the estimator perspective, i.e. when the observables
-    are the ``C_{\\ell}``.
+are the ``C_{\\ell}``'s.
 """
 @kwdef mutable struct CℓCovariance  <: AbstractCovariance
     Covariance::AbstractArray{Float64, 3} = zeros(2991, 10, 10)

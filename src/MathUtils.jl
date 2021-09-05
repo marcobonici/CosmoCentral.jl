@@ -193,6 +193,11 @@ function EliminationMatrix(n::Int)
     return L
 end
 
+"""
+    DuplicationMatrix(n::Int)
+
+Duplication matrix ``\\boldsymbol{D}_n``.
+"""
 function DuplicationMatrix(n::Int)
     D = zeros((n*n, floor(Int64,0.5*n*(n+1))))
     for i in 1:n

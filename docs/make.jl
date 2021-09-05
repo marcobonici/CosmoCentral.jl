@@ -3,7 +3,7 @@ using CosmoCentral
 using Plots
 using PlotThemes
 
-
+ENV["GKSwstype"] = "100"
 
 push!(LOAD_PATH,"../src/")
 
@@ -21,6 +21,8 @@ makedocs(
         "Weight Functions" => "WeightFunction.md",
         "Angular Coefficients" => "AngularCoefficients.md",
         "Derivatives" => "Derivatives.md",
+        "Covariance Matrix" => "Covariance.md",
+        "Fisher Matrix" => "Fisher.md",
         "Cosmological Structure" => "CosmologicalStructure.md",
         "Math Utils" => "MathUtils.md"
     ]
