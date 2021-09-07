@@ -44,8 +44,15 @@ function ComputeCℓ(cosmoemulator::CℓEmulator, cosmology::CosmoCentral.w0waCD
         end
     end
     for l in 1:n_ℓ
-        mul!(c, cosmoemulator.DuplicationMatrix, 10 .^y[:,l])
-        mmm[l,:,:] = reshape(c, (10,10))
+        my_exp!(y,l)
+        mul!(c, cosmoemulator.DuplicationMatrix, @view(y[:,l]))
+        mmm[l,:,:] = reshape(c, (10,10))./(
+            cosmogrid.ℓBinCenters[l]*(cosmogrid.ℓBinCenters[l]+1.))
+
     end
     return mmm
+end
+
+function my_exp!(y,l)
+    @. @views y[:,l] = 10 .^y[:,l]
 end
