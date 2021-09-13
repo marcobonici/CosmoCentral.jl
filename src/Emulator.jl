@@ -37,7 +37,7 @@ function ComputeCℓ(cosmoemulator::CℓEmulator, cosmology::CosmoCentral.w0waCD
     n_ℓ = length(cosmogrid.ℓBinCenters)
     mmm = zeros(n_ℓ, 10, 10)
     c = zeros(100)
-    @avx for i in 1:55
+    @avx for i in 1:length(y[:,1])
         for l in 1:n_ℓ
             y[i,l] *= (cosmoemulator.OutMinMax[i,2]-cosmoemulator.OutMinMax[i,1])
             y[i,l] += (cosmoemulator.OutMinMax[i,1])

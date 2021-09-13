@@ -25,13 +25,19 @@ println("Loaded central cosmology")
     w₀ ~ Uniform(-1.32, -0.72)
     wₐ ~ Uniform(-0.68, 0.72)
     ns ~ Uniform(0.92, 1.0)
-    ΩM ~ Uniform(0.29, 0.35)  
+    ΩM ~ Uniform(0.29, 0.35)
+    ΩB ~ Uniform(0.04, 0.06)  
+    σ8 ~ Uniform(0.6,  1.0)
+    H0 ~ Uniform(61.,  73)
 
     w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
     w0waCDMCosmology.w0 = w₀
     w0waCDMCosmology.wa = wₐ
     w0waCDMCosmology.ns = ns
     w0waCDMCosmology.ΩM = ΩM
+    w0waCDMCosmology.ΩB = ΩB
+    w0waCDMCosmology.σ8 = σ8
+    w0waCDMCosmology.H0 = H0
     CℓMCMC = CosmoCentral.EvaluateCℓMCMCStep(w0waCDMCosmology, ConvolvedDensity, EuclidBias,
     EuclidIA, CosmologicalGrid)
 
