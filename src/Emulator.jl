@@ -30,7 +30,7 @@ function SetInputNN!(cosmoemu, cosmogrid::CosmologicalGrid, cosmology::w0waCDMCo
     (cosmoemu.InMinMax[8,2]-cosmoemu.InMinMax[8,1])
 end
 
-function ComputeCℓ(cosmoemulator::CℓEmulator, cosmology::CosmoCentral.w0waCDMCosmology, cosmogrid::CosmoCentral.CosmologicalGrid)
+function ComputeCℓ(cosmoemulator::CℓEmulator, cosmology::CosmoCentral.AbstractCosmology, cosmogrid::CosmoCentral.CosmologicalGrid)
     SetℓGrid!(cosmoemulator, cosmogrid)
     SetInputNN!(cosmoemulator, cosmogrid, cosmology)
     y = cosmoemulator.NN(cosmoemulator.InputParams)
