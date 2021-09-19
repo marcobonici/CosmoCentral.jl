@@ -35,3 +35,21 @@ function ComputeBiasGrid!(cosmologicalGrid::CosmologicalGrid,
         ComputeBias(zvalue, gcWeightFunction.BiasKind, ConvolvedDensity)
     end
 end
+
+function CreateBias(BiasDict::Dict)
+    if BiasDict["model"] == "EuclidBias"
+        Bias = CreateEuclidBias((BiasDict))
+    else
+        error("No Bias!")
+    end
+    return Bias
+end
+
+function CreateEuclidBias(BiasDict::Dict)
+    Bias = CosmoCentral.EuclidBias()
+    Bias.A = BiasDict["A"]
+    Bias.B = BiasDict["B"]
+    Bias.C = BiasDict["C"]
+    Bias.D = BiasDict["D"]
+    return Bias
+end

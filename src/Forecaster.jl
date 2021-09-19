@@ -429,9 +429,9 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
     instrumentresponse, CosmologicalGrid)
     ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
     analyticaldensity, instrumentresponse)
-    #TODO: these three for loops are quite similar. The only difference is the cycled 
+    #TODO: these three for loops are quite similar. The only difference is the cycled
     #dictionary. Maybe we can create a macro? The only difficulty is that we are iterating
-    #over different dictionaries. maybe we can write some if in the dficitonaries to decide 
+    #over different dictionaries. maybe we can write some if in the dficitonaries to decide
     #which expr return?
     for (key, value) in Cosmologies
         Cosmology = value[1]
@@ -625,4 +625,99 @@ function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::Abstrac
     for (idxα, Parα) in enumerate(Fisher.SelectedParametersList)
         Fisher.MarginalizedErrors[Parα] = sqrt(Fisher.CorrelationMatrix[idxα, idxα])
     end
+end
+
+#Here we try to implement the NEW forecaster, more manageable and flexible
+#Before removing the old one, we will check that everything works
+
+function ReadPresentDict(dict::Dict)
+    newdict = Dict()
+    for (key,value) in dict
+        if key == "model"
+            newdict["model"] = value
+        else
+            newdict[key] = value["value"]
+        end
+    end
+    return newdict
+end
+
+function Iterator!(ContainerDict::Dict, BaseDict::Dict, SteMSteps::Array)
+    for (key,value) in BaseDict
+        if key != "model"
+            if value["free"]
+                for (index, mystep) in enumerate(SteMSteps)
+                    ContainerDict["dvar_"*key*"_step_p_"*string(index)] =
+                    deepcopy(ReadPresentDict(BaseDict))
+                    ContainerDict["dvar_"*key*"_step_p_"*string(index)][key] = 
+                    IncrementedValue(BaseDict[key]["value"], mystep)
+                    ContainerDict["dvar_"*key*"_step_m_"*string(index)] =
+                    deepcopy(ReadPresentDict(BaseDict))
+                    ContainerDict["dvar_"*key*"_step_m_"*string(index)][key] =
+                    IncrementedValue(BaseDict[key]["value"], -mystep)
+                end
+            end
+        end
+    end
+end
+
+function ReadInputForecast(InputDict::Dict, cosmogrid, SteMSteps)
+    ProbesDict = Dict()
+    for (key,value) in InputDict
+        ProbesDict[key] = IterateProbe(value, cosmogrid, SteMSteps)
+    end
+    return ProbesDict
+end
+
+function CreateCosmology(CosmoDict::Dict)
+    if CosmoDict["model"] == "Flatw0waCDM"
+        Cosmo = CreateFlatw0waCDM((CosmoDict))
+    else
+        error("No Cosmology!")
+    end
+    return Cosmo
+end
+
+function IterateCosmologies(CosmoDict::Dict, SteMSteps::Array)
+    CosmoVariedDict = Dict()
+    CosmoVariedDict["dvar_central_step_0"] = CreateCosmology(ReadPresentDict(CosmoDict))
+    Iterator!(CosmoVariedDict, CosmoDict, SteMSteps)
+    return CosmoVariedDict
+end
+
+function CreateFlatw0waCDM(CosmoDict::Dict)
+    Cosmo = CosmoCentral.Flatw0waCDMCosmology()
+    Cosmo.w0 = CosmoDict["w0"]
+    Cosmo.wa = CosmoDict["wa"]
+    Cosmo.Mν = CosmoDict["Mν"]
+    Cosmo.H0 = CosmoDict["H0"]
+    Cosmo.ΩM = CosmoDict["ΩM"]
+    Cosmo.ΩB = CosmoDict["ΩB"]
+    Cosmo.ns = CosmoDict["ns"]
+    Cosmo.σ8 = CosmoDict["σ8"]
+    return Cosmo
+end
+
+function ReadInputProbesForecast(InputDict::Dict, cosmogrid::CosmologicalGrid,
+    SteMSteps::Array)
+    ProbesDict = Dict()
+    for (key,value) in InputDict
+        ProbesDict[key] = IterateProbe(value, cosmogrid, SteMSteps)
+    end
+    return ProbesDict
+end
+
+abstract type AbstractContainer end
+
+@kwdef mutable struct ForecastContainer <: AbstractContainer
+    CosmoDict::Dict = Dict()
+    ProbesDict::Dict = Dict()
+end
+
+function InitializeForecastContainer(CosmoDict::Dict, ProbesDict::Dict,
+    cosmogrid::CosmologicalGrid, SteMSteps::Array)
+    forcontainer = ForecastContainer()
+    forcontainer.CosmoDict = IterateCosmologies(CosmoDict, SteMSteps)
+    forcontainer.ProbesDict = ReadInputProbesForecast(ProbesDict, cosmogrid, SteMSteps)
+    return forcontainer
 end

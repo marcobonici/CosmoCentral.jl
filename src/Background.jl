@@ -60,7 +60,7 @@ function Computeχ(z::Float64,
     AbstractCosmology::AbstractCosmology)
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    integral, err = QuadGK.quadgk(x -> 1 /
+    integral, err = quadgk(x -> 1 /
     ComputeAdimensionalHubbleFactor(x,AbstractCosmology), 0, z, rtol=1e-12)
     return integral*c_0/AbstractCosmology.H0
 end

@@ -59,7 +59,7 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
     ::WLWeightFunction)
-    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
+    int, err = quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
     ((Computeχ(x, Cosmology) -
     Computeχ(z, Cosmology))/
@@ -76,7 +76,7 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
     LensingSourceFunction::LensingSourceFunction)
-    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
+    int, err = quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
     ((Computeχ(x, Cosmology) -
     Computeχ(z, Cosmology))/
