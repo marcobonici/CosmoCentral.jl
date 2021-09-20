@@ -712,6 +712,7 @@ abstract type AbstractContainer end
 @kwdef mutable struct ForecastContainer <: AbstractContainer
     CosmoDict::Dict = Dict()
     ProbesDict::Dict = Dict()
+    VariedParsList::Array = []
 end
 
 function InitializeForecastContainer(CosmoDict::Dict, ProbesDict::Dict,
@@ -719,5 +720,52 @@ function InitializeForecastContainer(CosmoDict::Dict, ProbesDict::Dict,
     forcontainer = ForecastContainer()
     forcontainer.CosmoDict = IterateCosmologies(CosmoDict, SteMSteps)
     forcontainer.ProbesDict = ReadInputProbesForecast(ProbesDict, cosmogrid, SteMSteps)
+    SelectVariedParameters!(forcontainer)
     return forcontainer
+end
+
+function SelectVariedParameters!(forcontainer::ForecastContainer)
+    for (key, value) in forcontainer.CosmoDict
+        if key != "dvar_central_step_0"
+            initial_match = match(r"(?<=dvar_)(\w+)", key)
+            result = replace(initial_match.match, match(r"(?=_step)(\w+)",
+            initial_match.match).match => "")
+            if result ∉ forcontainer.VariedParsList
+                push!(forcontainer.VariedParsList, result)
+            end
+        end
+    end
+    for (keyprobe, valueprobe) in forcontainer.ProbesDict
+        for (key,value) in valueprobe
+            if key != "dvar_central_step_0"
+                initial_match = match(r"(?<=dvar_)(\w+)", key)
+                result = replace(initial_match.match, match(r"(?=_step)(\w+)",
+                initial_match.match).match => "")
+                if result ∉ forcontainer.VariedParsList
+                    push!(forcontainer.VariedParsList, result)
+                end
+            end
+        end
+    end
+end
+
+function CreateDirectoriesForecast!(forcontainer::ForecastContainer, path::String)
+    mkdir(path)
+    mkdir(path*"PowerSpectrum")
+    mkdir(path*"Angular")
+    mkdir(path*"Derivative")
+    for (key,value) in forcontainer.CosmoDict
+        mkdir(path*"PowerSpectrum/"*key)
+        mkdir(path*"Angular/"*key)
+    end
+    for (keyprobe,valueprobe) in forcontainer.ProbesDict
+        for (keyvar,valuevar) in valueprobe
+            if keyvar != "dvar_central_step_0"
+                mkdir(path*"Angular/"*keyvar)
+            end
+        end
+    end
+    for element in forcontainer.VariedParsList
+        mkdir(path*"Derivative/"*element)
+    end
 end
