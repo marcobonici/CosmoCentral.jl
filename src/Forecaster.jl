@@ -837,7 +837,6 @@ function ForecastCℓ!(forcontainer::ForecastContainer, cosmogrid::CosmologicalG
                 BackgroundQuantities, cosmology)
             end
         end
-        println(cosmology.ΩM, " ", keycosmo)
         used_probes = []
         for probea in probes_array
             WriteWeightFunctions!(probea, weightdict[probea],
@@ -867,7 +866,6 @@ function ForecastCℓ!(forcontainer::ForecastContainer, cosmogrid::CosmologicalG
     ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
     InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid, BackgroundQuantities,
     PowerSpectrum, BSplineCubic())
-    println(cosmology.ΩM)
     for probea in probes_array
         for (keyvarieda,valuevarieda) in forcontainer.ProbesDict[probea]
             if keyvarieda != "dvar_central_step_0"
