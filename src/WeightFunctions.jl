@@ -218,3 +218,31 @@ function ComputeWeightFunctionGrid!(
         end
     end
 end
+
+function CreateAndEvaluateWeightFunction(probe::WLProbe, cosmogrid::CosmologicalGrid,
+    background::BackgroundQuantities, cosmo::AbstractCosmology)
+    weightfunction = WLWeightFunction()
+    weightfunction.LensingEfficiencyArray = zeros(
+    length(probe.Density.DensityGridArray[:,1]), length(cosmogrid.ZArray))
+    weightfunction.IntrinsicAlignmentArray = zeros(size(weightfunction.LensingEfficiencyArray))
+    weightfunction.WeightFunctionArray = zeros(size(weightfunction.LensingEfficiencyArray))
+    weightfunction.IntrinsicAlignmentModel = probe.IAModel
+    ComputeLensingEfficiencyGrid!(weightfunction, probe.Density, cosmogrid, background,
+    cosmo, CustomLensingEfficiency())
+    ComputeIntrinsicAlignmentGrid!(cosmogrid, weightfunction, probe.Density, background,
+    cosmo)
+    ComputeWeightFunctionGrid!(weightfunction, probe.Density, cosmogrid, background, cosmo)
+    return weightfunction
+end
+
+function CreateAndEvaluateWeightFunction(probe::GCProbe, cosmogrid::CosmologicalGrid,
+    background::BackgroundQuantities, cosmo::AbstractCosmology)
+    weightfunction = GCWeightFunction()
+    weightfunction.WeightFunctionArray = zeros(
+    length(probe.Density.DensityGridArray[:,1]), length(cosmogrid.ZArray))
+    weightfunction.BiasArray = zeros(size(weightfunction.WeightFunctionArray))
+    weightfunction.BiasKind = probe.BiasModel
+    ComputeBiasGrid!(cosmogrid, weightfunction, probe.Density)
+    ComputeWeightFunctionGrid!(weightfunction, probe.Density, cosmogrid, background, cosmo)
+    return weightfunction
+end

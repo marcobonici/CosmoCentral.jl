@@ -1,17 +1,3 @@
-abstract type AbstractProbe end
-
-@kwdef mutable struct GCProbe <: AbstractProbe
-    Density::AbstractConvolvedDensity
-    BiasModel::AbstractBias
-    NuisanceDict::Dict = Dict()
-end
-
-@kwdef mutable struct WLProbe <:AbstractProbe
-    Density::AbstractConvolvedDensity
-    IAModel::AbstractIntrinsicAlignment
-    NuisanceDict::Dict = Dict()
-end
-
 function CreateWLProbe(DensityDict::Dict, IADict::Dict, cosmogrid::CosmologicalGrid)
     wlprobe = WLProbe(Density = CreateDensity(DensityDict, cosmogrid),
     IAModel = CreateIA(IADict))

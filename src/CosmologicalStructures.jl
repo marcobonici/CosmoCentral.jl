@@ -17,6 +17,7 @@ abstract type AbstractIntrinsicAlignment end
 abstract type AbstractFFTLog end
 abstract type AbstractCovariance end
 abstract type AbstractFisher end
+abstract type AbstractProbe end
 
 """
     w0waCDMCosmology(w0::Float64 = -1, wa::Float64 = 0, ΩM::Float64 = 0.32,
@@ -387,4 +388,16 @@ Weight Function values for all tomographic bins and redshift values in the
 @kwdef mutable struct κTransferFunction <: AbstractTransferFunction
     LensingSourceFunction::LensingSourceFunction = LensingSourceFunction
     TransferFunctionArray::AbstractArray{Float64, 3} = zeros(10, 100, 1000)
+end
+
+@kwdef mutable struct GCProbe <: AbstractProbe
+    Density::AbstractConvolvedDensity
+    BiasModel::AbstractBias
+    NuisanceDict::Dict = Dict()
+end
+
+@kwdef mutable struct WLProbe <:AbstractProbe
+    Density::AbstractConvolvedDensity
+    IAModel::AbstractIntrinsicAlignment
+    NuisanceDict::Dict = Dict()
 end

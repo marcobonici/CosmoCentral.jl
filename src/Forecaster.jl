@@ -680,7 +680,7 @@ end
 
 function IterateCosmologies(CosmoDict::Dict, SteMSteps::Array)
     CosmoVariedDict = Dict()
-    CosmoVariedDict["dvar_central_step_0"] = CreateCosmology(ReadPresentDict(CosmoDict))
+    CosmoVariedDict["dvar_central_step_0"] = (ReadPresentDict(CosmoDict))
     Iterator!(CosmoVariedDict, CosmoDict, SteMSteps)
     return CosmoVariedDict
 end
@@ -767,5 +767,115 @@ function CreateDirectoriesForecast!(forcontainer::ForecastContainer, path::Strin
     end
     for element in forcontainer.VariedParsList
         mkdir(path*"Derivative/"*element)
+    end
+end
+
+function ForecastPowerSpectra!(forcontainer::ForecastContainer, Path::String,
+    CosmologicalGrid::CosmologicalGrid)
+    for (key, value) in forcontainer.CosmoDict
+        cosmology = CreateCosmology(value)
+        backgroundquantities = BackgroundQuantities(
+        HZArray = zeros(length(CosmologicalGrid.ZArray)),
+        χZArray=zeros(length(CosmologicalGrid.ZArray)))
+        ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
+        backgroundquantities, cosmology)
+        ClassyParams = Initializeclassy(cosmology)
+        powerspectrum = PowerSpectrum(PowerSpectrumLinArray =
+        zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray)),
+        PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
+        length(CosmologicalGrid.ZArray)),
+        InterpolatedPowerSpectrum = zeros(length(
+        CosmologicalGrid.ℓBinCenters), length(CosmologicalGrid.ZArray)))
+        EvaluatePowerSpectrum!(ClassyParams, CosmologicalGrid, powerspectrum)
+        WritePowerSpectrumBackground(powerspectrum, backgroundquantities,
+        CosmologicalGrid, Path*key*"/p_mm")
+        WriteCosmology!(cosmology, Path*key)
+    end
+end
+
+function ForecastCℓ!(forcontainer::ForecastContainer, cosmogrid::CosmologicalGrid,
+    PathInputPmm::String, PathOutputCℓ::String)
+    weightdict = Dict()
+    for (keycosmo,valuecosmo) in forcontainer.CosmoDict
+        cosmology = ReadCosmology(valuecosmo)
+        PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+        CosmoCentral.ReadPowerSpectrumBackground(PathInputPmm*keycosmo*"/p_mm",
+        cosmogrid.ℓBinCenters, cosmogrid.ℓBinWidths)
+        CosmoCentral.ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+        ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+        InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid, BackgroundQuantities,
+        PowerSpectrum, BSplineCubic())
+        for (keyprobe, valueprobe) in forcontainer.ProbesDict
+            weightdict[keyprobe] = CreateAndEvaluateWeightFunction(
+            valueprobe["dvar_central_step_0"], CosmologicalGrid, BackgroundQuantities,
+            cosmology)
+        end
+        used_probes = []
+        for (keyweighta,valueweighta) in weightdict
+            for (keyweightb,valueweightb) in weightdict
+                if keyweightb*"_"*keyweighta ∉ used_probes
+                    push!(used_probes, keyweighta*"_"*keyweightb)
+                    cℓ = Cℓ(CℓArray = 
+                    zeros(length(CosmologicalGrid.ℓBinCenters),
+                    length(valueweighta.WeightFunctionArray[:, 1]),
+                    length(valueweightb.WeightFunctionArray[:, 1])))
+                    ComputeCℓ!(cℓ, valueweighta, valueweightb, BackgroundQuantities,
+                    cosmology, CosmologicalGrid, PowerSpectrum, CustomSimpson())
+                    WriteCℓ!(keyweighta*"_"*keyweightb, cℓ, PathOutputCℓ*keycosmo*"/cl")
+                    WriteCosmology!(cosmology, PathOutputCℓ*keycosmo)
+                end
+            end
+        end
+    end
+    keycosmo = "dvar_central_step_0"
+    cosmology = ReadCosmology(forcontainer.CosmoDict[keycosmo])
+    PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+    CosmoCentral.ReadPowerSpectrumBackground(PathInputPmm*keycosmo*"/p_mm",
+    cosmogrid.ℓBinCenters, cosmogrid.ℓBinWidths)
+    CosmoCentral.ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+    ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+    InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid, BackgroundQuantities,
+    PowerSpectrum, BSplineCubic())
+    for (keyprobea,valueprobea) in forcontainer.ProbesDict
+        for (keyvarieda,valuevarieda) in valueprobea
+            if keyvarieda != "dvar_central_step_0"
+                weightdict[keyprobea] = CreateAndEvaluateWeightFunction(valuevarieda,
+                CosmologicalGrid, BackgroundQuantities, cosmology)
+                for (keyprobeb,valueprobeb) in forcontainer.ProbesDict
+                    if keyprobea == keyprobeb
+                        cℓ = Cℓ(CℓArray = 
+                        zeros(length(CosmologicalGrid.ℓBinCenters),
+                        length(weightdict[keyprobea].WeightFunctionArray[:, 1]),
+                        length(weightdict[keyprobea].WeightFunctionArray[:, 1])))
+                        ComputeCℓ!(cℓ, weightdict[keyprobea], weightdict[keyprobea],
+                        BackgroundQuantities, cosmology, CosmologicalGrid, PowerSpectrum,
+                        CustomSimpson())
+                        WriteCℓ!(keyprobea*"_"*keyprobea, cℓ, PathOutputCℓ*keyvarieda*"/cl")
+                        WriteCosmology!(cosmology, PathOutputCℓ*keyvarieda)
+                    else
+                        weightdict[keyprobeb] = CreateAndEvaluateWeightFunction(
+                        valueprobeb["dvar_central_step_0"],CosmologicalGrid,
+                        BackgroundQuantities, cosmology)
+                        cℓ = Cℓ(CℓArray = 
+                        zeros(length(CosmologicalGrid.ℓBinCenters),
+                        length(weightdict[keyprobea].WeightFunctionArray[:, 1]),
+                        length(weightdict[keyprobeb].WeightFunctionArray[:, 1])))
+                        ComputeCℓ!(cℓ, weightdict[keyprobea], weightdict[keyprobeb],
+                        BackgroundQuantities, cosmology, CosmologicalGrid, PowerSpectrum,
+                        CustomSimpson())
+                        WriteCℓ!(keyprobea*"_"*keyprobeb, cℓ, PathOutputCℓ*keyvarieda*"/cl")
+                        WriteCosmology!(cosmology, PathOutputCℓ*keyvarieda)
+                        cℓ = Cℓ(CℓArray = 
+                        zeros(length(CosmologicalGrid.ℓBinCenters),
+                        length(weightdict[keyprobea].WeightFunctionArray[:, 1]),
+                        length(weightdict[keyprobeb].WeightFunctionArray[:, 1])))
+                        ComputeCℓ!(cℓ, weightdict[keyprobeb], weightdict[keyprobeb],
+                        BackgroundQuantities, cosmology, CosmologicalGrid, PowerSpectrum,
+                        CustomSimpson())
+                        WriteCℓ!(keyprobeb*"_"*keyprobeb, cℓ, PathOutputCℓ*keyvarieda*"/cl")
+                    end
+                end
+            end
+        end
     end
 end
