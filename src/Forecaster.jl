@@ -978,30 +978,31 @@ function ExtractVariedParameters(forcontainer::ForecastContainer)
     return OutputList
 end
 
-function ForecastFisherαβ(forcontainer::ForecastContainer ,PathCentralCℓ::String, Path∂Cℓ::String,
-    CosmologicalGrid::CosmologicalGrid, ciccio::String)
+function ForecastFisherαβ(forcontainer::ForecastContainer, PathCentralCℓ::String,
+    Path∂Cℓ::String, cosmogrid::CosmologicalGrid, ciccio::String)
     Fisher = Fisherαβ()
     VariedParameters = ExtractVariedParameters(forcontainer)
     Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.FisherMatrixℓ = zeros(length(cosmogrid.ℓBinCenters), length(VariedParameters),
+    length(VariedParameters))
     Fisher.ParametersList = VariedParameters
     Fisher.SelectedParametersList = VariedParameters
-    #here we instantiate the density again to evaluate the noise. Maybe it could be better
-    #if we evaluated the density once for all, we passed it to Cℓ evaluator and then to
-    #Fisher, in order to be more safe.
+    #here we instantiate the density again to evaluate the noise.
+    #However, we should use the density stored in forcontainer
     AnalitycalDensity = CosmoCentral.AnalitycalDensity()
     NormalizeAnalitycalDensity!(AnalitycalDensity)
     InstrumentResponse = CosmoCentral.InstrumentResponse()
     ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
-    ones(10, length(CosmologicalGrid.ZArray)))
+    ones(10, length(cosmogrid.ZArray)))
     NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
-    CosmologicalGrid)
-    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity,
+    cosmogrid)
+    ComputeConvolvedDensityGrid!(cosmogrid, ConvolvedDensity, AnalitycalDensity,
     InstrumentResponse)
     ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
 
     Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
     #TODO now only LL, but this need to be more flexible...maybe list with probes?
-    Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
+    Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, cosmogrid, "Lensing",
     "Lensing")
     CovCℓ = InstantiateEvaluateCovariance(Covaₗₘ)
     EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, CovCℓ)

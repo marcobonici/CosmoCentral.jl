@@ -309,8 +309,10 @@ This struct contains the array with the Fisher Matrix.
 """
 @kwdef mutable struct Fisherαβ <: AbstractFisher
     FisherMatrix::AbstractArray{Float64, 2} = zeros(8,8)
+    FisherMatrixℓ::AbstractArray{Float64, 3} = zeros(100,8,8)
     CorrelationMatrix::AbstractArray{Float64, 2} = zeros(8,8)
     FisherDict::Dict = Dict()
+    FisherℓDict::Dict = Dict()
     ParametersList::Vector{String} = []
     SelectedParametersList::Vector{String} = []
     MarginalizedErrors::Dict = Dict()
