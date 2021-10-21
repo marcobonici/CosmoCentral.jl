@@ -3,8 +3,9 @@ function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::aₗₘCova
     αMatrix = mymatmul(∂Cℓα.∂CℓArray,Cov.Covariance⁻¹)
     βMatrix = mymatmul(∂Cℓβ.∂CℓArray,Cov.Covariance⁻¹)
     Fisherℓ = mymatmul(αMatrix, βMatrix)
-    fisherelement = SumℓAndTrace(Fisherℓ)
+    fisherelementℓ, fisherelement = SumℓAndTrace(Fisherℓ)
     FisherMatrix.FisherDict[Parα*"_"*Parβ] = fisherelement
+    FisherMatrix.FisherℓDict[Parα*"_"*Parβ] = fisherelementℓ
 end
 
 function mymatmul(A::Array{Float64, 3}, B::Array{Float64, 3})
@@ -23,12 +24,13 @@ end
 
 function SumℓAndTrace(Fisherℓ::Array{Float64, 3})
     fisherelement = 0
+    fisherelementℓ = zeros(size(Fisherℓ)[1])
     @avx for ℓ in 1:size(Fisherℓ)[1]
         for i in 1:size(Fisherℓ)[2]
-            fisherelement += Fisherℓ[ℓ, i, i]
+            fisherelementℓ[ℓ] += Fisherℓ[ℓ, i, i]
         end
     end
-    return fisherelement
+    return fisherelementℓ, sum(fisherelementℓ)
 end
 
 function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::CℓCovariance,
