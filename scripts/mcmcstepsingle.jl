@@ -10,9 +10,16 @@ println("Loaded central cosmology")
 
 cosmo = BSON.load("cosmoemulatorll.bson", @__MODULE__)
 CosmoEmulator = cosmo[:cosmo]
-println("Loaded Emulator")
+cosmo = BSON.load("cosmoemulatorgg.bson", @__MODULE__)
+CosmoEmulatorGG = cosmo[:cosmo]
+println("Loaded Emulators")
 
-@model function gdemo(vecpCℓData, Cov, CosmoEmulator, CosmologicalGrid)
+ProbeA = "PhotometricClustering"
+
+ProbeB = "PhotometricClustering"
+
+@model function gdemo(vecpCℓData, Cov, CosmoEmulator,
+    CosmologicalGrid)
     w₀ ~ Uniform(-1.32, -0.72)
     wₐ ~ Uniform(-0.68, 0.72)
     ns ~ Uniform(0.92, 1.0)
@@ -29,13 +36,13 @@ println("Loaded Emulator")
     w0waCDMCosmology.ΩB = ΩB
     w0waCDMCosmology.σ8 = σ8
     w0waCDMCosmology.H0 = H0
+
     CℓMCMC = CosmoCentral.Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters), 10,10))
     CℓMCMC.CℓArray = CosmoCentral.ComputeCℓ(CosmoEmulator, w0waCDMCosmology, CosmologicalGrid)
 
     ℓnumber = length(CℓMCMC.CℓArray[:,1,1])
     inumber = length(CℓMCMC.CℓArray[1,:,1])
     #L = CosmoCentral.EliminationMatrix(inumber)
-
     vecpCℓMCMC = zeros(1,floor(Int,inumber*0.5*(inumber+1)))
     for ℓ in 1:ℓnumber
         vecCℓMCMC = vec(CℓMCMC.CℓArray[ℓ,:,:])
@@ -45,6 +52,7 @@ println("Loaded Emulator")
         vecpCℓData[ℓ,:] ~ MvNormal(vecpCℓMCMC, Cov.Covariance[ℓ,:,:])
     end
 end
+
 MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 31)
 MultipolesArray = zeros(30)
 #MultipolesWidths = vcat(CosmoCentral.Difference(MultipolesArrayTemp), ones(2000))
@@ -62,17 +70,21 @@ CosmoCentral.NormalizeAnalitycalDensity!(AnalitycalDensity)
 InstrumentResponse = CosmoCentral.InstrumentResponse()
 
 ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray = ones(10, length(CosmologicalGrid.ZArray)))
-#CosmoCentral.NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse, CosmologicalGrid)
+CosmoCentral.NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse, CosmologicalGrid)
 
-#CosmoCentral.ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)
+CosmoCentral.ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)
 
 #EuclidBias = CosmoCentral.EuclidBias()
 #EuclidIA = CosmoCentral.ExtendedNLIA()
+
 CℓData = CosmoCentral.Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters), 10,10))
 CℓData.CℓArray = CosmoCentral.ComputeCℓ(CosmoEmulator, w0waCDMCosmology, CosmologicalGrid)
-#TODO now only LL, but this need to be more flexible...maybe list with probes?
-Covaₗₘ = CosmoCentral.InstantiateEvaluateCovariance(CℓData, ConvolvedDensity, CosmologicalGrid, "Lensing",
-"Lensing")
+Covaₗₘ = CosmoCentral.InstantiateEvaluateCovariance(CℓData, ConvolvedDensity,
+CosmologicalGrid, ProbeA, ProbeB)
+
+
+
+println("Created basic covariances")
 CovCℓ = CosmoCentral.InstantiateEvaluateCovariance(Covaₗₘ)
 inumber = 10
 const L = CosmoCentral.EliminationMatrix(inumber)
@@ -85,12 +97,13 @@ for ℓ in 1:length(CℓData.CℓArray[:,1,1])
     Matrix = (CovCℓ.Covariance[ℓ,:,:] .+ transpose(CovCℓ.Covariance[ℓ,:,:])) ./2
     CovCℓ.Covariance[ℓ,:,:] = Matrix
 end
-println(size(CovCℓ.Covariance[1,:,:]))
+println(size(CovCℓ.Covariance))
+println(size(vecpCℓData))
 println("Created Covariance Matrix and mock data")
 
 
 
 model = gdemo(vecpCℓData, CovCℓ, CosmoEmulator, CosmologicalGrid)
 
-chains = sample(model, MH(), MCMCThreads(), 10000, 200; save_state = false)
+chains = sample(model, MH(), MCMCThreads(), 1000, 100; save_state = false)
 write("first_chain-file.jls", chains)
