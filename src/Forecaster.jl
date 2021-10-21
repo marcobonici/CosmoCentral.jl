@@ -607,23 +607,36 @@ function EvaluateFisherMatrix!(VariedParameters::Vector{}, Fisher::AbstractFishe
             ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, "Lensing_Lensing")
             EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
             Fisher.FisherMatrix[indexα, indexβ] = Fisher.FisherDict[Parα*"_"*Parβ]
+            Fisher.FisherMatrixCumℓ[:, indexα, indexβ] =
+            cumsum(Fisher.FisherℓDict[Parα*"_"*Parβ])
         end
     end
 end
 
-function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::AbstractFisher)
+function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::AbstractFisher,
+    cosmogrid::CosmologicalGrid)
     for (idx, Par) in enumerate(reverse(VariedParameters))
         reverse_index = length(VariedParameters)-idx+1
         if Fisher.FisherMatrix[reverse_index, reverse_index] == 0
             Fisher.FisherMatrix = Fisher.FisherMatrix[1:end .!= reverse_index,
             1:end .!= reverse_index]
+            Fisher.FisherMatrixCumℓ = Fisher.FisherMatrixCumℓ[: ,1:end .!= reverse_index,
+            1:end .!= reverse_index]
             Fisher.SelectedParametersList =
             Fisher.SelectedParametersList[1:end .!= reverse_index]
         end
+
     end
     Fisher.CorrelationMatrix = inv(Fisher.FisherMatrix)
+    Fisher.CorrelationMatrixCumℓ = zeros(length(cosmogrid.ℓBinCenters),
+    length(Fisher.SelectedParametersList), length(Fisher.SelectedParametersList))
+    for i in 1:length(cosmogrid.ℓBinCenters)
+        Fisher.CorrelationMatrixCumℓ[i,:,:] = inv(Fisher.FisherMatrixCumℓ[i,:,:])
+    end
     for (idxα, Parα) in enumerate(Fisher.SelectedParametersList)
         Fisher.MarginalizedErrors[Parα] = sqrt(Fisher.CorrelationMatrix[idxα, idxα])
+        Fisher.MarginalizedErrorsCumℓ[Parα] = sqrt.(
+            Fisher.CorrelationMatrixCumℓ[:, idxα, idxα])
     end
 end
 
@@ -983,7 +996,7 @@ function ForecastFisherαβ(forcontainer::ForecastContainer, PathCentralCℓ::St
     Fisher = Fisherαβ()
     VariedParameters = ExtractVariedParameters(forcontainer)
     Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
-    Fisher.FisherMatrixℓ = zeros(length(cosmogrid.ℓBinCenters), length(VariedParameters),
+    Fisher.FisherMatrixCumℓ = zeros(length(cosmogrid.ℓBinCenters), length(VariedParameters),
     length(VariedParameters))
     Fisher.ParametersList = VariedParameters
     Fisher.SelectedParametersList = VariedParameters
@@ -1006,6 +1019,28 @@ function ForecastFisherαβ(forcontainer::ForecastContainer, PathCentralCℓ::St
     "Lensing")
     CovCℓ = InstantiateEvaluateCovariance(Covaₗₘ)
     EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, CovCℓ)
-    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher, cosmogrid)
     return Fisher
+end
+
+function EvaluateNormalizedErrors!(fisher::AbstractFisher, forcontainer::ForecastContainer)
+    for key in fisher.SelectedParametersList
+        value = NormalizingFactor(forcontainer, key)
+        fisher.NormalizedErrors[key] = fisher.MarginalizedErrors[key] / value
+        fisher.NormalizedErrorsCumℓ[key] = fisher.MarginalizedErrorsCumℓ[key] ./ value
+    end
+end
+
+
+function NormalizingFactor(forcontainer::ForecastContainer, param::String)
+    for (key, value) in forcontainer.VariedParsList
+        if key == param
+            if value != 0.
+                return abs(value)
+            else
+                return 1
+            end
+        end
+    end
+    error("Not chosen a parameter present in the list!")
 end

@@ -29,7 +29,7 @@ end
 function EvaluateNoise!(Cov::aₗₘCovariance, ConvDens::AbstractConvolvedDensity,
     ProbeA::String, ProbeB::String)
     if ProbeA == ProbeB
-        if ProbeA =="Lensing"
+        if ProbeA == "Lensing"
             probe_factor = 0.3
         else
             probe_factor = 1.0
@@ -75,8 +75,8 @@ where ``\\boldsymbol{D}_{n}`` is the [`DuplicationMatrix`](@ref).
 """
 function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
     Cov = CℓCovariance()
-    ℓnumber = length(Covaₗₘ.Cℓ.CℓArray[:,1,1])
-    inumber = length(Covaₗₘ.Cℓ.CℓArray[1,1,:])
+    ℓnumber = length(Covaₗₘ.Covariance[:,1,1])
+    inumber = length(Covaₗₘ.Covariance[1,1,:])
     D = DuplicationMatrix(inumber)
     Dᵀ = Transpose(D)
     kronCovaₗₘ = zeros(inumber^2,inumber^2)
