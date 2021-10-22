@@ -14,9 +14,9 @@ abstract type Abstract∂Cℓ{T,N} end
 abstract type AbstractBias{T} end
 abstract type LensingEfficiencyMethod end
 abstract type AbstractIntrinsicAlignment{T} end
-abstract type AbstractFFTLog{T, C, I} end
-abstract type AbstractCovariance{T, N} end
-abstract type AbstractFisher{T, N, S} end
+abstract type AbstractFFTLog{T,C,I} end
+abstract type AbstractCovariance{T} end
+abstract type AbstractFisher{T,S} end
 abstract type AbstractProbe end
 
 """
@@ -70,13 +70,13 @@ end
 This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
 """
 @kwdef mutable struct CosmologicalGrid{T} <: AbstractCosmologicalGrid{T}
-    ZArray::Vector{T} = Array(LinRange(0.001, 2.5, 300))
-    KArray::Vector{T} = LogSpaced(1e-5, 50., 1000)
-    ℓBinCenters::Vector{T} = LinRange(10., 3000., 2991)
-    ℓBinWidths::Vector{T} = LinRange(10., 3000., 2991)
-    KLimberArray::Matrix{T} = zeros(length(ℓBinCenters),
+    ZArray::AbstractArray{T} = LinRange(0.001, 2.5, 300)
+    KArray::AbstractArray{T} = LogSpaced(1e-5, 50., 1000)
+    ℓBinCenters::AbstractArray{T} = LinRange(10., 3000., 2991)
+    ℓBinWidths::AbstractArray{T} = LinRange(10., 3000., 2991)
+    KLimberArray::AbstractArray{T,2} = zeros(length(ℓBinCenters),
     length(ZArray))
-    KBeyondLimberArray::Matrix{T} = zeros(100, 1000)
+    KBeyondLimberArray::AbstractArray{T,2} = zeros(100, 1000)
 end
 
 """
@@ -169,12 +169,12 @@ n_{i}(z)=\\frac{\\int_{z_{i}^{-}}^{z_{i}^{+}}
 ```
 """
 @kwdef mutable struct ConvolvedDensity{T} <: AbstractConvolvedDensity{T}
-    ZBinArray::Vector{T} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
+    ZBinArray::AbstractArray{T} = Array([0.001, 0.418, 0.560, 0.678, 0.789,
     0.900, 1.019, 1.155, 1.324, 1.576, 2.50])
-    DensityNormalizationArray::Vector{T} = ones(length(ZBinArray)-1)
-    DensityGridArray::Matrix{T} = ones(length(ZBinArray)-1, 300)
-    ShiftArray::Vector{T} = zeros(length(ZBinArray)-1)
-    SurfaceDensityArray::Vector{T} = ones(10)
+    DensityNormalizationArray::AbstractArray{T} = ones(length(ZBinArray)-1)
+    DensityGridArray::AbstractArray{T,2} = ones(length(ZBinArray)-1, 300)
+    ShiftArray::AbstractArray{T} = zeros(length(ZBinArray)-1)
+    SurfaceDensityArray::AbstractArray{T} = ones(10)
 end
 
 """
@@ -211,8 +211,8 @@ This struct contains the array with the Galaxy Bias and Galaxy Clustering Weight
 values for all tomographic bins and redshift values in the [`CosmologicalGrid`](@ref).
 """
 @kwdef mutable struct GCWeightFunction{T} <: AbstractWeightFunction{T}
-    WeightFunctionArray::Matrix{T} = zeros(10, 500)
-    BiasArray::Matrix{T} = zeros(size(WeightFunctionArray))
+    WeightFunctionArray::AbstractArray{T,2} = zeros(10, 500)
+    BiasArray::AbstractArray{T,2} = zeros(size(WeightFunctionArray))
     BiasKind::AbstractBias = PiecewiseBias()
 end
 
@@ -255,15 +255,15 @@ Weight Function values for all tomographic bins and redshift values in the
 [`CosmologicalGrid`](@ref)
 """
 @kwdef mutable struct WLWeightFunction{T} <: AbstractWeightFunction{T}
-    WeightFunctionArray::Matrix{T} = zeros(10, 500)
-    LensingEfficiencyArray::Matrix{T} = zeros(10, 500)
-    IntrinsicAlignmentArray::Matrix{T} = zeros(10, 500)
+    WeightFunctionArray::AbstractArray{T,2} = zeros(10, 500)
+    LensingEfficiencyArray::AbstractArray{T,2} = zeros(10, 500)
+    IntrinsicAlignmentArray::AbstractArray{T,2} = zeros(10, 500)
     IntrinsicAlignmentModel::AbstractIntrinsicAlignment = ExtendedNLIA()
 end
 
 @kwdef mutable struct LensingSourceFunction{T} <: AbstractSourceFunction{T}
-    SourceFunctionArray::Matrix{T} = zeros(10, 500)
-    LensingEfficiencyArray::Matrix{T} = zeros(10, 500)
+    SourceFunctionArray::AbstractArray{T,2} = zeros(10, 500)
+    LensingEfficiencyArray::AbstractArray{T,2} = zeros(10, 500)
 end
 
 
@@ -275,12 +275,12 @@ evaluated on the ``k-z`` grid and the interpolated Nonlinear Power Spectrum on
 Limber ``k-z`` grid.
 """
 @kwdef mutable struct PowerSpectrum{T} <: AbstractPowerSpectrum{T}
-    PowerSpectrumLinArray::Matrix{T} = zeros(1000, 300)
-    PowerSpectrumNonlinArray::Matrix{T} = zeros(1000, 300)
-    InterpolatedPowerSpectrum::Matrix{T} = zeros(2991, 300)
-    GrowthFactor::Vector{T} = zeros(
+    PowerSpectrumLinArray::AbstractArray{T,2} = zeros(1000, 300)
+    PowerSpectrumNonlinArray::AbstractArray{T,2} = zeros(1000, 300)
+    InterpolatedPowerSpectrum::AbstractArray{T,2} = zeros(2991, 300)
+    GrowthFactor::AbstractArray{T} = zeros(
     length(PowerSpectrumLinArray[:,1]))
-    InterpolatedPowerSpectrumBeyondLimber::Matrix{T} =
+    InterpolatedPowerSpectrumBeyondLimber::AbstractArray{T,2} =
     zeros(100, 1000)
 end
 
@@ -307,11 +307,11 @@ end
 
 This struct contains the array with the Fisher Matrix.
 """
-@kwdef mutable struct Fisherαβ{T,N,S} <: AbstractFisher{T,N,S}
-    FisherMatrix::Matrix{T} = zeros(8,8)
-    FisherMatrixCumℓ::AbstractArray{T,N} = zeros(100,8,8)
-    CorrelationMatrix::Matrix{T} = zeros(8,8)
-    CorrelationMatrixCumℓ::AbstractArray{T,N} = zeros(100,8,8)
+@kwdef mutable struct Fisherαβ{T,S} <: AbstractFisher{T,S}
+    FisherMatrix::AbstractArray{T,2} = zeros(8,8)
+    FisherMatrixCumℓ::AbstractArray{T,3} = zeros(100,8,8)
+    CorrelationMatrix::AbstractArray{T,2} = zeros(8,8)
+    CorrelationMatrixCumℓ::AbstractArray{T,3} = zeros(100,8,8)
     FisherDict::Dict = Dict()
     FisherℓDict::Dict = Dict()
     ParametersList::Vector{S} = []
@@ -328,11 +328,11 @@ end
 This struct contains the Covariance in the field perspective, i.e. when the observables are the 
 ``a_{\\ell m}``'s.
 """
-@kwdef mutable struct aₗₘCovariance{T, N}  <: AbstractCovariance{T, N}
-    Covariance::AbstractArray{T, N} = zeros(2991, 10, 10)
+@kwdef mutable struct aₗₘCovariance{T}  <: AbstractCovariance{T}
+    Covariance::AbstractArray{T,3} = zeros(2991, 10, 10)
     Cℓ::AbstractCℓ = Cℓ()
-    Noise::AbstractArray{T, N} = zeros(2991, 10, 10)
-    Covariance⁻¹::AbstractArray{T, N} = zeros(2991, 10, 10)
+    Noise::AbstractArray{T,3} = zeros(2991, 10, 10)
+    Covariance⁻¹::AbstractArray{T,3} = zeros(2991, 10, 10)
 end
 
 """
@@ -341,9 +341,9 @@ end
 This struct contains the Covariance in the estimator perspective, i.e. when the observables
 are the ``C_{\\ell}``'s.
 """
-@kwdef mutable struct CℓCovariance{T, N}  <: AbstractCovariance{T, N}
-    Covariance::AbstractArray{T, N} = zeros(2991, 10, 10)
-    Covariance⁻¹::AbstractArray{T, N} = zeros(2991, 10, 10)
+@kwdef mutable struct CℓCovariance{T}  <: AbstractCovariance{T}
+    Covariance::AbstractArray{T,3} = zeros(2991, 10, 10)
+    Covariance⁻¹::AbstractArray{T,3} = zeros(2991, 10, 10)
 end
 
 
@@ -368,10 +368,10 @@ struct BSplineCubic <: InterpolationMethod end
 struct StandardLensingEfficiency <: LensingEfficiencyMethod end
 struct CustomLensingEfficiency <: LensingEfficiencyMethod end
 
-@kwdef mutable struct FFTLog{T, C, I} <: AbstractFFTLog{T, C, I}
-    XArray::Vector{T}
+@kwdef mutable struct FFTLog{T,C,I} <: AbstractFFTLog{T,C,I}
+    XArray::AbstractArray{T}
     DLnX::T = log(XArray[2]/XArray[1])
-    FXArray::Vector{T}
+    FXArray::AbstractArray{T}
     OriginalLenght::I = length(XArray)
     ν::T = 1.01
     NExtrapLow::I = 0
@@ -379,9 +379,9 @@ struct CustomLensingEfficiency <: LensingEfficiencyMethod end
     CWindowWidth::T = 0.25
     NPad::I = 500
     N::I = OriginalLenght+NExtrapHigh+NExtrapLow+2*NPad
-    M::Vector{T} = zeros(N)
-    CM::Vector{C} = zeros(N)
-    ηM::Vector{T} = zeros(N)
+    M::AbstractArray{T} = zeros(N)
+    CM::AbstractArray{C} = zeros(N)
+    ηM::AbstractArray{T} = zeros(N)
 end
 
 """

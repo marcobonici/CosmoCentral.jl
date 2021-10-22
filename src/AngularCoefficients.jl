@@ -75,17 +75,19 @@ end
 
 
 """
-    CustomCℓIntegrator!(SimpsonWeights::Array{T}, CℓArray::Array{T, N},
-    WArrayA::Matrix{T}, WArrayB::Matrix{T}, ZStep::T, HZArray::Array{T},
-    χZArray::Array{T}, InterpolatedPmm::Matrix{T}) where {T, N}
+    CustomCℓIntegrator!(SimpsonWeights::AbstractArray{T}, CℓArray::AbstractArray{T, N},
+    WArrayA::AbstractArray{T,N}, WArrayB::AbstractArray{T,N}, ZStep::T,
+    HZArray::AbstractArray{T}, χZArray::AbstractArray{T},
+    InterpolatedPmm::AbstractArray{T,N}) where {T, N}
 
 This function computes the Cℓ, given the appropriate input, using the Simpson integration 
 rule. The computation is accelerated by
 [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl) .
 """
-function CustomCℓIntegrator!(SimpsonWeights::Array{T}, CℓArray::Array{T, N},
-    WArrayA::Matrix{T}, WArrayB::Matrix{T}, ZStep::T, HZArray::Array{T},
-    χZArray::Array{T}, InterpolatedPmm::Matrix{T}) where {T, N}
+function CustomCℓIntegrator!(SimpsonWeights::AbstractArray{T}, CℓArray::AbstractArray{T, N},
+    WArrayA::AbstractArray{T,2}, WArrayB::AbstractArray{T,2}, ZStep::T,
+    HZArray::AbstractArray{T}, χZArray::AbstractArray{T},
+    InterpolatedPmm::AbstractArray{<:Number}) where {T, N}
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     @avx for i ∈ axes(CℓArray,2),

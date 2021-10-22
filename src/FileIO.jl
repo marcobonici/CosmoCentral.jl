@@ -29,7 +29,7 @@ function WriteCosmology!(Cosmology::w0waCDMCosmology, Filename::String)
 end
 
 function WriteCosmology!(Cosmology::Flatw0waCDMCosmology, Filename::String)
-    CosmoDict = Dict{String,Float64}()
+    CosmoDict = Dict{String,Float}()
     CosmoDict["w0"]  = Cosmology.w0
     CosmoDict["wa"]  = Cosmology.wa
     CosmoDict["Mν"]  = Cosmology.Mν

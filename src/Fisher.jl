@@ -8,7 +8,7 @@ function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::aₗₘCova
     FisherMatrix.FisherℓDict[Parα*"_"*Parβ] = fisherelementℓ
 end
 
-function mymatmul(A::Array{T, N}, B::Array{T, N}) where {T,N}
+function mymatmul(A::AbstractArray{T, 3}, B::AbstractArray{T, 3}) where T
     C = zeros(size(A))
     @avx for l in 1:length(A[:,1,1])
         for i in 1:length(A[1,:,1])
@@ -22,7 +22,7 @@ function mymatmul(A::Array{T, N}, B::Array{T, N}) where {T,N}
     return C
 end
 
-function SumℓAndTrace(Fisherℓ::Array{T, N}) where {T,N}
+function SumℓAndTrace(Fisherℓ::AbstractArray{T, 3}) where T
     fisherelement = 0
     fisherelementℓ = zeros(size(Fisherℓ)[1])
     @avx for ℓ in 1:size(Fisherℓ)[1]

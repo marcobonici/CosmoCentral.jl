@@ -190,10 +190,10 @@ end
     test_Omega_cdm = w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
     w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2)
     @test test_Omega_cdm == classyParams.classyParamsDict["Omega_cdm"]
-    x = LinRange(log10(first(CosmologicalGrid.KArray)),
-    log10(last(CosmologicalGrid.KArray)), length(CosmologicalGrid.KArray))
-    y = LinRange(first(CosmologicalGrid.ZArray), last(CosmologicalGrid.ZArray),
-    length(CosmologicalGrid.ZArray))
+    x = Array(LinRange(log10(first(CosmologicalGrid.KArray)),
+    log10(last(CosmologicalGrid.KArray)), length(CosmologicalGrid.KArray)))
+    y = Array(LinRange(first(CosmologicalGrid.ZArray), last(CosmologicalGrid.ZArray),
+    length(CosmologicalGrid.ZArray)))
     InterpPmm = Interpolations.interpolate(
     log10.(PowerSpectrum.PowerSpectrumNonlinArray),
     BSpline(Cubic(Line(OnGrid()))))
@@ -257,7 +257,9 @@ end
     end
 
     steps = Array([0.00625, 0.01250, 0.01875, 0.02500, 0.03750, 0.05000, 0.10000])
-    CosmologicalGrid = CosmoCentral.CosmologicalGrid(ZArray = LinRange(0.001, 4., 500), KArray = CosmoCentral.LogSpaced(1e-5, 50., 1000), ℓBinCenters = MultipolesArray, ℓBinWidths = MultipolesWidths)
+    CosmologicalGrid = CosmoCentral.CosmologicalGrid(ZArray =
+    Array(LinRange(0.001, 4., 500)), KArray = CosmoCentral.LogSpaced(1e-5, 50., 1000),
+    ℓBinCenters = MultipolesArray, ℓBinWidths = MultipolesWidths)
     ProbesDict = JSON.parsefile(pwd()*"/AngularNew.json")
     CosmoDict = JSON.parsefile(pwd()*"/Cosmology.json")
     ForecastContainer = CosmoCentral.InitializeForecastContainer(CosmoDict, ProbesDict,

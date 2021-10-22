@@ -69,12 +69,9 @@ function ComputeLensingEfficiency(z::T, i::I,
     return int
 end
 
-function ComputeLensingEfficiency(z::T, i::I,
-    ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse,
-    Cosmology::AbstractCosmology,
-    CosmologicalGrid::CosmologicalGrid,
+function ComputeLensingEfficiency(z::T, i::I, ConvolvedDensity::AbstractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse,
+    Cosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
     LensingSourceFunction::LensingSourceFunction) where {T,I}
     int, err = quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*

@@ -33,7 +33,7 @@ end
 Given a value ``z`` and an Array, determines the couple of array elements where
 ``z`` lies and returns the index corresponding to the first value.
 """
-function BinSearch(x::T, Array::Vector{T}) where T
+function BinSearch(x::T, Array::AbstractArray{T}) where T
     idx = 1
     if x <= first(Array)
         idx = 1
@@ -122,7 +122,7 @@ end
 
 This function evaluates the n-th discrete difference of a given 1-D array.
 """
-function Difference(InputArray::Vector{T}) where T
+function Difference(InputArray::AbstractArray{T}) where T
     OutputArray = zeros(length(InputArray)-1)
     for i in 1:length(InputArray)-1
         OutputArray[i] = InputArray[i+1] - InputArray[i]
@@ -137,7 +137,7 @@ end
 This function evaluates the array of weights for the integration with uneven
 spaced points and the Trapezoidal rule.
 """
-function UnevenTrapzWeightArray(InputArray::Vector{T}) where T
+function UnevenTrapzWeightArray(InputArray::AbstractArray{T}) where T
     WeightArray = zeros(length(InputArray))
     DifferenceArray = Difference(InputArray)
     for idx in 2:length(WeightArray)-1
@@ -148,7 +148,7 @@ function UnevenTrapzWeightArray(InputArray::Vector{T}) where T
     return WeightArray
 end
 
-function UnevenTrapzWeightMatrix(InputMatrix::Matrix{T}) where T
+function UnevenTrapzWeightMatrix(InputMatrix::AbstractArray{T,2}) where T
     WeightMatrix = zeros(size(InputMatrix))
     for lidx in 1:length(WeightMatrix[:,1])
         WeightMatrix[lidx,:] = UnevenTrapzWeightArray(InputMatrix[lidx,:])
