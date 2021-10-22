@@ -4,22 +4,22 @@ CosmoCentral is a Julia package to perform cosmological calculations. Actually
 it can evaluate:
 
 - Background quantities for ``w_0 w_a``CDM cosmologies
-- Source densities, with an analitycal in input
+- Galaxy redshift densities, with an analitycal in input
 - Angular Correlation functions, ``C_{ℓ}``'s, for Galaxy Clustering and Weak Lensing using the Limber approximation
-- Derivatives of ``C_{ℓ}``'s with respect to Cosmological Parameters 
+- Derivatives of ``C_{ℓ}``'s with respect to Cosmological Parameters
 - Fisher Matrices and Marginalized errors
 
 We aim to include also:
 - Include other effects to the probes considered (e.g. magnification bias, redshift space distortions etc.)
-- Angular Correlation functions, for other probes
-- Evaluation of ``C_{ℓ}``'s beyond Limber approximation
-- Plot of Fisher Matrix 2D contours
+- Evaluation of ``C_{ℓ}``'s beyond Limber approximation (WIP)
+- Plot of Fisher Matrix 2D contours (WIP)
 
 
 
 ### Authors
 
 - Marco Bonici, INAF - Institute of Space Astrophysics and Cosmic Physics (IASF), Milano
+- Carmelita Carbone, INAF - Institute of Space Astrophysics and Cosmic Physics (IASF), Milano
 
 
 ## Usage

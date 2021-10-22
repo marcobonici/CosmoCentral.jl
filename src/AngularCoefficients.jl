@@ -10,9 +10,10 @@ struct BeyondLimber <: IntegrationMethod end
     PowerSpectrum::AbstractPowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
-multipole values. In order to evaluate the numerical integrals, it is used the
+multipole values. In order to evaluate the numerical integrals, it is emplyed the
 Simpson numerical method from
-[NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl) .
+[NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl) . This is
+not the fastest method available, but can be used as a benchmark to check consistency.
 """
 function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFunction,
     WeightFunctionB::AbstractWeightFunction, BackgroundQuantities::BackgroundQuantities,
@@ -72,9 +73,21 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
     end
 end
 
-function CustomCℓIntegrator!(SimpsonWeights::Array{Float64}, CℓArray::Array{Float64, 3},
-    WArrayA::Array{Float64, 2}, WArrayB::Array{Float64, 2}, ZStep::Float64,
-    HZArray::Array{Float64}, χZArray::Array{Float64}, InterpolatedPmm::Array{Float64, 2})
+
+"""
+    CustomCℓIntegrator!(SimpsonWeights::AbstractArray{T}, CℓArray::AbstractArray{T, N},
+    WArrayA::AbstractArray{T,N}, WArrayB::AbstractArray{T,N}, ZStep::T,
+    HZArray::AbstractArray{T}, χZArray::AbstractArray{T},
+    InterpolatedPmm::AbstractArray{T,N}) where {T, N}
+
+This function computes the Cℓ, given the appropriate input, using the Simpson integration 
+rule. The computation is accelerated by
+[LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl) .
+"""
+function CustomCℓIntegrator!(SimpsonWeights::AbstractArray{T}, CℓArray::AbstractArray{T, N},
+    WArrayA::AbstractArray{T,2}, WArrayB::AbstractArray{T,2}, ZStep::T,
+    HZArray::AbstractArray{T}, χZArray::AbstractArray{T},
+    InterpolatedPmm::AbstractArray{<:Number}) where {T, N}
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     @avx for i ∈ axes(CℓArray,2),

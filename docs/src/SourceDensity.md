@@ -39,3 +39,42 @@ CosmoCentral.ComputeConvolvedDensity
 CosmoCentral.NormalizeConvolvedDensity!
 CosmoCentral.ComputeConvolvedDensityGrid!
 ```
+Here we show how to calculate ``n_g^i(z)``, then we will plot it
+```@example tutorial
+using Plots
+using CosmoCentral
+using LaTeXStrings
+
+#instantiate cosmology and grid
+w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
+CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
+ZArray=Array(LinRange(0.001, 4.0, 500)))
+
+#instantiate the analytical density and normalize it
+AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+CosmoCentral.NormalizeAnalitycalDensity!(AnalitycalDensity)
+
+#instantiate the instrument response and compute the convolved density
+InstrumentResponse = CosmoCentral.InstrumentResponse()
+ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray = ones(10,
+length(CosmologicalGrid.ZArray)))
+CosmoCentral.NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity,
+InstrumentResponse, CosmologicalGrid)
+CosmoCentral.ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity,
+AnalitycalDensity, InstrumentResponse)
+
+#plot
+plot_font = "Computer Modern"
+Plots.default(titlefont = (16, plot_font), fontfamily=plot_font,
+        linewidth=2, framestyle=:box, fg_legend =:black, label=nothing, grid=false,
+        tickfontsize=12, legendfontsize=12, size = (550, 400), labelfontsize = 13,
+        dpi = 200)
+
+p = Plots.plot(xlabel=L"z", ylabel=L"n_i^g(z)",
+    title="Normalized galaxy density")
+for i in 1:10
+Plots.plot!(p, CosmologicalGrid.ZArray, ConvolvedDensity.DensityGridArray[i,:],
+    labels=(L"i=%$i"),  linewidth=3)
+end
+p
+```

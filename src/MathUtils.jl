@@ -4,7 +4,7 @@
 This function evaluates ``n`` points, logarithmically spaced between
     ``min`` and ``max``.
 """
-function LogSpaced(min::Float64, max::Float64, n::Int64)
+function LogSpaced(min::T, max::T, n::I) where {T,I}
     logmin = log10(min)
     logmax = log10(max)
     logarray = Array(LinRange(logmin, logmax, n))
@@ -17,7 +17,7 @@ end
 This function evaluates ``n`` points, logarithmically spaced between
     ``min`` and ``max``.
 """
-function ΔLogSpaced(min::Float64, max::Float64, n::Int64)
+function ΔLogSpaced(min::T, max::T, n::I) where {T,I}
     λmin = log10(min)
     λmax = log10(max)
     Δℓ = zeros(n)
@@ -33,7 +33,7 @@ end
 Given a value ``z`` and an Array, determines the couple of array elements where
 ``z`` lies and returns the index corresponding to the first value.
 """
-function BinSearch(x::Float64, Array::Vector{Float64})
+function BinSearch(x::T, Array::AbstractArray{T}) where T
     idx = 1
     if x <= first(Array)
         idx = 1
@@ -53,7 +53,7 @@ end
 Given two arrays ``x`` and ``y``, performs the linear regression and returns the
 coefficients ``c`` and ``m`` of the fitted line.
 """
-function CustomRegression(x::Vector{Float64}, y::Vector{Float64})
+function CustomRegression(x::Vector{T}, y::Vector{T}) where T
     x_mean = mean(x)
     y_mean = mean(y)
     m = 0
@@ -73,7 +73,7 @@ end
 This function evaluates an array with the Simpson weight, for Simpson
 Integration
 """
-function SimpsonWeightArray(n::Int64)
+function SimpsonWeightArray(n::I) where I
     number_intervals = floor((n-1)/2)
     weight_array = zeros(n)
     if n == number_intervals*2+1
@@ -108,7 +108,7 @@ end
 This function evaluates an array with the Simpson weight, for Simpson
 Integration of the Lensing Efficiency
 """
-function SimpsonWeightMatrix(n::Int64)
+function SimpsonWeightMatrix(n::I) where I
     number_intervals = floor((n-1)/2)
     weight_matrix = zeros(n, n)
     for i in 1:n
@@ -122,7 +122,7 @@ end
 
 This function evaluates the n-th discrete difference of a given 1-D array.
 """
-function Difference(InputArray::Vector{Float64})
+function Difference(InputArray::AbstractArray{T}) where T
     OutputArray = zeros(length(InputArray)-1)
     for i in 1:length(InputArray)-1
         OutputArray[i] = InputArray[i+1] - InputArray[i]
@@ -137,7 +137,7 @@ end
 This function evaluates the array of weights for the integration with uneven
 spaced points and the Trapezoidal rule.
 """
-function UnevenTrapzWeightArray(InputArray::Vector{Float64})
+function UnevenTrapzWeightArray(InputArray::AbstractArray{T}) where T
     WeightArray = zeros(length(InputArray))
     DifferenceArray = Difference(InputArray)
     for idx in 2:length(WeightArray)-1
@@ -148,7 +148,7 @@ function UnevenTrapzWeightArray(InputArray::Vector{Float64})
     return WeightArray
 end
 
-function UnevenTrapzWeightMatrix(InputMatrix::AbstractArray{Float64, 2})
+function UnevenTrapzWeightMatrix(InputMatrix::AbstractArray{T,2}) where T
     WeightMatrix = zeros(size(InputMatrix))
     for lidx in 1:length(WeightMatrix[:,1])
         WeightMatrix[lidx,:] = UnevenTrapzWeightArray(InputMatrix[lidx,:])
@@ -156,25 +156,25 @@ function UnevenTrapzWeightMatrix(InputMatrix::AbstractArray{Float64, 2})
     return WeightMatrix
 end
 
-function uᵢⱼ(n::Int, i::Int, j::Int)
+function uᵢⱼ(n::I, i::I, j::I) where I
     u = zeros(floor(Int,0.5*n*(n+1)))
     u[floor(Int64, (j-1)*n+i-0.5*j*(j-1))] = 1
     return u
 end
 
-function eᵢ(n::Int, i::Int)
+function eᵢ(n::I, i::I) where I
     e = zeros(n)
     e[i] = 1
     return e
 end
 
-function Eᵢⱼ(n::Int, i::Int, j::Int)
+function Eᵢⱼ(n::I, i::I, j::I) where I
     E = zeros((n,n))
     E[i,j] = 1
     return E
 end
 
-function Tᵢⱼ(n::Int, i::Int, j::Int)
+function Tᵢⱼ(n::I, i::I, j::I) where I
     if i != j
         T = Eᵢⱼ(n,i,j) + Eᵢⱼ(n,j,i)
     else
@@ -183,7 +183,7 @@ function Tᵢⱼ(n::Int, i::Int, j::Int)
     return T
 end
 
-function EliminationMatrix(n::Int)
+function EliminationMatrix(n::I) where I
     L = zeros((floor(Int64,0.5*n*(n+1)), n*n))
     for i in 1:n
         for j in 1:i
@@ -198,7 +198,7 @@ end
 
 Duplication matrix ``\\boldsymbol{D}_n``.
 """
-function DuplicationMatrix(n::Int)
+function DuplicationMatrix(n::I) where I
     D = zeros((n*n, floor(Int64,0.5*n*(n+1))))
     for i in 1:n
         for j in 1:i

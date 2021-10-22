@@ -14,7 +14,7 @@ E(z)=\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
     [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
     of the Dark Energy Equation of State.
 """
-function ComputeAdimensionalHubbleFactor(z::Float64, w0waCDMCosmology::w0waCDMCosmology)
+function ComputeAdimensionalHubbleFactor(z::T, w0waCDMCosmology::w0waCDMCosmology) where T
     E_z = sqrt(w0waCDMCosmology.ΩM*(1+z)^3 + w0waCDMCosmology.Ωr*(1+z)^4+
     w0waCDMCosmology.Ωk*(1+z)^2
     +w0waCDMCosmology.ΩDE*(1+z)^(3*(1+w0waCDMCosmology.w0+
@@ -22,8 +22,8 @@ function ComputeAdimensionalHubbleFactor(z::Float64, w0waCDMCosmology::w0waCDMCo
     return E_z
 end
 
-function ComputeAdimensionalHubbleFactor(z::Float64,
-    flatw0waCDMCosmology::Flatw0waCDMCosmology)
+function ComputeAdimensionalHubbleFactor(z::T, 
+    flatw0waCDMCosmology::Flatw0waCDMCosmology) where T
     E_z = sqrt(flatw0waCDMCosmology.ΩM*(1+z)^3
     +(1-flatw0waCDMCosmology.ΩM)*(1+z)^(3*(1+flatw0waCDMCosmology.w0+
     flatw0waCDMCosmology.wa))*exp(-3*flatw0waCDMCosmology.wa*z/(1+z)) )
@@ -41,7 +41,7 @@ H(z)=H_0\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
 ```
 
 """
-function ComputeHubbleFactor(z::Float64, AbstractCosmology::AbstractCosmology)
+function ComputeHubbleFactor(z::T, AbstractCosmology::AbstractCosmology) where T
     H_z = AbstractCosmology.H0*ComputeAdimensionalHubbleFactor(z,
     AbstractCosmology)
     return H_z
@@ -56,11 +56,10 @@ Comoving Distance χ. It is evaluated as:
 \\chi(z)=\\frac{c}{H_0}\\int_0^z \\frac{dz'}{E(z')}
 ```
 """
-function Computeχ(z::Float64,
-    AbstractCosmology::AbstractCosmology)
+function Computeχ(z::T, AbstractCosmology::AbstractCosmology) where T
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
-    integral, err = QuadGK.quadgk(x -> 1 /
+    integral, err = quadgk(x -> 1 /
     ComputeAdimensionalHubbleFactor(x,AbstractCosmology), 0, z, rtol=1e-12)
     return integral*c_0/AbstractCosmology.H0
 end

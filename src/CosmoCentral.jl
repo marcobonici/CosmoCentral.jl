@@ -1,7 +1,7 @@
 __precompile__()
 module CosmoCentral
 
-using QuadGK
+using QuadGK: quadgk
 using Base: @kwdef
 using Parameters
 using NumericalIntegration
@@ -50,5 +50,6 @@ include("Covariance.jl")
 include("Fisher.jl")
 include("MCMCUtils.jl")
 include("Emulator.jl")
+include("Probes.jl")
 
 end # module

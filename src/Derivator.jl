@@ -12,7 +12,7 @@ difference) the linear ansatz is satisfied and the slope gives the derivative
 - if the linear ansatz is not satisfied, the external couple of points and the
 linear regression is performed again till the linear ansatz is satisfied
 """
-function SteMDerivative(x::Vector{Float64}, y::Vector{Float64})
+function SteMDerivative(x::Vector{T}, y::Vector{T}) where T
     x_copy = deepcopy(x)
     y_copy = deepcopy(y)
     if minimum(y) == maximum(y)

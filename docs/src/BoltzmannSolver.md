@@ -1,3 +1,32 @@
+```@setup tutorial
+using Plots; gr()
+Plots.reset_defaults()
+using CosmoCentral
+using LaTeXStrings
+
+w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
+CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
+ZArray=Array(LinRange(0.001, 4.0, 500)))
+
+plot_font = "Computer Modern"
+Plots.default(titlefont = (16, plot_font), fontfamily=plot_font,
+        linewidth=2, framestyle=:box, fg_legend =:black, label=nothing, grid=false,
+        tickfontsize=12, legendfontsize=12, size = (550, 400), labelfontsize = 13,
+        dpi = 200)
+
+MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,5000., 101)
+MultipolesArray = zeros(length(MultipolesArrayTemp)-1)
+#MultipolesWidths = vcat(CosmoCentral.Difference(MultipolesArrayTemp), ones(2000))
+MultipolesWidths = CosmoCentral.Difference(MultipolesArrayTemp)
+for i in 1:length(MultipolesWidths)
+    MultipolesArray[i] = (MultipolesArrayTemp[i+1]+MultipolesArrayTemp[i])/2
+end
+
+path = joinpath(pwd(),"..","..","test","p_mm")
+PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+CosmoCentral.ReadPowerSpectrumBackground(path, MultipolesArray, MultipolesWidths)
+```
+
 # BoltzmannSolver
 
 One of the core components of CosmoCentral are the Boltzmann solvers, codes
@@ -26,4 +55,13 @@ classy is the Python wrapper for [CLASS](http://class-code.net/).
 CosmoCentral.classyParams
 CosmoCentral.Initializeclassy
 CosmoCentral.EvaluatePowerSpectrum!
+```
+For instance, here we show the linear and nonlinear ``P_{\delta\delta}(k,z)``, evaluated by
+CLASS, for a the reference cosmology.
+```@example tutorial
+p = plot(CosmologicalGrid.KArray, PowerSpectrum.PowerSpectrumLinArray[:,1],
+ylabel = L"P(k)\,(\mathrm{Mpc}^{-3})", xlabel = L"k\,(\mathrm{Mpc}^{-1})", xaxis=:log,
+yaxis=:log, label = L"\mathrm{Linear}", xlims = (1e-5,10), ylims = (1,1e5))
+plot!(p, CosmologicalGrid.KArray, PowerSpectrum.PowerSpectrumNonlinArray[:,1],
+xaxis=:log, yaxis=:log, label = L"\mathrm{Nonlinear}")
 ```

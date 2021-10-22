@@ -3,11 +3,12 @@ function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::aₗₘCova
     αMatrix = mymatmul(∂Cℓα.∂CℓArray,Cov.Covariance⁻¹)
     βMatrix = mymatmul(∂Cℓβ.∂CℓArray,Cov.Covariance⁻¹)
     Fisherℓ = mymatmul(αMatrix, βMatrix)
-    fisherelement = SumℓAndTrace(Fisherℓ)
+    fisherelementℓ, fisherelement = SumℓAndTrace(Fisherℓ)
     FisherMatrix.FisherDict[Parα*"_"*Parβ] = fisherelement
+    FisherMatrix.FisherℓDict[Parα*"_"*Parβ] = fisherelementℓ
 end
 
-function mymatmul(A::Array{Float64, 3}, B::Array{Float64, 3})
+function mymatmul(A::AbstractArray{T, 3}, B::AbstractArray{T, 3}) where T
     C = zeros(size(A))
     @avx for l in 1:length(A[:,1,1])
         for i in 1:length(A[1,:,1])
@@ -21,14 +22,15 @@ function mymatmul(A::Array{Float64, 3}, B::Array{Float64, 3})
     return C
 end
 
-function SumℓAndTrace(Fisherℓ::Array{Float64, 3})
+function SumℓAndTrace(Fisherℓ::AbstractArray{T, 3}) where T
     fisherelement = 0
+    fisherelementℓ = zeros(size(Fisherℓ)[1])
     @avx for ℓ in 1:size(Fisherℓ)[1]
         for i in 1:size(Fisherℓ)[2]
-            fisherelement += Fisherℓ[ℓ, i, i]
+            fisherelementℓ[ℓ] += Fisherℓ[ℓ, i, i]
         end
     end
-    return fisherelement
+    return fisherelementℓ, sum(fisherelementℓ)
 end
 
 function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::CℓCovariance,
@@ -39,6 +41,7 @@ function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::CℓCovaria
 
     vecp∂CℓαᵀCov⁻¹ = zeros(1,floor(Int,inumber*0.5*(inumber+1)))
     fisher_temp = zeros(1,1)
+    FisherMatrix.FisherℓDict[Parα*"_"*Parβ] = zeros(ℓnumber)
     fisherelement = 0
     for ℓ in 1:ℓnumber
         vec∂Cℓα = vec(∂Cℓα.∂CℓArray[ℓ,:,:])
@@ -52,6 +55,7 @@ function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::CℓCovaria
         Covariance⁻¹ = Cov.Covariance⁻¹[ℓ,:,:]
         LinearAlgebra.mul!(vecp∂CℓαᵀCov⁻¹, transpose(vecp∂Cℓα), Covariance⁻¹)
         LinearAlgebra.mul!(fisher_temp, vecp∂CℓαᵀCov⁻¹, vecp∂Cℓβ)
+        FisherMatrix.FisherℓDict[Parα*"_"*Parβ][ℓ] = fisher_temp[1,1]
         fisherelement += fisher_temp[1,1]
     end
     FisherMatrix.FisherDict[Parα*"_"*Parβ] = fisherelement
