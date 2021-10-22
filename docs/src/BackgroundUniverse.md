@@ -1,3 +1,25 @@
+```@setup tutorial
+using Plots; gr()
+Plots.reset_defaults()
+using CosmoCentral
+using LaTeXStrings
+
+w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
+CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
+ZArray=Array(LinRange(0.001, 4.0, 500)))
+
+plot_font = "Computer Modern"
+Plots.default(titlefont = (16, plot_font), fontfamily=plot_font,
+        linewidth=2, framestyle=:box, fg_legend =:black, label=nothing, grid=false,
+        tickfontsize=12, legendfontsize=12, size = (550, 400), labelfontsize = 13,
+        dpi = 200)
+
+
+CosmologicalGrid = CosmoCentral.CosmologicalGrid(ZArray = LinRange(0.001, 2.5, 500))
+ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
+        ones(10, length(CosmologicalGrid.ZArray)))
+```
+
 # Background Universe
 
 Some of the most basics quantities in cosmology are the Hubble factor ``H(z)``
@@ -16,23 +38,26 @@ CosmoCentral.Computeχ
 ```
 
 ## Utils
+A useful function, regarding the background quantities, is
+[`CosmoCentral.ComputeBackgroundQuantitiesGrid!`](@ref). It computes the background
+quantities over the redshift grid.
 ```@docs
 CosmoCentral.ComputeBackgroundQuantitiesGrid!
 ```
 Here we show how to calculate ``H(z)`` and ``\chi(z)`` over the redshift grid, then we plot 
 them
 ```@example tutorial
-using Plots
-using CosmoCentral
-w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
-CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
-ZArray=Array(LinRange(0.001, 4.0, 500)))
+
+#instantiate background quantities and compute them
 BackgroundQuantities = CosmoCentral.BackgroundQuantities(HZArray=
 zeros(length(CosmologicalGrid.ZArray)),
 χZArray=zeros(length(CosmologicalGrid.ZArray)))
 CosmoCentral.ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
 BackgroundQuantities, w0waCDMCosmology)
-pH = plot(CosmologicalGrid.ZArray, BackgroundQuantities.HZArray./ w0waCDMCosmology.H0, ylabel = "E(z)", xlabel="z")
-pχ = plot(CosmologicalGrid.ZArray, BackgroundQuantities.χZArray, ylabel = "χ(z) (Mpc)", xlabel="z")
+
+pH = plot(CosmologicalGrid.ZArray, BackgroundQuantities.HZArray./ w0waCDMCosmology.H0,
+ylabel = L"E(z)")
+pχ = plot(CosmologicalGrid.ZArray, BackgroundQuantities.χZArray,
+ylabel = L"\chi(z) (\mathrm{Mpc})", xlabel= L"z")
 plot(pH, pχ, layout = (2, 1), legend = false)
 ```

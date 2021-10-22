@@ -1,3 +1,47 @@
+```@setup tutorial
+using Plots; gr()
+Plots.reset_defaults()
+using PlotThemes
+using CosmoCentral
+using LaTeXStrings
+default(palette = palette(:tab10))
+
+w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
+
+
+plot_font = "Computer Modern"
+Plots.default(titlefont = (16, plot_font), fontfamily=plot_font,
+        linewidth=2, framestyle=:box, fg_legend =:black, label=nothing, grid=false,
+        tickfontsize=12, legendfontsize=12, size = (550, 400), labelfontsize = 13,
+        dpi = 200)
+
+MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,5000., 101)
+MultipolesArray = zeros(length(MultipolesArrayTemp)-1)
+#MultipolesWidths = vcat(CosmoCentral.Difference(MultipolesArrayTemp), ones(2000))
+MultipolesWidths = CosmoCentral.Difference(MultipolesArrayTemp)
+for i in 1:length(MultipolesWidths)
+    MultipolesArray[i] = (MultipolesArrayTemp[i+1]+MultipolesArrayTemp[i])/2
+end
+
+path = joinpath(pwd(),"..","..","test","p_mm")
+PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+CosmoCentral.ReadPowerSpectrumBackground(path, MultipolesArray, MultipolesWidths)
+CosmoCentral.ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+
+
+AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+CosmoCentral.NormalizeAnalitycalDensity!(AnalitycalDensity)
+
+#instantiate the instrument response and compute the convolved density
+InstrumentResponse = CosmoCentral.InstrumentResponse()
+ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray = ones(10,
+length(CosmologicalGrid.ZArray)))
+CosmoCentral.NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity,
+InstrumentResponse, CosmologicalGrid)
+CosmoCentral.ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity,
+AnalitycalDensity, InstrumentResponse)
+```
+
 # Weight Function
 
 ## Galaxy Clustering
@@ -21,6 +65,19 @@ CosmoCentral.ComputeWeightFunctionGrid!(
     CosmologicalGrid::CosmoCentral.CosmologicalGrid,
     BackgroundQuantities::CosmoCentral.BackgroundQuantities,
     w0waCDMCosmology::CosmoCentral.w0waCDMCosmology)
+```
+For instance, here we plot the Galaxy Clustering weight function with a piecewise bias
+```@example tutorial
+PiecewiseBias = CosmoCentral.PiecewiseBias()
+GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
+CosmoCentral.ComputeBiasGrid!(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
+CosmoCentral.ComputeWeightFunctionGrid!(GCWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+p = Plots.plot(xlabel=L"z", ylabel=L"W_i^g(z)")
+for i in 1:10
+Plots.plot!(p, CosmologicalGrid.ZArray, GCWeightFunction.WeightFunctionArray[i,:],
+    labels=(L"i=%$i"),  linewidth=3)
+end
+p
 ```
 
 # Weak Lensing
@@ -71,4 +128,27 @@ CosmoCentral.ComputeLensingEfficiencyGrid!(wlWeightFunction::CosmoCentral.WLWeig
     CosmologicalGrid::CosmoCentral.CosmologicalGrid,
     BackgroundQuantities::CosmoCentral.BackgroundQuantities,
     w0waCDMCosmology::CosmoCentral.w0waCDMCosmology, ::CosmoCentral.CustomLensingEfficiency)
+```
+Here we plot the Weak Lensing weight function. In particular, the solid lines are pure shear,
+while the dotted lines includes the Intrinsic Alignment contribution.
+```@example tutorial
+WLWeightFunction = CosmoCentral.WLWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)), LensingEfficiencyArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
+CosmoCentral.ComputeLensingEfficiencyGrid!(
+    WLWeightFunction, ConvolvedDensity,
+    CosmologicalGrid,
+    BackgroundQuantities,
+    w0waCDMCosmology, CosmoCentral.CustomLensingEfficiency())
+CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+p = Plots.plot(xlabel=L"z", ylabel=L"W_i^g(z)")
+for i in 1:10
+Plots.plot!(p, CosmologicalGrid.ZArray, WLWeightFunction.WeightFunctionArray[i,:],
+    labels=(L"i=%$i"),  linewidth=3)
+end
+CosmoCentral.ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, WLWeightFunction, ConvolvedDensity, BackgroundQuantities, w0waCDMCosmology)
+CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+for i in 1:10
+Plots.plot!(p, CosmologicalGrid.ZArray, WLWeightFunction.WeightFunctionArray[i,:],
+linewidth=3, linestyle = :dot)
+end
+p
 ```
