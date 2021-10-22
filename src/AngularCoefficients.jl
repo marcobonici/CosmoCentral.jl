@@ -73,6 +73,16 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
     end
 end
 
+
+"""
+    CustomCℓIntegrator!(SimpsonWeights::Array{T}, CℓArray::Array{T, N},
+    WArrayA::Matrix{T}, WArrayB::Matrix{T}, ZStep::T, HZArray::Array{T},
+    χZArray::Array{T}, InterpolatedPmm::Matrix{T}) where {T, N}
+
+This function computes the Cℓ, given the appropriate input, using the Simpson integration 
+rule. The computation is accelerated by
+[LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl) .
+"""
 function CustomCℓIntegrator!(SimpsonWeights::Array{T}, CℓArray::Array{T, N},
     WArrayA::Matrix{T}, WArrayB::Matrix{T}, ZStep::T, HZArray::Array{T},
     χZArray::Array{T}, InterpolatedPmm::Matrix{T}) where {T, N}
