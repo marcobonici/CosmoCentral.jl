@@ -10,9 +10,10 @@ struct BeyondLimber <: IntegrationMethod end
     PowerSpectrum::AbstractPowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
-multipole values. In order to evaluate the numerical integrals, it is used the
+multipole values. In order to evaluate the numerical integrals, it is emplyed the
 Simpson numerical method from
-[NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl) .
+[NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl) . This is
+not the fastest method available, but can be used as a benchmark to check consistency.
 """
 function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFunction,
     WeightFunctionB::AbstractWeightFunction, BackgroundQuantities::BackgroundQuantities,
@@ -72,9 +73,9 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
     end
 end
 
-function CustomCℓIntegrator!(SimpsonWeights::Array{Float64}, CℓArray::Array{Float64, 3},
-    WArrayA::Array{Float64, 2}, WArrayB::Array{Float64, 2}, ZStep::Float64,
-    HZArray::Array{Float64}, χZArray::Array{Float64}, InterpolatedPmm::Array{Float64, 2})
+function CustomCℓIntegrator!(SimpsonWeights::Array{T}, CℓArray::Array{T, N},
+    WArrayA::Matrix{T}, WArrayB::Matrix{T}, ZStep::T, HZArray::Array{T},
+    χZArray::Array{T}, InterpolatedPmm::Matrix{T}) where {T, N}
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     @avx for i ∈ axes(CℓArray,2),

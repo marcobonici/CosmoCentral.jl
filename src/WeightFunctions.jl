@@ -6,10 +6,10 @@
 This function returns the Galaxy Clustering Weight function for a given redshift
 ``z`` and tomographic bin ``i``.
 """
-function ComputeWeightFunction(z::Float64, i::Int64,
+function ComputeWeightFunction(z::T, i::I,
     ConvolvedDensity::AbstractConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse, Cosmology::AbstractCosmology,
-    GCWeightFunction::GCWeightFunction)
+    GCWeightFunction::GCWeightFunction) where {T, I}
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     return ComputeConvolvedDensity(z, i, ConvolvedDensity,
@@ -52,13 +52,13 @@ end
 This function returns the Lensing efficiency, for a given redshift
 ``z`` and tomographic bin ``i``.
 """
-function ComputeLensingEfficiency(z::Float64, i::Int64,
+function ComputeLensingEfficiency(z::T, i::I,
     ConvolvedDensity::AbstractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
     Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
-    ::WLWeightFunction)
+    ::WLWeightFunction) where {T,I}
     int, err = quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
     ((Computeχ(x, Cosmology) -
@@ -69,13 +69,13 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     return int
 end
 
-function ComputeLensingEfficiency(z::Float64, i::Int64,
+function ComputeLensingEfficiency(z::T, i::I,
     ConvolvedDensity::AbstractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
     Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
-    LensingSourceFunction::LensingSourceFunction)
+    LensingSourceFunction::LensingSourceFunction) where {T,I}
     int, err = quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
     ((Computeχ(x, Cosmology) -
@@ -178,10 +178,10 @@ end
 This function returns the Weak Lensing Weight Function, for a given redshift
 ``z`` and tomographic bin ``i``.
 """
-function ComputeWeightFunction(z::Float64, i::Int64,
+function ComputeWeightFunction(z::T, i::I,
     ConvolvedDensity::AbstractConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse, Cosmology::AbstractCosmology,
-    CosmologicalGrid::CosmologicalGrid, LensingFunction::WLWeightFunction)
+    CosmologicalGrid::CosmologicalGrid, LensingFunction::WLWeightFunction) where {T,I}
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     return 1.5 * ComputeLensingEfficiency(z, i, ConvolvedDensity,

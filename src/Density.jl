@@ -3,7 +3,7 @@
 
 This function returns the source density for a given redshift ``z``.
 """
-function ComputeDensity(z::Float64, AnalitycalDensity::AnalitycalDensity)
+function ComputeDensity(z::T, AnalitycalDensity::AnalitycalDensity) where T
     return ((z/AnalitycalDensity.Z0)^2)*exp(-(z/AnalitycalDensity.Z0)^(3. / 2.))*
     AnalitycalDensity.Normalization
 end
@@ -28,8 +28,8 @@ end
 This function computes the probability that we actually measure a redshift
 ``z_p`` if the real redshift is ``z``.
 """
-function ComputeInstrumentResponse(z::Float64, zp::Float64,
-    InstrumentResponse::InstrumentResponse)
+function ComputeInstrumentResponse(z::T, zp::T,
+    InstrumentResponse::InstrumentResponse) where T
     prob_z =
     (1-InstrumentResponse.fout)/(sqrt(2*pi)*InstrumentResponse.σb*(1+z))*
     exp(-0.5*((z-InstrumentResponse.cb*zp-InstrumentResponse.zb)/
@@ -47,9 +47,9 @@ end
 This function computes the Convolved density function for a single bin at a
 given redshift ``z``.
 """
-function ComputeConvolvedDensity(z::Float64, i::Int64,
+function ComputeConvolvedDensity(z::T, i::I,
     ConvolvedDensity::AbstractConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse)
+    InstrumentResponse::InstrumentResponse) where {T, I}
     int, err = quadgk(x -> ComputeInstrumentResponse(z, x,
     InstrumentResponse),
     ConvolvedDensity.ZBinArray[i],
