@@ -113,8 +113,7 @@ Plots.plot!(p, x, y, labels=(L"i=%$i"),  linewidth=3, xaxis=:log, yaxis=:log)
 end
 p
 ```
-Following the same procedure (basically, give the correct weight functions), it is possible
-to evaluate the Galaxy Clustering ``C_\ell``'s...
+Following the same procedure it is possible to evaluate the Galaxy Clustering ``C_\ell``'s...
 ```@example tutorial
 x = CosmologicalGrid.ℓBinCenters
 p = Plots.plot(xlabel=L"\ell", ylabel=L"\ell(\ell+1)C_{ii}^{GG}",
