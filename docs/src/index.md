@@ -6,7 +6,7 @@ it can evaluate:
 - Background quantities for ``w_0 w_a``CDM cosmologies
 - Galaxy redshift densities, with an analitycal in input
 - Angular Correlation functions, ``C_{ℓ}``'s, for Galaxy Clustering and Weak Lensing using the Limber approximation
-- Derivatives of ``C_{ℓ}``'s with respect to Cosmological Parameters
+- Derivatives of ``C_{ℓ}``'s with respect to cosmological and nuisance parameters
 - Fisher Matrices and Marginalized errors
 
 We aim to include also:
