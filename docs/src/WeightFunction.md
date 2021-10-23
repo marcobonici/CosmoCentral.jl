@@ -72,7 +72,7 @@ PiecewiseBias = CosmoCentral.PiecewiseBias()
 GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
 CosmoCentral.ComputeBiasGrid!(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
 CosmoCentral.ComputeWeightFunctionGrid!(GCWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
-p = Plots.plot(xlabel=L"z", ylabel=L"W_i^g(z)")
+p = Plots.plot(xlabel=L"z", ylabel=L"W_i^g(z)\,(\mathrm{Mpc}^{-1})")
 for i in 1:10
 Plots.plot!(p, CosmologicalGrid.ZArray, GCWeightFunction.WeightFunctionArray[i,:],
     labels=(L"i=%$i"),  linewidth=3)
@@ -139,11 +139,12 @@ CosmoCentral.ComputeLensingEfficiencyGrid!(
     BackgroundQuantities,
     w0waCDMCosmology, CosmoCentral.CustomLensingEfficiency())
 CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
-p = Plots.plot(xlabel=L"z", ylabel=L"W_i^g(z)")
+p = Plots.plot(xlabel=L"z", ylabel=L"W_i^\gamma(z)\,(\mathrm{Mpc}^{-1})")
 for i in 1:10
 Plots.plot!(p, CosmologicalGrid.ZArray, WLWeightFunction.WeightFunctionArray[i,:],
     labels=(L"i=%$i"),  linewidth=3)
 end
+
 CosmoCentral.ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, WLWeightFunction, ConvolvedDensity, BackgroundQuantities, w0waCDMCosmology)
 CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
 for i in 1:10
