@@ -14,6 +14,7 @@ makedocs(
     authors  = "Marco Bonici",
     pages = [
         "Home" => "index.md",
+        "Cosmology" => "Cosmology.md",
         "Background Universe" => "BackgroundUniverse.md",
         "Source Density" => "SourceDensity.md",
         "Bias" => "Bias.md",
@@ -23,12 +24,12 @@ makedocs(
         "Derivatives" => "Derivatives.md",
         "Covariance Matrix" => "Covariance.md",
         "Fisher Matrix" => "Fisher.md",
-        "Cosmological Structure" => "CosmologicalStructure.md",
+        #"Cosmological Structure" => "CosmologicalStructure.md",
         "Math Utils" => "MathUtils.md"
     ]
 )
 
 deploydocs(
     repo = "github.com/marcobonici/CosmoCentral.jl.git",
-    devbranch = "main"
+    devbranch = "develop"
 )

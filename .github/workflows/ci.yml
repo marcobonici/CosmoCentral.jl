@@ -4,12 +4,10 @@ on:
     branches:
       - main
       - develop
-      - refactor_probes
   push:
     branches:
       - main
       - develop
-      - refactor_probes
     tags: '*'
 jobs:
   test:
