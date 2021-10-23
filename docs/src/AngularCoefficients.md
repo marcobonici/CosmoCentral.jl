@@ -1,12 +1,13 @@
 ```@setup tutorial
 using Plots; gr()
 Plots.reset_defaults()
+using PlotThemes
 using CosmoCentral
 using LaTeXStrings
+default(palette = palette(:tab10))
 
 w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
-CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
-ZArray=Array(LinRange(0.001, 4.0, 500)))
+
 
 plot_font = "Computer Modern"
 Plots.default(titlefont = (16, plot_font), fontfamily=plot_font,
@@ -25,6 +26,39 @@ end
 path = joinpath(pwd(),"..","..","test","p_mm")
 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
 CosmoCentral.ReadPowerSpectrumBackground(path, MultipolesArray, MultipolesWidths)
+CosmoCentral.ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+
+CosmoCentral.ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid, BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
+
+
+AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+CosmoCentral.NormalizeAnalitycalDensity!(AnalitycalDensity)
+
+#instantiate the instrument response and compute the convolved density
+InstrumentResponse = CosmoCentral.InstrumentResponse()
+ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray = ones(10,
+length(CosmologicalGrid.ZArray)))
+CosmoCentral.NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity,
+InstrumentResponse, CosmologicalGrid)
+CosmoCentral.ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity,
+AnalitycalDensity, InstrumentResponse)
+
+PiecewiseBias = CosmoCentral.PiecewiseBias()
+GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
+CosmoCentral.ComputeBiasGrid!(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
+CosmoCentral.ComputeWeightFunctionGrid!(GCWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+
+WLWeightFunction = CosmoCentral.WLWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)), LensingEfficiencyArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
+CosmoCentral.ComputeLensingEfficiencyGrid!(
+    WLWeightFunction, ConvolvedDensity,
+    CosmologicalGrid,
+    BackgroundQuantities,
+    w0waCDMCosmology, CosmoCentral.CustomLensingEfficiency())
+CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+
+CosmoCentral.ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, WLWeightFunction, ConvolvedDensity, BackgroundQuantities, w0waCDMCosmology)
+CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
 ```
 
 
@@ -55,15 +89,17 @@ BackgroundQuantities::CosmoCentral.BackgroundQuantities, ::CosmoCentral.w0waCDMC
 CosmologicalGrid::CosmoCentral.AbstractCosmologicalGrid,
 PowerSpectrum::CosmoCentral.AbstractPowerSpectrum, ::CosmoCentral.CustomSimpson)
 ```
+Here we plot the  ``C_\ell`` for the Weak Lensing.
 ```@example tutorial
+CℓLL = CosmoCentral.Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters), length(WLWeightFunction.WeightFunctionArray[:, 1]), length(WLWeightFunction.WeightFunctionArray[:, 1])))
+CosmoCentral.ComputeCℓ!(CℓLL, WLWeightFunction, WLWeightFunction, BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
 
-#instantiate background quantities and compute them
-BackgroundQuantities = CosmoCentral.BackgroundQuantities(HZArray=
-zeros(length(CosmologicalGrid.ZArray)),
-χZArray=zeros(length(CosmologicalGrid.ZArray)))
-CosmoCentral.ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
-BackgroundQuantities, w0waCDMCosmology)
-
-pH = plot(CosmologicalGrid.KArray, PowerSpectrum.PowerSpectrumNonlinArray[:,1],
-ylabel = L"E(z)")
+x = CosmologicalGrid.ℓBinCenters
+p = Plots.plot(xlabel=L"\ell", ylabel=L"C_{ii}^{LL}(z)",
+    title="Weak Lensing Angular Coefficients", legend=:bottomright)
+for i in 1:10
+    y = CℓLL.CℓArray[:,i,i] .* CosmologicalGrid.ℓBinCenters .*(CosmologicalGrid.ℓBinCenters .+1)
+Plots.plot!(p, x, y, labels=(L"i=%$i"),  linewidth=3, xaxis=:log, yaxis=:log)
+end
+p
 ```
