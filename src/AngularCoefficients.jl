@@ -10,9 +10,10 @@ struct BeyondLimber <: IntegrationMethod end
     PowerSpectrum::AbstractPowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
-multipole values. In order to evaluate the numerical integrals, it is used the
+multipole values. In order to evaluate the numerical integrals, it is emplyed the
 Simpson numerical method from
-[NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl) .
+[NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl) . This is
+not the fastest method available, but can be used as a benchmark to check consistency.
 """
 function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFunction,
     WeightFunctionB::AbstractWeightFunction, BackgroundQuantities::BackgroundQuantities,
@@ -25,7 +26,7 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
             for idx_l in 1:size(Cℓ.CℓArray, 1)
                 Integrand = c_0 .* WeightFunctionA.WeightFunctionArray[idx_a, :] .*
                 WeightFunctionB.WeightFunctionArray[idx_b, :] ./
-                (BackgroundQuantities.HZArray .* BackgroundQuantities.rZArray.^2) .*
+                (BackgroundQuantities.HZArray .* BackgroundQuantities.χZArray.^2) .*
                 PowerSpectrum.InterpolatedPowerSpectrum[idx_l,:]
                 Cℓ.CℓArray[idx_l, idx_a, idx_b] = 
                 NumericalIntegration.integrate(CosmologicalGrid.ZArray,
@@ -62,7 +63,7 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
         (length(CosmologicalGrid.ZArray)-1)
         Cℓ.CℓArray = CustomCℓIntegrator!(SimpsonWeights, Cℓ.CℓArray,
         WeightFunctionA.WeightFunctionArray, WeightFunctionB.WeightFunctionArray,
-        ZStep, BackgroundQuantities.HZArray, BackgroundQuantities.rZArray,
+        ZStep, BackgroundQuantities.HZArray, BackgroundQuantities.χZArray,
         PowerSpectrum.InterpolatedPowerSpectrum)
         if any(isnan,Cℓ.CℓArray)
             
@@ -72,17 +73,29 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
     end
 end
 
-function CustomCℓIntegrator!(SimpsonWeights::Array{Float64}, CℓArray::Array{Float64, 3},
-    WArrayA::Array{Float64, 2}, WArrayB::Array{Float64, 2}, ZStep::Float64,
-    HZArray::Array{Float64}, rZArray::Array{Float64}, InterpolatedPmm::Array{Float64, 2})
+
+"""
+    CustomCℓIntegrator!(SimpsonWeights::AbstractArray{T}, CℓArray::AbstractArray{T, N},
+    WArrayA::AbstractArray{T,N}, WArrayB::AbstractArray{T,N}, ZStep::T,
+    HZArray::AbstractArray{T}, χZArray::AbstractArray{T},
+    InterpolatedPmm::AbstractArray{T,N}) where {T, N}
+
+This function computes the Cℓ, given the appropriate input, using the Simpson integration 
+rule. The computation is accelerated by
+[LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl) .
+"""
+function CustomCℓIntegrator!(SimpsonWeights::AbstractArray{T}, CℓArray::AbstractArray{T, N},
+    WArrayA::AbstractArray{T,2}, WArrayB::AbstractArray{T,2}, ZStep::T,
+    HZArray::AbstractArray{T}, χZArray::AbstractArray{T},
+    InterpolatedPmm::AbstractArray{<:Number}) where {T, N}
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     @avx for i ∈ axes(CℓArray,2),
         j ∈ axes(CℓArray,3),
         l ∈ axes(CℓArray,1)
-        for z ∈ axes(rZArray,1)
+        for z ∈ axes(χZArray,1)
             CℓArray[l,i,j] += c_0 * WArrayA[i, z] * WArrayB[j, z] /
-            (HZArray[z] * rZArray[z]^2) * InterpolatedPmm[l,z] * SimpsonWeights[z]
+            (HZArray[z] * χZArray[z]^2) * InterpolatedPmm[l,z] * SimpsonWeights[z]
         end
     end
     CℓArray .*= ZStep

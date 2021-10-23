@@ -39,7 +39,7 @@ function EvaluatePowerSpectraLHS(Cosmologies::Dict, Path::String,
         println(key, value[1])
         BackgroundQuantities = BackgroundQuantities(
         HZArray = zeros(length(CosmologicalGrid.ZArray)),
-        rZArray=zeros(length(CosmologicalGrid.ZArray)))
+        χZArray=zeros(length(CosmologicalGrid.ZArray)))
         ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
         BackgroundQuantities, value[1])
         ClassyParams = Initializeclassy(value[1])
@@ -115,7 +115,7 @@ function EvaluateCℓGeneral!(PmmDirectory::String,
                 w0waCDMCosmology = CosmoCentral.ReadCosmology(Dict(CosmoDict))
                 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
                 ReadPowerSpectrumBackground(joinpath(root, "p_mm"),
-                CosmologicalGrid.ℓBinCenters)
+                CosmologicalGrid.ℓBinCenters, CosmologicalGrid.ℓBinWidths)
                 ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
                 #TODO probably we can obtain flexibility with a dictionary
                 intrinsicalignment = ReadIntrinsicAlignment(Dict(CosmoDict))

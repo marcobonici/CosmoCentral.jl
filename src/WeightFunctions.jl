@@ -6,10 +6,10 @@
 This function returns the Galaxy Clustering Weight function for a given redshift
 ``z`` and tomographic bin ``i``.
 """
-function ComputeWeightFunction(z::Float64, i::Int64,
+function ComputeWeightFunction(z::T, i::I,
     ConvolvedDensity::AbstractConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse, Cosmology::AbstractCosmology,
-    GCWeightFunction::GCWeightFunction)
+    GCWeightFunction::GCWeightFunction) where {T, I}
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     return ComputeConvolvedDensity(z, i, ConvolvedDensity,
@@ -52,14 +52,14 @@ end
 This function returns the Lensing efficiency, for a given redshift
 ``z`` and tomographic bin ``i``.
 """
-function ComputeLensingEfficiency(z::Float64, i::Int64,
+function ComputeLensingEfficiency(z::T, i::I,
     ConvolvedDensity::AbstractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse,
     Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
-    ::WLWeightFunction)
-    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
+    ::WLWeightFunction) where {T,I}
+    int, err = quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
     ((Computeχ(x, Cosmology) -
     Computeχ(z, Cosmology))/
@@ -69,14 +69,11 @@ function ComputeLensingEfficiency(z::Float64, i::Int64,
     return int
 end
 
-function ComputeLensingEfficiency(z::Float64, i::Int64,
-    ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity,
-    InstrumentResponse::InstrumentResponse,
-    Cosmology::AbstractCosmology,
-    CosmologicalGrid::CosmologicalGrid,
-    LensingSourceFunction::LensingSourceFunction)
-    int, err = QuadGK.quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
+function ComputeLensingEfficiency(z::T, i::I, ConvolvedDensity::AbstractConvolvedDensity,
+    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse,
+    Cosmology::AbstractCosmology, CosmologicalGrid::CosmologicalGrid,
+    LensingSourceFunction::LensingSourceFunction) where {T,I}
+    int, err = quadgk(x -> CosmoCentral.ComputeConvolvedDensity(
     x, i, ConvolvedDensity, AnalitycalDensity, InstrumentResponse)*
     ((Computeχ(x, Cosmology) -
     Computeχ(z, Cosmology))/
@@ -156,10 +153,10 @@ function ComputeLensingEfficiencyGrid!(
             for idx_ZArrayInt in 1:length(CosmologicalGrid.ZArray)
                 LensingFunction.LensingEfficiencyArray[idx_ZBinArray,
                 idx_ZArray] += ConvolvedDensity.DensityGridArray[idx_ZBinArray,
-                idx_ZArrayInt] * (BackgroundQuantities.rZArray[idx_ZArrayInt] -
-                BackgroundQuantities.rZArray[idx_ZArray]) /
-                BackgroundQuantities.rZArray[idx_ZArrayInt] /
-                BackgroundQuantities.rZArray[idx_ZArray] *
+                idx_ZArrayInt] * (BackgroundQuantities.χZArray[idx_ZArrayInt] -
+                BackgroundQuantities.χZArray[idx_ZArray]) /
+                BackgroundQuantities.χZArray[idx_ZArrayInt] /
+                BackgroundQuantities.χZArray[idx_ZArray] *
                 Weight_Matrix[idx_ZArray, idx_ZArrayInt]
             end
         end
@@ -178,10 +175,10 @@ end
 This function returns the Weak Lensing Weight Function, for a given redshift
 ``z`` and tomographic bin ``i``.
 """
-function ComputeWeightFunction(z::Float64, i::Int64,
+function ComputeWeightFunction(z::T, i::I,
     ConvolvedDensity::AbstractConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
     InstrumentResponse::InstrumentResponse, Cosmology::AbstractCosmology,
-    CosmologicalGrid::CosmologicalGrid, LensingFunction::WLWeightFunction)
+    CosmologicalGrid::CosmologicalGrid, LensingFunction::WLWeightFunction) where {T,I}
     c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
                        #physical constants involved in calculations
     return 1.5 * ComputeLensingEfficiency(z, i, ConvolvedDensity,
@@ -212,9 +209,37 @@ function ComputeWeightFunctionGrid!(
             LensingFunction.WeightFunctionArray[idx_ZBinArray, idx_ZArray] =
             1.5 * (Cosmology.H0/c_0)^2 * Cosmology.ΩM *
             (1. + CosmologicalGrid.ZArray[idx_ZArray]) *
-            BackgroundQuantities.rZArray[idx_ZArray]^2 *
+            BackgroundQuantities.χZArray[idx_ZArray]^2 *
             LensingFunction.LensingEfficiencyArray[idx_ZBinArray, idx_ZArray] +
             LensingFunction.IntrinsicAlignmentArray[idx_ZBinArray, idx_ZArray]
         end
     end
+end
+
+function CreateAndEvaluateWeightFunction(probe::WLProbe, cosmogrid::CosmologicalGrid,
+    background::BackgroundQuantities, cosmo::AbstractCosmology)
+    weightfunction = WLWeightFunction()
+    weightfunction.LensingEfficiencyArray = zeros(
+    length(probe.Density.DensityGridArray[:,1]), length(cosmogrid.ZArray))
+    weightfunction.IntrinsicAlignmentArray = zeros(size(weightfunction.LensingEfficiencyArray))
+    weightfunction.WeightFunctionArray = zeros(size(weightfunction.LensingEfficiencyArray))
+    weightfunction.IntrinsicAlignmentModel = probe.IAModel
+    ComputeLensingEfficiencyGrid!(weightfunction, probe.Density, cosmogrid, background,
+    cosmo, CustomLensingEfficiency())
+    ComputeIntrinsicAlignmentGrid!(cosmogrid, weightfunction, probe.Density, background,
+    cosmo)
+    ComputeWeightFunctionGrid!(weightfunction, probe.Density, cosmogrid, background, cosmo)
+    return weightfunction
+end
+
+function CreateAndEvaluateWeightFunction(probe::GCProbe, cosmogrid::CosmologicalGrid,
+    background::BackgroundQuantities, cosmo::AbstractCosmology)
+    weightfunction = GCWeightFunction()
+    weightfunction.WeightFunctionArray = zeros(
+    length(probe.Density.DensityGridArray[:,1]), length(cosmogrid.ZArray))
+    weightfunction.BiasArray = zeros(size(weightfunction.WeightFunctionArray))
+    weightfunction.BiasKind = probe.BiasModel
+    ComputeBiasGrid!(cosmogrid, weightfunction, probe.Density)
+    ComputeWeightFunctionGrid!(weightfunction, probe.Density, cosmogrid, background, cosmo)
+    return weightfunction
 end

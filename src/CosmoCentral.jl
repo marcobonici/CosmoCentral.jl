@@ -1,7 +1,7 @@
 __precompile__()
 module CosmoCentral
 
-using QuadGK
+using QuadGK: quadgk
 using Base: @kwdef
 using Parameters
 using NumericalIntegration
@@ -19,6 +19,7 @@ using LatinHypercubeSampling
 using Random
 using DelimitedFiles
 using LinearAlgebra
+using Flux
 numpy = pyimport("numpy")
 
 const classy = PyNULL()
@@ -48,5 +49,7 @@ include("IntrinsicAlignment.jl")
 include("Covariance.jl")
 include("Fisher.jl")
 include("MCMCUtils.jl")
+include("Emulator.jl")
+include("Probes.jl")
 
 end # module

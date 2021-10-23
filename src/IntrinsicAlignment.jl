@@ -24,3 +24,21 @@ function ComputeIntrinsicAlignmentGrid!(CosmologicalGrid::CosmologicalGrid,
         end
     end
 end
+
+function CreateIA(IADict::Dict)
+    if IADict["model"] == "ExtendedNLIA"
+        IA = CreateExtendedNLIA((IADict))
+    else
+        error("No Intrinsic Alignement!")
+    end
+    return IA
+end
+
+function CreateExtendedNLIA(IADict::Dict)
+    IA = ExtendedNLIA()
+    IA.ηIA = IADict["ηIA"]
+    IA.βIA = IADict["βIA"]
+    IA.𝓒IA = IADict["𝓒IA"]
+    IA.𝓐IA = IADict["𝓐IA"]
+    return IA
+end

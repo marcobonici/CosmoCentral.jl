@@ -3,7 +3,7 @@
 
 This function returns the source density for a given redshift ``z``.
 """
-function ComputeDensity(z::Float64, AnalitycalDensity::AnalitycalDensity)
+function ComputeDensity(z::T, AnalitycalDensity::AnalitycalDensity) where T
     return ((z/AnalitycalDensity.Z0)^2)*exp(-(z/AnalitycalDensity.Z0)^(3. / 2.))*
     AnalitycalDensity.Normalization
 end
@@ -15,7 +15,7 @@ This function normalize AnalitycalDensity in order to have the correct
 value of the surface density once integrated.
 """
 function NormalizeAnalitycalDensity!(AnalitycalDensity::AnalitycalDensity)
-    int, err = QuadGK.quadgk(x -> ComputeDensity(x, AnalitycalDensity),
+    int, err = quadgk(x -> ComputeDensity(x, AnalitycalDensity),
     AnalitycalDensity.ZMin, AnalitycalDensity.ZMax, rtol=1e-12)
     AnalitycalDensity.Normalization *= (AnalitycalDensity.SurfaceDensity/int)
 end
@@ -28,8 +28,8 @@ end
 This function computes the probability that we actually measure a redshift
 ``z_p`` if the real redshift is ``z``.
 """
-function ComputeInstrumentResponse(z::Float64, zp::Float64,
-    InstrumentResponse::InstrumentResponse)
+function ComputeInstrumentResponse(z::T, zp::T,
+    InstrumentResponse::InstrumentResponse) where T
     prob_z =
     (1-InstrumentResponse.fout)/(sqrt(2*pi)*InstrumentResponse.σb*(1+z))*
     exp(-0.5*((z-InstrumentResponse.cb*zp-InstrumentResponse.zb)/
@@ -47,9 +47,10 @@ end
 This function computes the Convolved density function for a single bin at a
 given redshift ``z``.
 """
-function ComputeConvolvedDensity(z::Float64, i::Int64, ConvolvedDensity::AbstractConvolvedDensity,
-    AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse)
-    int, err = QuadGK.quadgk(x -> ComputeInstrumentResponse(z, x,
+function ComputeConvolvedDensity(z::T, i::I,
+    ConvolvedDensity::AbstractConvolvedDensity, AnalitycalDensity::AnalitycalDensity,
+    InstrumentResponse::InstrumentResponse) where {T, I}
+    int, err = quadgk(x -> ComputeInstrumentResponse(z, x,
     InstrumentResponse),
     ConvolvedDensity.ZBinArray[i],
     ConvolvedDensity.ZBinArray[i+1], rtol=1e-12)
@@ -69,7 +70,7 @@ function NormalizeConvolvedDensity!(ConvolvedDensity::AbstractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensity, InstrumentResponse::InstrumentResponse,
     CosmologicalGrid::CosmologicalGrid)
     for idx in 1:length(ConvolvedDensity.DensityNormalizationArray)
-        int, err = QuadGK.quadgk(x -> ComputeConvolvedDensity(x, idx,
+        int, err = quadgk(x -> ComputeConvolvedDensity(x, idx,
         ConvolvedDensity, AnalitycalDensity, InstrumentResponse),
         first(CosmologicalGrid.ZArray),
         last(CosmologicalGrid.ZArray), rtol=1e-12)
@@ -80,7 +81,7 @@ end
 function ComputeSurfaceDensityBins!(ConvolvedDensity::AbstractConvolvedDensity,
     AnalitycalDensity::AnalitycalDensity)
     for idx in 1:length(ConvolvedDensity.SurfaceDensityArray)
-        int, err = QuadGK.quadgk(x -> ComputeDensity(x, AnalitycalDensity),
+        int, err = quadgk(x -> ComputeDensity(x, AnalitycalDensity),
         ConvolvedDensity.ZBinArray[idx], ConvolvedDensity.ZBinArray[idx+1], rtol=1e-12)
         ConvolvedDensity.SurfaceDensityArray[idx] = int
     end
@@ -122,4 +123,29 @@ function ShiftConvolvedDensityGrid!(CosmologicalGrid::CosmologicalGrid,
             ConvolvedDensity.ShiftArray[idx_ZBinArray])
         end
     end
+end
+
+function CreateAnalitycalDensity(DensDict::Dict)
+    andensity = AnalitycalDensity()
+    andensity.Z0 = DensDict["Z0"]
+    andensity.ZMin = DensDict["ZMin"]
+    andensity.ZMax = DensDict["ZMax"]
+    andensity.SurfaceDensity = DensDict["SurfaceDensity"]
+    return andensity
+end
+
+function CreateDensity(DensityDict::Dict, CosmologicalGrid::CosmologicalGrid)
+    if DensityDict["model"] == "AnalitycalDensity"
+        analyticaldensity = CreateAnalitycalDensity(DensityDict["parameters"])
+        instrumentresponse = InstrumentResponse()
+        convolveddensity = ConvolvedDensity(DensityGridArray =
+        ones(10, length(CosmologicalGrid.ZArray)))
+        NormalizeConvolvedDensity!(convolveddensity, analyticaldensity,
+        instrumentresponse, CosmologicalGrid)
+        ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
+        analyticaldensity, instrumentresponse)
+    else
+        error("No Density!")
+    end
+    return convolveddensity
 end
