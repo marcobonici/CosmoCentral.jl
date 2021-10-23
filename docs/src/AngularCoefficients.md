@@ -59,6 +59,12 @@ CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, Cosm
 
 CosmoCentral.ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, WLWeightFunction, ConvolvedDensity, BackgroundQuantities, w0waCDMCosmology)
 CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+
+CℓGG = CosmoCentral.Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters), length(WLWeightFunction.WeightFunctionArray[:, 1]), length(WLWeightFunction.WeightFunctionArray[:, 1])))
+CosmoCentral.ComputeCℓ!(CℓGG, GCWeightFunction, GCWeightFunction, BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
+
+CℓGL = CosmoCentral.Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters), length(WLWeightFunction.WeightFunctionArray[:, 1]), length(WLWeightFunction.WeightFunctionArray[:, 1])))
+CosmoCentral.ComputeCℓ!(CℓGL, GCWeightFunction, WLWeightFunction, BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
 ```
 
 
@@ -89,16 +95,40 @@ BackgroundQuantities::CosmoCentral.BackgroundQuantities, ::CosmoCentral.w0waCDMC
 CosmologicalGrid::CosmoCentral.AbstractCosmologicalGrid,
 PowerSpectrum::CosmoCentral.AbstractPowerSpectrum, ::CosmoCentral.CustomSimpson)
 ```
-Here we plot the  ``C_\ell`` for the Weak Lensing.
+Here we show how to compute and plot the  ``C_\ell``'s for Weak Lensing.
 ```@example tutorial
 CℓLL = CosmoCentral.Cℓ(CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters), length(WLWeightFunction.WeightFunctionArray[:, 1]), length(WLWeightFunction.WeightFunctionArray[:, 1])))
 CosmoCentral.ComputeCℓ!(CℓLL, WLWeightFunction, WLWeightFunction, BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
 
 x = CosmologicalGrid.ℓBinCenters
-p = Plots.plot(xlabel=L"\ell", ylabel=L"C_{ii}^{LL}(z)",
+p = Plots.plot(xlabel=L"\ell", ylabel=L"\ell(\ell+1)C_{ii}^{LL}",
     title="Weak Lensing Angular Coefficients", legend=:bottomright)
 for i in 1:10
     y = CℓLL.CℓArray[:,i,i] .* CosmologicalGrid.ℓBinCenters .*(CosmologicalGrid.ℓBinCenters .+1)
+Plots.plot!(p, x, y, labels=(L"i=%$i"),  linewidth=3, xaxis=:log, yaxis=:log)
+end
+p
+```
+Following the same procedure (basically, give the correct weight functions), it is possible
+to evaluate the Galaxy Clustering ``C_\ell``'s...
+```@example tutorial
+x = CosmologicalGrid.ℓBinCenters
+p = Plots.plot(xlabel=L"\ell", ylabel=L"\ell(\ell+1)C_{ii}^{GG}",
+    title="Galaxy Clustering Angular Coefficients", legend=:bottomright)
+for i in 1:10
+    y = CℓGG.CℓArray[:,i,i] .* CosmologicalGrid.ℓBinCenters .*(CosmologicalGrid.ℓBinCenters .+1)
+Plots.plot!(p, x, y, labels=(L"i=%$i"),  linewidth=3, xaxis=:log, yaxis=:log)
+end
+p
+```
+...and the ``C_\ell``'s of the Cross-Correlation
+```@example tutorial
+x = CosmologicalGrid.ℓBinCenters
+p = Plots.plot(xlabel=L"\ell", ylabel=L"\ell(\ell+1)|C_{ii}^{GL}|",
+    title="Galaxy-Galaxy Lensing Angular Coefficients", legend=:bottomright)
+for i in 1:10
+    y = abs.(CℓGL.CℓArray[:,i,i]) .* CosmologicalGrid.ℓBinCenters .*
+    (CosmologicalGrid.ℓBinCenters .+1)
 Plots.plot!(p, x, y, labels=(L"i=%$i"),  linewidth=3, xaxis=:log, yaxis=:log)
 end
 p

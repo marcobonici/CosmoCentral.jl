@@ -13,6 +13,9 @@ We aim to include also:
 - Include other effects to the probes considered (e.g. magnification bias, redshift space distortions etc.)
 - Evaluation of ``C_{ℓ}``'s beyond Limber approximation (WIP)
 - Plot of Fisher Matrix 2D contours (WIP)
+- Differentiable programming, to evaluate ``\partial C_\ell``'s or the Hessian of the likelihood, using automatic differentiation
+- Non-Gaussian Covariance contributions
+
 
 
 
