@@ -6,11 +6,9 @@ algorithm, [Camera et al. 2017](https://arxiv.org/abs/1606.03451):
 
 - a linear regression over ``x`` and ``y`` is performed
 
-- if the points obtained with the fit are close enough (less than 0.01 relative
-difference) the linear ansatz is satisfied and the slope gives the derivative
+- if the points obtained with the fit are close enough (less than 0.01 relative difference) the linear ansatz is satisfied and the slope gives the derivative
 
-- if the linear ansatz is not satisfied, the external couple of points and the
-linear regression is performed again till the linear ansatz is satisfied
+- if the linear ansatz is not satisfied, the external couple of points and the linear regression is performed again till the linear ansatz is satisfied
 """
 function SteMDerivative(x::Vector{T}, y::Vector{T}) where T
     x_copy = deepcopy(x)
