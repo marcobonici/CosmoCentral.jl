@@ -75,10 +75,10 @@ end
 
 This struct contains several grids:
 - `ZArray` and `KArray`, the grids for the [`PowerSpectrum`](@ref) calculations
-- `ℓBinCenters`, the ``\ell`` grid for the ``C_\ell``'s calculations
+- `ℓBinCenters`, the ``\\ell`` grid for the ``C_\\ell``'s calculations
 - `ℓBinWidths`, used when computing the covariance matrix
-- `KLimberArray`, the `k` grid to evaluate the ``C_\ell``'s in the Limber approximation
-- `KBeyondLimberArray`, the `k` grid to evaluate the ``C_\ell``'s without the Limber approximation
+- `KLimberArray`, the `k` grid to evaluate the ``C_\\ell``'s in the Limber approximation
+- `KBeyondLimberArray`, the `k` grid to evaluate the ``C_\\ell``'s without the Limber approximation
 """
 @kwdef mutable struct CosmologicalGrid{T} <: AbstractCosmologicalGrid{T}
     ZArray::AbstractArray{T} = LinRange(0.001, 2.5, 300)
