@@ -4,7 +4,9 @@ Plots.reset_defaults()
 using PlotThemes
 using CosmoCentral
 using LaTeXStrings
+using BenchmarkTools
 default(palette = palette(:tab10))
+
 
 w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 
@@ -144,4 +146,9 @@ for i in 1:10
     end
 end
 p
+```
+Finally, the computation of the ``C_\ell``'s is quite fast. In particular, here we benchmark
+their evaluation with 100 different ``\ell``'s value. 
+```@example tutorial
+@benchmark CosmoCentral.ComputeCℓ!(CℓGL, GCWeightFunction, WLWeightFunction, BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
 ```

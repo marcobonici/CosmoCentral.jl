@@ -4,6 +4,7 @@ Plots.reset_defaults()
 using PlotThemes
 using CosmoCentral
 using LaTeXStrings
+using BenchmarkTools
 default(palette = palette(:tab10))
 
 w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
@@ -40,6 +41,9 @@ CosmoCentral.NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity,
 InstrumentResponse, CosmologicalGrid)
 CosmoCentral.ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity,
 AnalitycalDensity, InstrumentResponse)
+PiecewiseBias = CosmoCentral.PiecewiseBias()
+GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
+WLWeightFunction = CosmoCentral.WLWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)), LensingEfficiencyArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
 ```
 
 # Weight Function
@@ -69,16 +73,29 @@ CosmoCentral.ComputeWeightFunctionGrid!(
 For instance, here we plot the Galaxy Clustering weight function with a piecewise bias
 ```@example tutorial
 PiecewiseBias = CosmoCentral.PiecewiseBias()
-GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
+GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray =
+zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
+
 CosmoCentral.ComputeBiasGrid!(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
-CosmoCentral.ComputeWeightFunctionGrid!(GCWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
-p = Plots.plot(xlabel=L"z", ylabel=L"W_i^g(z)\,(\mathrm{Mpc}^{-1})")
+CosmoCentral.ComputeWeightFunctionGrid!(GCWeightFunction, ConvolvedDensity,
+CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+p = Plots.plot(xlabel=L"z", ylabel=L"W_i^g(z)\,\left[\mathrm{Mpc}^{-1}\right]")
 for i in 1:10
 Plots.plot!(p, CosmologicalGrid.ZArray, GCWeightFunction.WeightFunctionArray[i,:],
     labels=(L"i=%$i"),  linewidth=3)
 end
 p
 ```
+Computing ``b(z)`` and ``W_i^g(z)`` is quite fast
+```@example tutorial
+@benchmark CosmoCentral.ComputeBiasGrid!(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
+```
+
+```@example tutorial
+@benchmark CosmoCentral.ComputeWeightFunctionGrid!(GCWeightFunction, ConvolvedDensity,
+CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
+```
+
 
 # Weak Lensing
 The expression of the Weak Lensing Weight Function is given by:
@@ -139,7 +156,7 @@ CosmoCentral.ComputeLensingEfficiencyGrid!(
     BackgroundQuantities,
     w0waCDMCosmology, CosmoCentral.CustomLensingEfficiency())
 CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
-p = Plots.plot(xlabel=L"z", ylabel=L"W_i^\gamma(z)\,(\mathrm{Mpc}^{-1})")
+p = Plots.plot(xlabel=L"z", ylabel=L"W_i^\gamma(z)\,\left[\mathrm{Mpc}^{-1}\right]")
 for i in 1:10
 Plots.plot!(p, CosmologicalGrid.ZArray, WLWeightFunction.WeightFunctionArray[i,:],
     labels=(L"i=%$i"),  linewidth=3)
@@ -152,4 +169,11 @@ Plots.plot!(p, CosmologicalGrid.ZArray, WLWeightFunction.WeightFunctionArray[i,:
 linewidth=3, linestyle = :dot)
 end
 p
+```
+Computations related to Weak Lensing are a bit slower, due to the nested integrals inside
+``W_i^\gamma(z)``
+```@example tutorial
+@benchmark CosmoCentral.ComputeLensingEfficiencyGrid!(WLWeightFunction, ConvolvedDensity,
+CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology,
+CosmoCentral.CustomLensingEfficiency())
 ```
