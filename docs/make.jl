@@ -24,7 +24,6 @@ makedocs(
         "Derivatives" => "Derivatives.md",
         "Covariance Matrix" => "Covariance.md",
         "Fisher Matrix" => "Fisher.md",
-        #"Cosmological Structure" => "CosmologicalStructure.md",
         "Math Utils" => "MathUtils.md"
     ]
 )

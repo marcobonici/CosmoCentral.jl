@@ -17,3 +17,10 @@ plot several quantities. The assumed values for the cosmological parameters are:
 - ``M_\nu`` = 0.06 eV
 - ``w_0`` = -1
 - ``w_a`` = 0
+
+## Cosmological Grid
+Another import quantity is the cosmological grid, the structure which specifies the grids
+used to compute the quantities in our calculations.
+```@docs
+CosmoCentral.CosmologicalGrid
+```

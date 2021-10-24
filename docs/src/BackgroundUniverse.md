@@ -37,6 +37,13 @@ CosmoCentral.ComputeHubbleFactor
 CosmoCentral.Computeχ
 ```
 
+## BackgroundQuantities
+In order to store them in a convenient way, we use a structure,
+[`CosmoCentral.BackgroundQuantities`](@ref), which contains all the background quantities
+```@docs
+CosmoCentral.BackgroundQuantities
+```
+
 ## Utils
 A useful function, regarding the background quantities, is
 [`CosmoCentral.ComputeBackgroundQuantitiesGrid!`](@ref). It computes the background

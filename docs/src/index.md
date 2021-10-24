@@ -27,17 +27,9 @@ We aim to include also:
 
 ## Usage
 
-Here is an example of how CosmoCentral can be used to evaluate background
-quantities.
-
-```@repl
-using CosmoCentral
-w0waCDMCosmology = CosmoCentral.w0waCDMCosmology()
-z = 1.
-CosmoCentral.ComputeAdimensionalHubbleFactor(z, w0waCDMCosmology)
-CosmoCentral.ComputeHubbleFactor(z, w0waCDMCosmology)
-CosmoCentral.Computeχ(z, w0waCDMCosmology)
-```
+In the remainder of the documentation, we show how to use CosmoCentral.jl in details. When
+we will release the first version of CosmoCentral.jl, we will provide also a ntoebook to
+perform a complete forecast.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

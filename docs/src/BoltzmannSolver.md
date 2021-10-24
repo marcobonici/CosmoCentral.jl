@@ -60,7 +60,7 @@ For instance, here we show the linear and nonlinear ``P_{\delta\delta}(k,z)``, e
 CLASS, for a the reference cosmology.
 ```@example tutorial
 p = plot(CosmologicalGrid.KArray, PowerSpectrum.PowerSpectrumLinArray[:,1],
-ylabel = L"P(k)\,(\mathrm{Mpc}^{-3})", xlabel = L"k\,(\mathrm{Mpc}^{-1})", xaxis=:log,
+ylabel = L"P(k)\,(\mathrm{Mpc}^{3})", xlabel = L"k\,(\mathrm{Mpc}^{-1})", xaxis=:log,
 yaxis=:log, label = L"\mathrm{Linear}", xlims = (1e-5,10), ylims = (1,1e5))
 plot!(p, CosmologicalGrid.KArray, PowerSpectrum.PowerSpectrumNonlinArray[:,1],
 xaxis=:log, yaxis=:log, label = L"\mathrm{Nonlinear}")
