@@ -152,9 +152,3 @@ their evaluation with 100 different ``\ell``'s value.
 ```@example tutorial
 @benchmark CosmoCentral.ComputeCℓ!(CℓGL, GCWeightFunction, WLWeightFunction, BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
 ```
-To complete the benchmark, here we plot the harware charecteristics. We emphasize, however,
-that in the current benchmarks we are using only a single thread
-```@example tutorial
-using CpuId
-cpuinfo()
-```
