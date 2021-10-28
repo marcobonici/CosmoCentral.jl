@@ -147,7 +147,7 @@ CosmoCentral.ComputeLensingEfficiencyGrid!(wlWeightFunction::CosmoCentral.WLWeig
     w0waCDMCosmology::CosmoCentral.w0waCDMCosmology, ::CosmoCentral.CustomLensingEfficiency)
 ```
 Here we plot the Weak Lensing weight function. In particular, the solid lines are pure shear,
-while the dotted lines includes the Intrinsic Alignment contribution.
+while the dashed lines includes the Intrinsic Alignment contribution.
 ```@example tutorial
 WLWeightFunction = CosmoCentral.WLWeightFunction(WeightFunctionArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)), LensingEfficiencyArray = zeros(length(ConvolvedDensity.DensityNormalizationArray), length(CosmologicalGrid.ZArray)))
 CosmoCentral.ComputeLensingEfficiencyGrid!(
@@ -166,7 +166,7 @@ CosmoCentral.ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, WLWeightFunction, 
 CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
 for i in 1:10
 Plots.plot!(p, CosmologicalGrid.ZArray, WLWeightFunction.WeightFunctionArray[i,:],
-linewidth=3, linestyle = :dot)
+linewidth=3, linestyle = :dash)
 end
 p
 ```
