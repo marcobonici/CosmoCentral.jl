@@ -635,6 +635,10 @@ function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::Abstrac
         Fisher.MarginalizedErrors[Parα] = sqrt(Fisher.CorrelationMatrix[idxα, idxα])
         Fisher.MarginalizedErrorsCumℓ[Parα] = sqrt.(
             Fisher.CorrelationMatrixCumℓ[:, idxα, idxα])
+        for (idxβ, Parβ) in enumerate(Fisher.SelectedParametersList)
+            Fisher.CorrelationMatrixDict[Parα*"_"*Parβ] =
+            Fisher.CorrelationMatrix[idxα, idxβ]
+        end
     end
 end
 
