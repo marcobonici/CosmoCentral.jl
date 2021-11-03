@@ -325,6 +325,7 @@ This struct contains the array with the Fisher Matrix.
     CorrelationMatrixCumℓ::AbstractArray{T,3} = zeros(100,8,8)
     FisherDict::Dict = Dict()
     FisherℓDict::Dict = Dict()
+    CorrelationMatrixDict::Dict = Dict()
     ParametersList::Vector{S} = []
     SelectedParametersList::Vector{S} = []
     MarginalizedErrors::Dict = Dict()

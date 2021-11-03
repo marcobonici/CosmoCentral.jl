@@ -600,11 +600,11 @@ function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
 end
 
 function EvaluateFisherMatrix!(VariedParameters::Vector{}, Fisher::AbstractFisher,
-    Path∂Cℓ::String, Cov::AbstractCovariance)
+    Path∂Cℓ::String, Cov::AbstractCovariance, Probe::String)
     for (indexα, Parα) in enumerate(VariedParameters)
-        ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, "Lensing_Lensing")
+        ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, Probe*"_"*Probe)
         for (indexβ, Parβ) in enumerate(VariedParameters)
-            ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, "Lensing_Lensing")
+            ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, Probe*"_"*Probe)
             EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
             Fisher.FisherMatrix[indexα, indexβ] = Fisher.FisherDict[Parα*"_"*Parβ]
             Fisher.FisherMatrixCumℓ[:, indexα, indexβ] =
@@ -613,8 +613,7 @@ function EvaluateFisherMatrix!(VariedParameters::Vector{}, Fisher::AbstractFishe
     end
 end
 
-function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::AbstractFisher,
-    cosmogrid::CosmologicalGrid)
+function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::AbstractFisher)
     for (idx, Par) in enumerate(reverse(VariedParameters))
         reverse_index = length(VariedParameters)-idx+1
         if Fisher.FisherMatrix[reverse_index, reverse_index] == 0
@@ -625,12 +624,11 @@ function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::Abstrac
             Fisher.SelectedParametersList =
             Fisher.SelectedParametersList[1:end .!= reverse_index]
         end
-
     end
     Fisher.CorrelationMatrix = inv(Fisher.FisherMatrix)
-    Fisher.CorrelationMatrixCumℓ = zeros(length(cosmogrid.ℓBinCenters),
+    Fisher.CorrelationMatrixCumℓ = zeros(length(Fisher.FisherMatrixCumℓ[:,1,1]),
     length(Fisher.SelectedParametersList), length(Fisher.SelectedParametersList))
-    for i in 1:length(cosmogrid.ℓBinCenters)
+    for i in 1:length(Fisher.FisherMatrixCumℓ[:,1,1])
         Fisher.CorrelationMatrixCumℓ[i,:,:] = inv(Fisher.FisherMatrixCumℓ[i,:,:])
     end
     for (idxα, Parα) in enumerate(Fisher.SelectedParametersList)
@@ -992,7 +990,7 @@ function ExtractVariedParameters(forcontainer::ForecastContainer)
 end
 
 function ForecastFisherαβ(forcontainer::ForecastContainer, PathCentralCℓ::String,
-    Path∂Cℓ::String, cosmogrid::CosmologicalGrid, ciccio::String)
+    Path∂Cℓ::String, cosmogrid::CosmologicalGrid, Probe::String, ciccio::String)
     Fisher = Fisherαβ()
     VariedParameters = ExtractVariedParameters(forcontainer)
     Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
@@ -1013,13 +1011,13 @@ function ForecastFisherαβ(forcontainer::ForecastContainer, PathCentralCℓ::St
     InstrumentResponse)
     ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
 
-    Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
+    Cℓ = ReadCℓ(PathCentralCℓ, Probe*"_"*Probe)
     #TODO now only LL, but this need to be more flexible...maybe list with probes?
-    Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, cosmogrid, "Lensing",
-    "Lensing")
+    Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, cosmogrid, Probe,
+    Probe)
     CovCℓ = InstantiateEvaluateCovariance(Covaₗₘ)
-    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, CovCℓ)
-    SelectMatrixAndMarginalize!(VariedParameters, Fisher, cosmogrid)
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, CovCℓ, Probe)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
     return Fisher
 end
 
