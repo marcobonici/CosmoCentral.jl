@@ -614,6 +614,7 @@ function EvaluateFisherMatrix!(VariedParameters::Vector{}, Fisher::AbstractFishe
 end
 
 function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::AbstractFisher)
+    Fisher.SelectedParametersList = VariedParameters
     for (idx, Par) in enumerate(reverse(VariedParameters))
         reverse_index = length(VariedParameters)-idx+1
         if Fisher.FisherMatrix[reverse_index, reverse_index] == 0
@@ -628,9 +629,12 @@ function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::Abstrac
     Fisher.CorrelationMatrix = inv(Fisher.FisherMatrix)
     Fisher.CorrelationMatrixCumℓ = zeros(length(Fisher.FisherMatrixCumℓ[:,1,1]),
     length(Fisher.SelectedParametersList), length(Fisher.SelectedParametersList))
-    for i in 1:length(Fisher.FisherMatrixCumℓ[:,1,1])
-        Fisher.CorrelationMatrixCumℓ[i,:,:] = inv(Fisher.FisherMatrixCumℓ[i,:,:])
+    if Fisher.FisherMatrixCumℓ[:,1,1] != zeros(size(Fisher.FisherMatrixCumℓ[:,1,1]))
+        for i in 1:length(Fisher.FisherMatrixCumℓ[:,1,1])
+            Fisher.CorrelationMatrixCumℓ[i,:,:] = inv(Fisher.FisherMatrixCumℓ[i,:,:])
+        end
     end
+    
     for (idxα, Parα) in enumerate(Fisher.SelectedParametersList)
         Fisher.MarginalizedErrors[Parα] = sqrt(Fisher.CorrelationMatrix[idxα, idxα])
         Fisher.MarginalizedErrorsCumℓ[Parα] = sqrt.(
