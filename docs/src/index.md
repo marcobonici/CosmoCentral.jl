@@ -28,8 +28,8 @@ We aim to include also:
 ## Usage
 
 In the remainder of the documentation, we show how to use CosmoCentral.jl in details. When
-we will release the first version of CosmoCentral.jl, we will provide also a ntoebook to
-perform a complete forecast.
+we will release the first version of CosmoCentral.jl, we will provide some notebooks showing
+the usage of CosmoCentral.jl.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
