@@ -85,7 +85,8 @@ function SumFisher(FisherA::Fisherαβ, FisherB::Fisherαβ)
             FisherC.FisherMatrix[indexα, indexβ] = FisherC.FisherDict[Parα*"_"*Parβ]
         end
     end
-    if size(FisherA.FisherMatrixCumℓ[1]) == size(FisherB.FisherMatrixCumℓ[1])
+    """
+    if size(FisherA.FisherMatrixCumℓ[1]) == size(FisherB.FisherMatrixCumℓ[1] != 1)
         FisherC.FisherMatrixCumℓ = zeros(size(FisherA.FisherMatrixCumℓ)[1],
             length(FisherA.ParametersList), length(FisherA.ParametersList) )
         for (key, value) in FisherA.FisherℓDict
@@ -98,7 +99,7 @@ function SumFisher(FisherA::Fisherαβ, FisherB::Fisherαβ)
             end
         end
     end
-    println(FisherC.ParametersList)
+    """
     CosmoCentral.SelectMatrixAndMarginalize!(FisherC.ParametersList, FisherC)
     println(FisherC.ParametersList)
     return FisherC
