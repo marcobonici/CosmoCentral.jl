@@ -14,7 +14,7 @@ w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 plot_font = "Computer Modern"
 Plots.default(titlefont = (16, plot_font), fontfamily=plot_font,
         linewidth=2, framestyle=:box, fg_legend =:black, label=nothing, grid=false,
-        tickfontsize=12, legendfontsize=12, size = (550, 400), labelfontsize = 13,
+        tickfontsize=12, legendfontsize=8, size = (550, 400), labelfontsize = 13,
         dpi = 200)
 
 MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,5000., 101)
