@@ -21,8 +21,8 @@ steps = Array([0.00625, 0.01250, 0.01875, 0.02500, 0.03750, 0.05000, 0.10000])
 CosmologicalGrid = CosmoCentral.CosmologicalGrid(ZArray =
 Array(LinRange(0.001, 4., 500)), KArray = CosmoCentral.LogSpaced(1e-5, 50., 1000),
 ℓBinCenters = MultipolesArray, ℓBinWidths = MultipolesWidths)
-ProbesDict = JSON.parsefile(pwd()*"/AngularNew.json")
-CosmoDict = JSON.parsefile(pwd()*"/Cosmology.json")
+ProbesDict = JSON.parsefile(pwd()*"../../input_files/AngularNew.json")
+CosmoDict = JSON.parsefile(pwd()*"../../input_files/Cosmology.json")
 ForecastContainer = CosmoCentral.InitializeForecastContainer(CosmoDict, ProbesDict,
 CosmologicalGrid, steps)
 CosmoCentral.CreateDirectoriesForecast!(ForecastContainer, pwd()*"/test_forecast/")
