@@ -60,3 +60,76 @@ function EvaluateFisherMatrixElement!(FisherMatrix::Fisherαβ, Cov::CℓCovaria
     end
     FisherMatrix.FisherDict[Parα*"_"*Parβ] = fisherelement
 end
+
+#######################
+#The code here need a bit of polishing and generalizations. However, it works fine for the
+#cases actually tested
+#######################
+
+function SumFisher(FisherA::Fisherαβ, FisherB::Fisherαβ)
+    FisherC = Fisherαβ()
+    if FisherA.ParametersList != FisherB.ParametersList
+        error("The two parameters lists are different.")
+        #TODO: this can be generalized
+    end
+    FisherC.FisherMatrix = zeros(length(FisherA.ParametersList),
+    length(FisherA.ParametersList))
+    FisherC.ParametersList = FisherA.ParametersList
+    FisherC.SelectedParametersList = union(FisherA.SelectedParametersList,
+    FisherB.SelectedParametersList)
+    for (key, value) in FisherA.FisherℓDict
+        FisherC.FisherDict[key] = FisherA.FisherDict[key] + FisherB.FisherDict[key]
+    end
+    for (indexα, Parα) in enumerate(FisherC.SelectedParametersList)
+        for (indexβ, Parβ) in enumerate(FisherC.SelectedParametersList)
+            FisherC.FisherMatrix[indexα, indexβ] = FisherC.FisherDict[Parα*"_"*Parβ]
+        end
+    end
+    """
+    if size(FisherA.FisherMatrixCumℓ[1]) == size(FisherB.FisherMatrixCumℓ[1] != 1)
+        FisherC.FisherMatrixCumℓ = zeros(size(FisherA.FisherMatrixCumℓ)[1],
+            length(FisherA.ParametersList), length(FisherA.ParametersList) )
+        for (key, value) in FisherA.FisherℓDict
+            FisherC.FisherℓDict[key] = FisherA.FisherℓDict[key] + FisherB.FisherℓDict[key]
+        end
+        for (indexα, Parα) in enumerate(FisherC.SelectedParametersList)
+            for (indexβ, Parβ) in enumerate(FisherC.SelectedParametersList)
+                FisherC.FisherMatrixCumℓ[:, indexα, indexβ] = 
+                cumsum(FisherC.FisherℓDict[Parα*"_"*Parβ])
+            end
+        end
+    end
+    """
+    CosmoCentral.SelectMatrixAndMarginalize!(FisherC.ParametersList, FisherC)
+    println(FisherC.ParametersList)
+    return FisherC
+end
+
+function SelectCorrelationMatrix(Fisher::Fisherαβ, Parameters)
+    corr_matrix = zeros(length(Parameters), length(Parameters))
+    for (idxα, parα) in enumerate(Parameters)
+        for (idxβ, parβ) in enumerate(Parameters)
+            corr_matrix[idxα, idxβ] = Fisher.CorrelationMatrixDict[parα*"_"*parβ]
+        end
+    end
+    return corr_matrix
+end
+
+function EvaluateFoM(Fisher::Fisherαβ, Parα::String, Parβ::String)
+    return sqrt(1/det(SelectCorrelationMatrix(Fisher, [Parα, Parβ])))
+end
+
+function RearrangeFisherℓ(Fisher::Fisherαβ, CosmoGrid::CosmologicalGrid, ℓmin, ℓmax)
+    FisherNew = deepcopy(Fisher)
+    FisherNew.FisherMatrix = zeros(length(Fisher.ParametersList), length(Fisher.ParametersList))
+    FisherNew.FisherMatrixCumℓ = zeros(1,1,1)
+    for (idxα, parα) in enumerate(Fisher.ParametersList)
+        for (idxβ, parβ) in enumerate(Fisher.ParametersList)
+            interpFisher = Dierckx.Spline1D(CosmoGrid.ℓBinCenters, Fisher.FisherℓDict[parα*"_"*parβ] ./ CosmoGrid.ℓBinWidths)
+            int, err = quadgk(ℓ -> interpFisher(ℓ), ℓmin, ℓmax, rtol=1e-12)
+            FisherNew.FisherDict[parα*"_"*parβ] = int
+            FisherNew.FisherMatrix[idxα, idxβ] = int
+        end
+    end
+    return FisherNew
+end

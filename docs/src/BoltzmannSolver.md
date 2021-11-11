@@ -3,6 +3,7 @@ using Plots; gr()
 Plots.reset_defaults()
 using CosmoCentral
 using LaTeXStrings
+using BenchmarkTools
 
 w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
@@ -25,6 +26,9 @@ end
 path = joinpath(pwd(),"..","..","test","p_mm")
 PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
 CosmoCentral.ReadPowerSpectrumBackground(path, MultipolesArray, MultipolesWidths)
+CosmoCentral.ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+
+CosmoCentral.ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
 ```
 
 # BoltzmannSolver
@@ -60,8 +64,17 @@ For instance, here we show the linear and nonlinear ``P_{\delta\delta}(k,z)``, e
 CLASS, for a the reference cosmology.
 ```@example tutorial
 p = plot(CosmologicalGrid.KArray, PowerSpectrum.PowerSpectrumLinArray[:,1],
-ylabel = L"P(k)\,(\mathrm{Mpc}^{-3})", xlabel = L"k\,(\mathrm{Mpc}^{-1})", xaxis=:log,
-yaxis=:log, label = L"\mathrm{Linear}", xlims = (1e-5,10), ylims = (1,1e5))
+ylabel = L"P(k)\,\left[\mathrm{Mpc}^{3}\right]", xlabel = L"k\,\left[\mathrm{Mpc}^{-1}\right]",
+xaxis=:log, yaxis=:log, label = L"\mathrm{Linear}", xlims = (1e-5,10), ylims = (1,1e5))
 plot!(p, CosmologicalGrid.KArray, PowerSpectrum.PowerSpectrumNonlinArray[:,1],
 xaxis=:log, yaxis=:log, label = L"\mathrm{Nonlinear}")
+```
+When performing forecasts, ``P_{\delta \delta}(k,z)`` can be valuated once and stored (we 
+provide a precomputed set of spectra [here](https://zenodo.org/record/5270335)), so
+their computational impact is reduced. However, when evaluating ``C_\ell``'s, there is a not
+negligible impact of ``P_{ \delta\delta}(k,z)`` interpolation and evaluation on the Limber 
+``k-``grid.
+```@example tutorial
+@benchmark CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
+BackgroundQuantities, PowerSpectrum, CosmoCentral.BSplineCubic())
 ```

@@ -64,10 +64,21 @@ end
 end
 
 """
-    CosmologicalGrid(ZArray::Vector{Float64} = Array(LinRange(0.001, 2.5, 300)),
-    KArray::Vector{Float64} = LogSpaced(1e-5, 50., 1000))
+    CosmologicalGrid{T} <: AbstractCosmologicalGrid{T}
+    ZArray::AbstractArray{T} = LinRange(0.001, 2.5, 300)
+    KArray::AbstractArray{T} = LogSpaced(1e-5, 50., 1000)
+    ℓBinCenters::AbstractArray{T} = LinRange(10., 3000., 2991)
+    ℓBinWidths::AbstractArray{T} = LinRange(10., 3000., 2991)
+    KLimberArray::AbstractArray{T,2} = zeros(length(ℓBinCenters),
+    length(ZArray))
+    KBeyondLimberArray::AbstractArray{T,2} = zeros(100, 1000)
 
-This struct contains the value of the Cosmological Grid, both in ``k`` and ``z``.
+This struct contains several grids:
+- `ZArray` and `KArray`, the grids for the [`PowerSpectrum`](@ref) calculations
+- `ℓBinCenters`, the ``\\ell`` grid for the ``C_\\ell``'s calculations
+- `ℓBinWidths`, used when computing the covariance matrix
+- `KLimberArray`, the `k` grid to evaluate the ``C_\\ell``'s in the Limber approximation
+- `KBeyondLimberArray`, the `k` grid to evaluate the ``C_\\ell``'s without the Limber approximation
 """
 @kwdef mutable struct CosmologicalGrid{T} <: AbstractCosmologicalGrid{T}
     ZArray::AbstractArray{T} = LinRange(0.001, 2.5, 300)
@@ -138,8 +149,8 @@ The parameters contained in this struct are
 
 - ``z_0``, the parameter present in the galaxy distribution
 
-- surfacedensity , the value of the galaxy source density integrated between ``z_{min}`` and ``z_{max}``
-- normalization, the value of parameter which multiplies the source dennsity in order to match the correct surface density
+- `surfacedensity` , the value of the galaxy source density integrated between ``z_{min}`` and ``z_{max}``
+- `normalization`, the value of parameter which multiplies the source dennsity in order to match the correct surface density
 """
 @kwdef mutable struct AnalitycalDensity{T} <: AbstractDensity{T}
     Z0::T = 0.9/sqrt(2.)
@@ -314,6 +325,7 @@ This struct contains the array with the Fisher Matrix.
     CorrelationMatrixCumℓ::AbstractArray{T,3} = zeros(100,8,8)
     FisherDict::Dict = Dict()
     FisherℓDict::Dict = Dict()
+    CorrelationMatrixDict::Dict = Dict()
     ParametersList::Vector{S} = []
     SelectedParametersList::Vector{S} = []
     MarginalizedErrors::Dict = Dict()

@@ -6,11 +6,9 @@ algorithm, [Camera et al. 2017](https://arxiv.org/abs/1606.03451):
 
 - a linear regression over ``x`` and ``y`` is performed
 
-- if the points obtained with the fit are close enough (less than 0.01 relative
-difference) the linear ansatz is satisfied and the slope gives the derivative
+- if the points obtained with the fit are close enough (less than 0.01 relative difference) the linear ansatz is satisfied and the slope gives the derivative
 
-- if the linear ansatz is not satisfied, the external couple of points and the
-linear regression is performed again till the linear ansatz is satisfied
+- if the linear ansatz is not satisfied, the external couple of points and the linear regression is performed again till the linear ansatz is satisfied
 """
 function SteMDerivative(x::Vector{T}, y::Vector{T}) where T
     x_copy = deepcopy(x)
@@ -25,7 +23,7 @@ function SteMDerivative(x::Vector{T}, y::Vector{T}) where T
             percent_diff = zeros(length(x_copy))
             y_fit .= coefficients[1] .+ x_copy .* coefficients[2]
             percent_diff = abs.((y_copy .- y_fit) ./ y_copy)
-            if all(percent_diff .<= 0.01) || length(x_copy) < 3
+            if all(percent_diff .<= 0.01) || length(x_copy) < 5
                 nonlinear = false
                 der = coefficients[2]
             else
@@ -37,4 +35,11 @@ function SteMDerivative(x::Vector{T}, y::Vector{T}) where T
         end
     end
     return der
+end
+
+function Merge∂Cℓ(∂CℓAA::Abstract∂Cℓ, ∂CℓAB::Abstract∂Cℓ, ∂CℓBB::Abstract∂Cℓ)
+    New∂Cℓ = ∂Cℓ()
+    New∂Cℓ.∂CℓArray = cat(cat(∂CℓAA.∂CℓArray,∂CℓAB.∂CℓArray,dims =3),
+    cat(permutedims(∂CℓAB.∂CℓArray, [1,3,2]),∂CℓBB.∂CℓArray,dims =3), dims=2)
+    return New∂Cℓ
 end

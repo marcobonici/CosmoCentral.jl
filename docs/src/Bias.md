@@ -47,7 +47,7 @@ zeros(length(ConvolvedDensity.DensityGridArray[1,:]), length(CosmologicalGrid.ZA
 BiasKind = CosmoCentral.PiecewiseBias())
 CosmoCentral.ComputeBiasGrid!(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
 x = CosmologicalGrid.ZArray; y = GCWeightFunction.BiasArray[1, :];
-plot(x, y, ylabel = L"\mathrm{Bias}(z)", xlabel=L"z")
+plot(x, y, ylabel = L"\mathrm{Bias}\,(z)", xlabel=L"z")
 ```
 ## Euclid Flagsip Bias
 This model, obtained from the Flagship Euclid simulation is taken from
@@ -61,7 +61,7 @@ GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray=
         length(CosmologicalGrid.ZArray)), BiasKind = CosmoCentral.EuclidBias())
 CosmoCentral.ComputeBiasGrid!(CosmologicalGrid, GCWeightFunction, ConvolvedDensity)
 x = CosmologicalGrid.ZArray; y = GCWeightFunction.BiasArray[1, :];
-plot(x, y, ylabel = L"\mathrm{Bias}(z)", xlabel= L"z")
+plot(x, y, ylabel = L"\mathrm{Bias}\,(z)", xlabel= L"z")
 ```
 
 ```@docs

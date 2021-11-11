@@ -4,7 +4,9 @@ Plots.reset_defaults()
 using PlotThemes
 using CosmoCentral
 using LaTeXStrings
+using BenchmarkTools
 default(palette = palette(:tab10))
+
 
 w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 
@@ -12,7 +14,7 @@ w0waCDMCosmology = CosmoCentral.Flatw0waCDMCosmology()
 plot_font = "Computer Modern"
 Plots.default(titlefont = (16, plot_font), fontfamily=plot_font,
         linewidth=2, framestyle=:box, fg_legend =:black, label=nothing, grid=false,
-        tickfontsize=12, legendfontsize=12, size = (550, 400), labelfontsize = 13,
+        tickfontsize=12, legendfontsize=8, size = (550, 400), labelfontsize = 13,
         dpi = 200)
 
 MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,5000., 101)
@@ -113,8 +115,7 @@ Plots.plot!(p, x, y, labels=(L"i=%$i"),  linewidth=3, xaxis=:log, yaxis=:log)
 end
 p
 ```
-Following the same procedure (basically, give the correct weight functions), it is possible
-to evaluate the Galaxy Clustering ``C_\ell``'s...
+Following the same procedure it is possible to evaluate the Galaxy Clustering ``C_\ell``'s...
 ```@example tutorial
 x = CosmologicalGrid.ℓBinCenters
 p = Plots.plot(xlabel=L"\ell", ylabel=L"\ell(\ell+1)C_{ii}^{GG}",
@@ -145,4 +146,9 @@ for i in 1:10
     end
 end
 p
+```
+Finally, the computation of the ``C_\ell``'s is quite fast. In particular, here we benchmark
+their evaluation with 100 different ``\ell``'s value. 
+```@example tutorial
+@benchmark CosmoCentral.ComputeCℓ!(CℓGL, GCWeightFunction, WLWeightFunction, BackgroundQuantities, w0waCDMCosmology, CosmologicalGrid, PowerSpectrum, CosmoCentral.CustomSimpson())
 ```

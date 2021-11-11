@@ -274,7 +274,7 @@ end
     CosmoCentral.Forecast∂Cℓ!(ForecastContainer, PathOutput, PathOutputCℓ, steps)
 
     Fisher = CosmoCentral.ForecastFisherαβ(ForecastContainer ,PathCentralCℓ, Path∂Cℓ,
-    CosmologicalGrid, "Test")
+    CosmologicalGrid, "Lensing", "Test")
     CheckFisher = CosmoCentral.ReadFisher("CheckFisher", "Lensing_Lensing")
 
     @test isapprox(CheckFisher.FisherMatrix, Fisher.FisherMatrix, rtol=1e-6)

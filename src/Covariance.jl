@@ -99,3 +99,15 @@ function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
     end
     return Cov
 end
+
+function MergeCovariances(CovAA::aₗₘCovariance, CovAB::aₗₘCovariance, CovBB::aₗₘCovariance)
+    NewCov = aₗₘCovariance()
+    ℓnumber = length(CovAA.Covariance[:,1,1])
+    NewCov.Covariance = cat(cat(CovAA.Covariance,CovAB.Covariance,dims =3),
+    cat(permutedims(CovAB.Covariance, [1,3,2]),CovBB.Covariance,dims =3), dims=2)
+    NewCov.Covariance⁻¹ = zeros(size(NewCov.Covariance))
+    for ℓ in 1:ℓnumber
+        NewCov.Covariance⁻¹[ℓ,:,:] = inv(NewCov.Covariance[ℓ,:,:])
+    end
+    return NewCov
+end
