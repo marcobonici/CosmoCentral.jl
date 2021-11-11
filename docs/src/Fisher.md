@@ -10,6 +10,7 @@ using LinearAlgebra
 run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`);
 run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`);
 run(`tar xvf forecast_pmm.tar.xz`);
+run(`rm -rf forecast_pmm.tar.xz`);
 MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
 MultipolesArray = zeros(100)
 MultipolesWidths = CosmoCentral.Difference(MultipolesArrayTemp)
