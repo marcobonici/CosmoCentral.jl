@@ -58,7 +58,7 @@ for par in pars_list
     append!(marg_errs, FisherWL.MarginalizedErrors[par])
 end
 
-noto_sans = assetpath("/usr/share/fonts/computer_modern", "NewCM10-Regular.otf")
+noto_sans = "Computer Modern"#assetpath("/usr/share/fonts/computer_modern", "NewCM10-Regular.otf")
 
 dimticklabel = 50
 sidesquare = 400
