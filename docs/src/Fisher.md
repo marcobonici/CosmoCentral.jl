@@ -20,29 +20,29 @@ for i in 1:100
 end
 
 steps = Array([0.00625, 0.01250, 0.01875, 0.02500, 0.03750, 0.05000, 0.10000])
-CosmologicalGrid = CosmoCentral.CosmologicalGrid(ZArray =
+cosmogrid = CosmoCentral.CosmologicalGrid(ZArray =
 Array(LinRange(0.001, 4., 500)), KArray = CosmoCentral.LogSpaced(1e-5, 50., 1000),
 ℓBinCenters = MultipolesArray, ℓBinWidths = MultipolesWidths)
 ProbesDict = JSON.parsefile(pwd()*"/../../input_files/AngularNew.json")
 CosmoDict = JSON.parsefile(pwd()*"/../../input_files/Cosmology.json")
 ForecastContainer = CosmoCentral.InitializeForecastContainer(CosmoDict, ProbesDict,
-CosmologicalGrid, steps)
+cosmogrid, steps)
 CosmoCentral.CreateDirectoriesForecast!(ForecastContainer, pwd()*"/test_forecast/")
 PathInputPmm = pwd()*"/forecast_pmm/PowerSpectrum/"
 PathOutputCℓ = pwd()*"/test_forecast/Angular/"
 PathOutput = pwd()*"/test_forecast"
 PathCentralCℓ = pwd()*"/test_forecast/Angular/dvar_central_step_0/cl"
 Path∂Cℓ = pwd()*"/test_forecast/Derivative"
-CosmoCentral.ForecastCℓ!(ForecastContainer, CosmologicalGrid, PathInputPmm, PathOutputCℓ)
+CosmoCentral.ForecastCℓ!(ForecastContainer, cosmogrid, PathInputPmm, PathOutputCℓ)
 CosmoCentral.Forecast∂Cℓ!(ForecastContainer, PathOutput, PathOutputCℓ, steps)
 FisherWL = CosmoCentral.ForecastFisherαβ(ForecastContainer ,PathCentralCℓ, Path∂Cℓ,
-CosmologicalGrid, "Lensing", "Test")
+cosmogrid, "Lensing", "Test")
 FisherGC = CosmoCentral.ForecastFisherαβ(ForecastContainer ,PathCentralCℓ, Path∂Cℓ,
-CosmologicalGrid, "PhotometricClustering", "Test")
+cosmogrid, "PhotometricClustering", "Test")
 FisherXC_WL_GC = CosmoCentral.ForecastFisherαβ(ForecastContainer ,PathCentralCℓ, Path∂Cℓ,
-CosmologicalGrid, "Lensing", "PhotometricClustering", "Test")
+cosmogrid, "Lensing", "PhotometricClustering", "Test")
 FisherGCplusWL = CosmoCentral.SumFisher(FisherWL, FisherGC)
-FisherGCNew = CosmoCentral.RearrangeFisherℓ(FisherGC, CosmologicalGrid, 10, 3000)
+FisherGCNew = CosmoCentral.RearrangeFisherℓ(FisherGC, cosmogrid, 10, 3000)
 CosmoCentral.SelectMatrixAndMarginalize!(FisherGCNew.ParametersList, FisherGCNew)
 FisherGCNewplusWL = CosmoCentral.SumFisher(FisherWL, FisherGCNew)
 FisherXC_WL_GCNew = CosmoCentral.RearrangeFisherℓ(FisherXC_WL_GC, cosmogrid, 10, 3000)
