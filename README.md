@@ -1,3 +1,7 @@
+<p align="center">
+<img width="400px" src="https://raw.githubusercontent.com/marcobonici/CosmoCentral.jl/develop/docs/src/assets/logo.png"/>
+</p>
+
 # CosmoCentral.jl
 
 CosmoCentral is a code for cosmological analysis written in Julia.
