@@ -9,7 +9,8 @@ push!(LOAD_PATH,"../src/")
 
 makedocs(
     modules = [CosmoCentral],
-    format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true",
+    sidebar_sitename=false),
     sitename = "CosmoCentral.jl",
     authors  = "Marco Bonici",
     pages = [
