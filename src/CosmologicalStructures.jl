@@ -39,6 +39,7 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
 - ``H_0``, the value of the Hubble paramater
 """
 @kwdef mutable struct w0waCDMCosmology{T} <: AbstractCosmology{T}
+    #TODO #109
     w0::T  = -1.
     wa::T  = 0.
     Mν::T  = 0.06 #neutrino mass in eV
