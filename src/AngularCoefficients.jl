@@ -10,7 +10,7 @@ struct BeyondLimber <: IntegrationMethod end
     PowerSpectrum::AbstractPowerSpectrum, ::NumericalIntegrationSimpson)
 
 This function evaluates the Angular Coefficients for all tomographic bins and
-multipole values. In order to evaluate the numerical integrals, it is emplyed the
+multipole values. In order to evaluate the numerical integrals, it is employed the
 Simpson numerical method from
 [NumericalIntegration.jl](https://github.com/dextorious/NumericalIntegration.jl) . This is
 not the fastest method available, but can be used as a benchmark to check consistency.
