@@ -4,7 +4,7 @@
 This function, given a [`w0waCDMCosmology`](@ref), returns the
 [`classyParams`](@ref) correctly initialized.
 """
-function Initializeclassy(cosmo::cosmo)
+function Initializeclassy(cosmo::w0waCDMCosmology)
     classyParamsDict = Dict("output" => "mPk",
     "non linear"=> "halofit",
     "Omega_b"=> cosmo.ΩB,
