@@ -54,7 +54,7 @@ function  ComputeCℓ!(Cℓ::AbstractCℓ, WeightFunctionA::AbstractWeightFuncti
     BackgroundQuantities::AbstractBackgroundQuantities,
     ::AbstractCosmology, CosmologicalGrid::AbstractCosmologicalGrid,
     PowerSpectrum::AbstractPowerSpectrum, ::CustomSimpson)
-    c_0 = 2.99792458e5 #TODO: find a package containing the exact value of
+    c_0 = 2.99792458e5 #TODO: #108 find a package containing the exact value of
                        #physical constants involved in calculations
     check = true
     while check == true
@@ -80,7 +80,7 @@ end
     HZArray::AbstractArray{T}, χZArray::AbstractArray{T},
     InterpolatedPmm::AbstractArray{T,N}) where {T, N}
 
-This function computes the Cℓ, given the appropriate input, using the Simpson integration 
+This function computes the Cℓ for two probes A and B using the Simpson integration 
 rule. The computation is accelerated by
 [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl) .
 """
