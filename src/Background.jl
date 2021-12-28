@@ -28,7 +28,7 @@ function ComputeAdimensionalHubbleFactor(z::T, ΩM::T, Ωr::T, ΩDE::T, w0::T, w
 end
 
 function ComputeAdimensionalHubbleFactor(z::T, 
-    flatw0waCDMCosmology::Flatw0waCDMCosmology) where T
+    cosmo::Flatw0waCDMCosmology) where T
     ΩDE = 1 - cosmo.ΩM- cosmo.Ωr
     E_z = ComputeAdimensionalHubbleFactor(z, cosmo.ΩM, cosmo.Ωr,
     ΩDE, cosmo.w0, cosmo.wa)
