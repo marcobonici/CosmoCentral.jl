@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - develop
+      - fix_ci
     tags: '*'
 jobs:
   test:
