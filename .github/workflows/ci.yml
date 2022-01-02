@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - develop
+      - fix_ci
   push:
     branches:
       - main

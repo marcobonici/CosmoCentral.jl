@@ -31,10 +31,15 @@ CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters),
 length(GCWeightFunction.WeightFunctionArray[:, 1]),
 length(GCWeightFunction.WeightFunctionArray[:, 1])))
 classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
-input_path_pmm = pwd()*"/p_mm"
-input_path_Cℓ = pwd()*"/cl"
+input_path_pmm = pwd()*"/test_forecast/PowerSpectrum/dvar_central_step_0/cl"
+input_path_Cℓ = pwd()*"/test_forecast/Angular/dvar_central_step_0/cl"
 input_path_Forecast = pwd()
 CosmoCentral.classy.Class()
+
+
+run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`);
+run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`);
+run(`tar xvf forecast_pmm.tar.xz`);
 
 @testset "Evaluation of background quantities" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., w0waCDMCosmology)
@@ -246,9 +251,6 @@ end
 end
 
 @testset "Test Fisher Forecast: Integration Test" begin
-    run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`);
-    run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`);
-    run(`tar xvf forecast_pmm.tar.xz`);
     MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
     MultipolesArray = zeros(100)
     MultipolesWidths = CosmoCentral.Difference(MultipolesArrayTemp)
