@@ -287,7 +287,7 @@ end
 
     Fisher = CosmoCentral.ForecastFisherαβ(ForecastContainer ,PathCentralCℓ, Path∂Cℓ,
     CosmologicalGrid, "Lensing", "Test")
-    CheckFisher = CosmoCentral.ReadFisher("CheckFisher", "Lensing_Lensing")
 
-    @test isapprox(CheckFisher.FisherMatrix, Fisher.FisherMatrix, rtol=1e-6)
+    @test isapprox(39.02, CosmoCentral.EvaluateFoM(Fisher, "w0", "wa"), rtol=1e-4)
+    @test isapprox(0.5670, Fisher.MarginalizedErrors["wa"], rtol=1e-4)
 end
