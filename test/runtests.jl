@@ -31,8 +31,8 @@ CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters),
 length(GCWeightFunction.WeightFunctionArray[:, 1]),
 length(GCWeightFunction.WeightFunctionArray[:, 1])))
 classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
-input_path_pmm = pwd()*"/test_forecast/PowerSpectrum/dvar_central_step_0/p_mm"
-input_path_Cℓ = pwd()*"/test_forecast/Angular/dvar_central_step_0/cl"
+input_path_pmm = pwd()*"/forecast_pmm/PowerSpectrum/dvar_central_step_0/p_mm"
+input_path_Cℓ = pwd()*"/forecast_pmm/Angular/dvar_central_step_0/cl"
 input_path_Forecast = pwd()
 CosmoCentral.classy.Class()
 
