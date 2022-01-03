@@ -232,7 +232,13 @@ end
 
 @testset "Test Angular coefficients evaluation" begin
     CℓLoaded = CosmoCentral.ReadCℓ(input_path_Cℓ, "PhotometricGalaxy_PhotometricGalaxy")
-    ℓBinCenters = Array(LinRange(10.5, 2999.5, 2990))
+    MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
+    MultipolesArray = zeros(100)
+    MultipolesWidths = CosmoCentral.Difference(MultipolesArrayTemp)
+    for i in 1:100
+        MultipolesArray[i] = (MultipolesArrayTemp[i+1]+MultipolesArrayTemp[i])/2
+    end
+    ℓBinCenters = MultipolesArray
     PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, ℓBinCenters, Array(ones(2990)))
     CosmoCentral.ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
