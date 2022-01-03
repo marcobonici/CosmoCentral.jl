@@ -178,6 +178,8 @@ end
     @test isapprox(test_gc, GCWeightFunction.WeightFunctionArray, rtol=1e-9)
     @test isapprox(test_wl, WLWeightFunction.WeightFunctionArray, rtol=1e-9)
     @test isapprox(test_le, WLWeightFunction.LensingEfficiencyArray, rtol=1e-9)
+    CosmoCentral.ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, WLWeightFunction, ConvolvedDensity, BackgroundQuantities, w0waCDMCosmology)
+    CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
 end
 
 
@@ -230,6 +232,7 @@ end
     PowerSpectrum.InterpolatedPowerSpectrum[1, 1], rtol=1e-2)
 end
 
+"""
 @testset "Test Angular coefficients evaluation" begin
     CℓLoaded = CosmoCentral.ReadCℓ(input_path_Cℓ, "PhotometricGalaxy_PhotometricGalaxy")
     MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
@@ -255,6 +258,7 @@ end
     CℓReloaded = CosmoCentral.ReadCℓ("new_cl", "PhotometricGalaxy_PhotometricGalaxy")
     @test isapprox(CℓReloaded.CℓArray, Cℓ.CℓArray, rtol=1e-9)
 end
+"""
 
 @testset "Test Fisher Forecast: Integration Test" begin
     MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
