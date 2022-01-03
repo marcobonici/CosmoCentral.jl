@@ -14,19 +14,24 @@ E(z)=\\sqrt{\\Omega_M(1+z)^3+\\Omega_R(1+z)^4+
     [CPL parameterization](https://arxiv.org/abs/astro-ph/0208512)
     of the Dark Energy Equation of State.
 """
-function ComputeAdimensionalHubbleFactor(z::T, w0waCDMCosmology::w0waCDMCosmology) where T
-    E_z = sqrt(w0waCDMCosmology.ΩM*(1+z)^3 + w0waCDMCosmology.Ωr*(1+z)^4+
-    w0waCDMCosmology.Ωk*(1+z)^2
-    +w0waCDMCosmology.ΩDE*(1+z)^(3*(1+w0waCDMCosmology.w0+
-    w0waCDMCosmology.wa))*exp(-3*w0waCDMCosmology.wa*z/(1+z)) )
+function ComputeAdimensionalHubbleFactor(z::T, cosmo::w0waCDMCosmology) where T
+    E_z = ComputeAdimensionalHubbleFactor(z, cosmo.ΩM, cosmo.Ωr,
+    cosmo.ΩDE, cosmo.w0, cosmo.wa)
+    return E_z
+end
+
+function ComputeAdimensionalHubbleFactor(z::T, ΩM::T, Ωr::T, ΩDE::T, w0::T, wa::T) where T
+    Ωk = 1 - ΩM - Ωr - ΩDE
+    E_z = sqrt(ΩM*(1+z)^3 + Ωr*(1+z)^4+ Ωk*(1+z)^2 
+    +ΩDE*(1+z)^(3*(1+w0+wa))*exp(-3*wa*z/(1+z)) )
     return E_z
 end
 
 function ComputeAdimensionalHubbleFactor(z::T, 
-    flatw0waCDMCosmology::Flatw0waCDMCosmology) where T
-    E_z = sqrt(flatw0waCDMCosmology.ΩM*(1+z)^3
-    +(1-flatw0waCDMCosmology.ΩM)*(1+z)^(3*(1+flatw0waCDMCosmology.w0+
-    flatw0waCDMCosmology.wa))*exp(-3*flatw0waCDMCosmology.wa*z/(1+z)) )
+    cosmo::Flatw0waCDMCosmology) where T
+    ΩDE = 1 - cosmo.ΩM- cosmo.Ωr
+    E_z = ComputeAdimensionalHubbleFactor(z, cosmo.ΩM, cosmo.Ωr,
+    ΩDE, cosmo.w0, cosmo.wa)
     return E_z
 end
 
