@@ -289,5 +289,5 @@ end
     CosmologicalGrid, "Lensing", "Test")
 
     @test isapprox(31.791, CosmoCentral.EvaluateFoM(Fisher, "w0", "wa"), rtol=1e-4)
-    @test isapprox(0.5926, Fisher.MarginalizedErrors["wa"], rtol=1e-4)
+    @test isapprox(0.5926853440610628, Fisher.MarginalizedErrors["wa"], rtol=1e-4)
 end
