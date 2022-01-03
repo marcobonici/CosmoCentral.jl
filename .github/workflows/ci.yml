@@ -4,10 +4,12 @@ on:
     branches:
       - main
       - develop
+      - fix_ci
   push:
     branches:
       - main
       - develop
+      - fix_ci
     tags: '*'
 jobs:
   test:
@@ -19,6 +21,7 @@ jobs:
         version:
           - '1.5'
           - '1.6'
+          - '1.7'
         os:
           - ubuntu-latest
         arch:
