@@ -13,7 +13,7 @@ function ComputeSourceFunctionOverGrid(
             1.5 * (Cosmology.H0/c_0)^2 * Cosmology.ΩM *
             (1. + CosmologicalGrid.ZArray[zidx]) *
             LensingSourceFunction.LensingEfficiencyArray[zbinidx, zidx] *
-            BackgroundQuantities.rZArray[zidx]
+            BackgroundQuantities.χZArray[zidx]
         end
     end
 end

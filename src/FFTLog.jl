@@ -4,7 +4,7 @@
 This function evaluates the smoothing window function as defined
 [in Eq. (C.1) of this paper](https://arxiv.org/abs/1603.04826).
 """
-function CWindow(N::Vector{Float64}, NCut::Int64)
+function CWindow(N::AbstractArray{T}, NCut::I) where {T,I}
     NRight = last(N) - NCut
     NR = filter(x->x>=NRight, N)
     ThetaRight = (last(N).-NR) ./ (last(N) - NRight - 1)
@@ -98,7 +98,7 @@ function CheckNumberElements!(FFTLog::FFTLog)
     end
 end
 
-function EvaluateFFTLog(FFTLog::FFTLog, Ell::Vector{Float64})
+function EvaluateFFTLog(FFTLog::FFTLog, Ell::Vector{T}) where T
     FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow,
 	FFTLog.NExtrapHigh)
     FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow,
@@ -123,7 +123,7 @@ function EvaluateFFTLog(FFTLog::FFTLog, Ell::Vector{Float64})
 	1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
 end
 
-function EvaluateFFTLogDJ(FFTLog::FFTLog, Ell::Vector{Float64})
+function EvaluateFFTLogDJ(FFTLog::FFTLog, Ell::Vector{T}) where T
     FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow,
 	FFTLog.NExtrapHigh)
     FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow,
@@ -148,7 +148,7 @@ function EvaluateFFTLogDJ(FFTLog::FFTLog, Ell::Vector{Float64})
 	1:FFTLog.NExtrapLow+FFTLog.NPad+FFTLog.OriginalLenght]
 end
 
-function EvaluateFFTLogDDJ(FFTLog::FFTLog, Ell::Vector{Float64})
+function EvaluateFFTLogDDJ(FFTLog::FFTLog, Ell::Vector{T}) where T
     FFTLog.XArray = LogExtrap(FFTLog.XArray, FFTLog.NExtrapLow,
 	FFTLog.NExtrapHigh)
     FFTLog.FXArray = LogExtrap(FFTLog.FXArray, FFTLog.NExtrapLow,

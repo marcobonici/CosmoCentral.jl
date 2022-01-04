@@ -4,6 +4,7 @@ using QuadGK
 using NumericalIntegration
 using PyCall
 using Interpolations
+using JSON
 
 numpy = pyimport("numpy")
 
@@ -15,7 +16,7 @@ CosmologicalGrid  = CosmoCentral.CosmologicalGrid(
 ZArray=Array(LinRange(0.001, 4.0, 500)))
 BackgroundQuantities = CosmoCentral.BackgroundQuantities(HZArray=
 zeros(length(CosmologicalGrid.ZArray)),
-rZArray=zeros(length(CosmologicalGrid.ZArray)))
+χZArray=zeros(length(CosmologicalGrid.ZArray)))
 GCWeightFunction = CosmoCentral.GCWeightFunction(WeightFunctionArray =
 zeros(length(ConvolvedDensity.DensityNormalizationArray),
 length(CosmologicalGrid.ZArray)))
@@ -30,9 +31,15 @@ CℓArray = zeros(length(CosmologicalGrid.ℓBinCenters),
 length(GCWeightFunction.WeightFunctionArray[:, 1]),
 length(GCWeightFunction.WeightFunctionArray[:, 1])))
 classyParams = CosmoCentral.Initializeclassy(w0waCDMCosmology)
-input_path_pmm = pwd()*"/p_mm"
-input_path_Cℓ = pwd()*"/cl"
+input_path_pmm = pwd()*"/forecast_pmm/PowerSpectrum/dvar_central_step_0/p_mm"
+input_path_Cℓ = pwd()*"/forecast_pmm/Angular/dvar_central_step_0/cl"
+input_path_Forecast = pwd()
 CosmoCentral.classy.Class()
+
+
+run(`wget https://zenodo.org/record/5270335/files/forecast_pmm.tar.xz\?download=1`);
+run(`mv forecast_pmm.tar.xz\?download\=1 forecast_pmm.tar.xz`);
+run(`tar xvf forecast_pmm.tar.xz`);
 
 @testset "Evaluation of background quantities" begin
     test_E_z = CosmoCentral.ComputeAdimensionalHubbleFactor(0., w0waCDMCosmology)
@@ -51,7 +58,7 @@ CosmoCentral.classy.Class()
     end
     CosmoCentral.ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
     BackgroundQuantities, w0waCDMCosmology)
-    @test test_r_array ==BackgroundQuantities.rZArray
+    @test test_r_array ==BackgroundQuantities.χZArray
     @test test_H_array ==BackgroundQuantities.HZArray
 end
 
@@ -171,6 +178,8 @@ end
     @test isapprox(test_gc, GCWeightFunction.WeightFunctionArray, rtol=1e-9)
     @test isapprox(test_wl, WLWeightFunction.WeightFunctionArray, rtol=1e-9)
     @test isapprox(test_le, WLWeightFunction.LensingEfficiencyArray, rtol=1e-9)
+    CosmoCentral.ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, WLWeightFunction, ConvolvedDensity, BackgroundQuantities, w0waCDMCosmology)
+    CosmoCentral.ComputeWeightFunctionGrid!(WLWeightFunction, ConvolvedDensity, CosmologicalGrid, BackgroundQuantities, w0waCDMCosmology)
 end
 
 
@@ -183,15 +192,15 @@ end
     CosmoCentral.ComputeLimberArray!(CosmologicalGrid,
     BackgroundQuantitiesLoaded)
     test_k_limber = (CosmologicalGrid.ℓBinCenters[1]+0.5) /
-    BackgroundQuantitiesLoaded.rZArray[1]
+    BackgroundQuantitiesLoaded.χZArray[1]
     @test test_k_limber == CosmologicalGrid.KLimberArray[1, 1]
     test_Omega_cdm = w0waCDMCosmology.ΩM-w0waCDMCosmology.ΩB-
     w0waCDMCosmology.Mν/(93.14*(w0waCDMCosmology.H0/100)^2)
     @test test_Omega_cdm == classyParams.classyParamsDict["Omega_cdm"]
-    x = LinRange(log10(first(CosmologicalGrid.KArray)),
-    log10(last(CosmologicalGrid.KArray)), length(CosmologicalGrid.KArray))
-    y = LinRange(first(CosmologicalGrid.ZArray), last(CosmologicalGrid.ZArray),
-    length(CosmologicalGrid.ZArray))
+    x = Array(LinRange(log10(first(CosmologicalGrid.KArray)),
+    log10(last(CosmologicalGrid.KArray)), length(CosmologicalGrid.KArray)))
+    y = Array(LinRange(first(CosmologicalGrid.ZArray), last(CosmologicalGrid.ZArray),
+    length(CosmologicalGrid.ZArray)))
     InterpPmm = Interpolations.interpolate(
     log10.(PowerSpectrum.PowerSpectrumNonlinArray),
     BSpline(Cubic(Line(OnGrid()))))
@@ -212,8 +221,8 @@ end
     NewPowerSpectrum.PowerSpectrumLinArray, rtol=1e-6)
     @test isapprox(BackgroundQuantitiesLoaded.HZArray,
     NewBackgroundQuantitiesLoaded.HZArray, rtol=1e-6)
-    @test isapprox(BackgroundQuantitiesLoaded.rZArray,
-    NewBackgroundQuantitiesLoaded.rZArray, rtol=1e-6)
+    @test isapprox(BackgroundQuantitiesLoaded.χZArray,
+    NewBackgroundQuantitiesLoaded.χZArray, rtol=1e-6)
     PowerSpectrumDierckx, BackgroundQuantitiesLoaded, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, ℓBinCenters, Array(ones(2990)))
     CosmoCentral.InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid,
@@ -223,9 +232,16 @@ end
     PowerSpectrum.InterpolatedPowerSpectrum[1, 1], rtol=1e-2)
 end
 
+"""
 @testset "Test Angular coefficients evaluation" begin
     CℓLoaded = CosmoCentral.ReadCℓ(input_path_Cℓ, "PhotometricGalaxy_PhotometricGalaxy")
-    ℓBinCenters = Array(LinRange(10.5, 2999.5, 2990))
+    MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
+    MultipolesArray = zeros(100)
+    MultipolesWidths = CosmoCentral.Difference(MultipolesArrayTemp)
+    for i in 1:100
+        MultipolesArray[i] = (MultipolesArrayTemp[i+1]+MultipolesArrayTemp[i])/2
+    end
+    ℓBinCenters = MultipolesArray
     PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
     CosmoCentral.ReadPowerSpectrumBackground(input_path_pmm, ℓBinCenters, Array(ones(2990)))
     CosmoCentral.ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
@@ -241,4 +257,37 @@ end
     CosmoCentral.WriteCℓ!("PhotometricGalaxy_PhotometricGalaxy", Cℓ, "new_cl")
     CℓReloaded = CosmoCentral.ReadCℓ("new_cl", "PhotometricGalaxy_PhotometricGalaxy")
     @test isapprox(CℓReloaded.CℓArray, Cℓ.CℓArray, rtol=1e-9)
+end
+"""
+
+@testset "Test Fisher Forecast: Integration Test" begin
+    MultipolesArrayTemp = CosmoCentral.LogSpaced(10.,3000., 101)
+    MultipolesArray = zeros(100)
+    MultipolesWidths = CosmoCentral.Difference(MultipolesArrayTemp)
+    for i in 1:100
+        MultipolesArray[i] = (MultipolesArrayTemp[i+1]+MultipolesArrayTemp[i])/2
+    end
+
+    steps = Array([0.00625, 0.01250, 0.01875, 0.02500, 0.03750, 0.05000, 0.10000])
+    CosmologicalGrid = CosmoCentral.CosmologicalGrid(ZArray =
+    Array(LinRange(0.001, 4., 500)), KArray = CosmoCentral.LogSpaced(1e-5, 50., 1000),
+    ℓBinCenters = MultipolesArray, ℓBinWidths = MultipolesWidths)
+    ProbesDict = JSON.parsefile(pwd()*"/AngularNew.json")
+    CosmoDict = JSON.parsefile(pwd()*"/Cosmology.json")
+    ForecastContainer = CosmoCentral.InitializeForecastContainer(CosmoDict, ProbesDict,
+    CosmologicalGrid, steps)
+    CosmoCentral.CreateDirectoriesForecast!(ForecastContainer, pwd()*"/test_forecast/")
+    PathInputPmm = pwd()*"/forecast_pmm/PowerSpectrum/"
+    PathOutputCℓ = pwd()*"/test_forecast/Angular/"
+    PathOutput = pwd()*"/test_forecast"
+    PathCentralCℓ = pwd()*"/test_forecast/Angular/dvar_central_step_0/cl"
+    Path∂Cℓ = pwd()*"/test_forecast/Derivative"
+    CosmoCentral.ForecastCℓ!(ForecastContainer, CosmologicalGrid, PathInputPmm, PathOutputCℓ)
+    CosmoCentral.Forecast∂Cℓ!(ForecastContainer, PathOutput, PathOutputCℓ, steps)
+
+    Fisher = CosmoCentral.ForecastFisherαβ(ForecastContainer ,PathCentralCℓ, Path∂Cℓ,
+    CosmologicalGrid, "Lensing", "Test")
+
+    @test isapprox(31.791, CosmoCentral.EvaluateFoM(Fisher, "w0", "wa"), rtol=1e-4)
+    @test isapprox(0.5926853440610628, Fisher.MarginalizedErrors["wa"], rtol=1e-4)
 end

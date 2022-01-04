@@ -1,0 +1,49 @@
+{
+  "Lensing" : {
+    "probe" : "WLProbe",
+    "density" : {
+      "model":"AnalitycalDensity",
+      "parameters" : {
+        "Z0" : 0.636396103,
+        "ZMin" : 0.001,
+        "ZMax" : 4.0,
+        "SurfaceDensity" : 30.0
+        }},
+    "IntrinsicAlignment" : {
+      "model" : "ExtendedNLIA",
+      "𝓐IA" : {"value" : 1.72,
+      "free" : true},
+      "βIA" : {"value" : 2.17,
+        "free" : true},
+      "𝓒IA" : {"value" : 0.0134,
+        "free" : false},
+      "ηIA" : {"value" : -0.41,
+        "free" : true}
+      },
+    "present": true
+    }
+  ,
+  "PhotometricClustering" : {
+    "probe" : "GCProbe",
+    "density" : {
+      "model":"AnalitycalDensity",
+      "parameters" : {
+        "Z0" : 0.636396103,
+        "ZMin" : 0.001,
+        "ZMax" : 4.0,
+        "SurfaceDensity" : 30.0
+    }},
+    "Bias" : {
+      "model" : "EuclidBias",
+      "A" : {"value" : 1.0,
+      "free" : true},
+      "B" : {"value" : 2.5,
+        "free" : true},
+      "C" : {"value" : 2.8,
+        "free" : true},
+      "D" : {"value" : 1.6,
+        "free" : true}
+    },
+    "present": true
+  }
+} 

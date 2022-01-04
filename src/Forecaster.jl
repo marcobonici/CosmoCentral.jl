@@ -88,7 +88,7 @@ function ForecastPowerSpectra!(Cosmologies::Dict, Path::String,
     for (key, value) in Cosmologies
         backgroundquantities = BackgroundQuantities(
         HZArray = zeros(length(CosmologicalGrid.ZArray)),
-        rZArray=zeros(length(CosmologicalGrid.ZArray)))
+        χZArray=zeros(length(CosmologicalGrid.ZArray)))
         ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
         backgroundquantities, value[1])
         ClassyParams = Initializeclassy(value[1])
@@ -121,11 +121,11 @@ function InstantiateComputeWeightFunctionGrid(
     Cosmology::AbstractCosmology,
     CosmologicalGrid::CosmologicalGrid,
     BackgroundQuantities::BackgroundQuantities,
-    LensingFunction::WLWeightFunction, PathInput::String)
+    LensingFunction::WLWeightFunction)
     ComputeLensingEfficiencyGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, Cosmology, CustomLensingEfficiency())
     ComputeIntrinsicAlignmentGrid!(CosmologicalGrid, LensingFunction, ConvolvedDensity,
-    BackgroundQuantities, Cosmology, PathInput)
+    BackgroundQuantities, Cosmology)
     ComputeWeightFunctionGrid!(LensingFunction, ConvolvedDensity,
     CosmologicalGrid, BackgroundQuantities, Cosmology)
     return LensingFunction
@@ -294,8 +294,7 @@ function InitializeProbes(DictInput::Dict,
         LensingFunction = InstantiateWL(DictInput::Dict)
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         Cosmology, CosmologicalGrid, BackgroundQuantities,
-        LensingFunction, "../inputs/scaledmeanlum-E2Sa.txt")
-        #TODO: remove the previous hardcoded line!
+        LensingFunction)
         push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]
@@ -319,7 +318,7 @@ function InitializeProbes(DictInput::Dict, ConvolvedDensity::AbstractConvolvedDe
         LensingFunction.IntrinsicAlignmentModel = IntrinsicAlignment
         LensingFunction = InstantiateComputeWeightFunctionGrid(ConvolvedDensity,
         Cosmology, CosmologicalGrid, BackgroundQuantities,
-        LensingFunction, PathInput)
+        LensingFunction)
         push!(DictProbes, "Lensing" => LensingFunction)
     end
     if DictInput["PhotometricGalaxy"]["present"]
@@ -430,9 +429,9 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
     instrumentresponse, CosmologicalGrid)
     ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
     analyticaldensity, instrumentresponse)
-    #TODO: these three for loops are quite similar. The only difference is the cycled 
+    #TODO: these three for loops are quite similar. The only difference is the cycled
     #dictionary. Maybe we can create a macro? The only difficulty is that we are iterating
-    #over different dictionaries. maybe we can write some if in the dficitonaries to decide 
+    #over different dictionaries. maybe we can write some if in the dficitonaries to decide
     #which expr return?
     for (key, value) in Cosmologies
         Cosmology = value[1]
@@ -493,4 +492,617 @@ function ForecastCℓ!(Cosmologies::Dict, IntrinsicAlignment::Dict, Bias::Dict,
             Cosmology, CosmologicalGrid, PowerSpectrum, PathOutputCℓ, key)
         end
     end
+end
+
+function ExtractVariedParameters(InputList::Vector{Dict{String, Vector{Any}}})
+    OutputList = []
+    for myDict in InputList
+        for (key, value) in myDict
+            if value[2] == "present"
+                push!(OutputList, key)
+            end
+        end
+    end
+    return OutputList
+end
+
+"""
+    ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
+
+This function evaluate the Fisher Matrix according to the following formula:
+```math
+F_{\\alpha \\beta}=\\sum_{\\ell=\\ell_{\\min }}^{\\ell_{\\max }} \\operatorname{Tr}\\left
+\\{[\\boldsymbol{\\Sigma}(\\ell)]^{-1} \\frac{\\partial \\mathbf{C}(\\ell)}{\\partial 
+\\alpha}[\\boldsymbol{\\Sigma}(\\ell)]^{-1} \\frac{\\partial \\mathbf{C}(\\ell)}{\\partial
+\\beta}\\right\\},
+```
+where ``\\alpha`` and ``\\beta`` are parameters of the Fisher Matrix, ``\\ell`` are the
+multipoles, ``\\Sigma`` is the Covariance Matrix of the  Field Approach and
+``\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}`` is the Matrix of the derivatives
+of the ``C_\\ell`` wrt parameter ``\\alpha``.
+"""
+function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid)
+    Fisher = Fisherαβ()
+    VariedParameters = ExtractVariedParameters(InputList)
+    Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.ParametersList = VariedParameters
+    Fisher.SelectedParametersList = VariedParameters
+    AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = CosmoCentral.InstrumentResponse()
+    ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+    CosmologicalGrid)
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse)
+    ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
+
+    Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
+    #TODO now only LL, but this need to be more flexible...maybe list with probes?
+    Cov = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
+    "Lensing")
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, Cov)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
+    return Fisher
+end
+
+
+"""
+    ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid,
+    ciccio::String)
+
+This function evaluate the Fisher Matrix according to the following formula:
+```math
+F_{\\alpha \\beta}=\\sum_{\\ell=\\ell_{\\min }}^{\\ell_{\\max }} \\operatorname{vecp}
+\\left(\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}\\right)^{T}
+\\left(\\boldsymbol{\\Xi}(\\ell)\\right)^{-1} \\operatorname{vecp}\\left(\\frac{\\partial
+\\mathbf{C}(\\ell)} {\\partial \\beta}\\right),
+```
+where ``\\alpha`` and ``\\beta`` are parameters of the Fisher Matrix, ``\\ell`` are the
+multipoles, ``\\Xi`` is the Covariance Matrix of the  Field Approach
+[`CℓCovariance`](@ref) and ``\\frac{\\partial \\mathbf{C}(\\ell)}{\\partial \\alpha}``
+is the Matrix of the derivatives of the ``C_\\ell`` wrt parameter ``\\alpha``.
+"""
+function ForecastFisherαβ(PathCentralCℓ::String, Path∂Cℓ::String,
+    InputList::Vector{Dict{String, Vector{Any}}}, CosmologicalGrid::CosmologicalGrid,
+    ciccio::String)
+    Fisher = Fisherαβ()
+    VariedParameters = ExtractVariedParameters(InputList)
+    Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.ParametersList = VariedParameters
+    Fisher.SelectedParametersList = VariedParameters
+    #here we instantiate the density again to evaluate the noise. Maybe it could be better
+    #if we evaluated the density once for all, we passed it to Cℓ evaluator and then to
+    #Fisher, in order to be more safe.
+    AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = CosmoCentral.InstrumentResponse()
+    ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
+    ones(10, length(CosmologicalGrid.ZArray)))
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+    CosmologicalGrid)
+    ComputeConvolvedDensityGrid!(CosmologicalGrid, ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse)
+    ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
+
+    Cℓ = ReadCℓ(PathCentralCℓ, "Lensing_Lensing")
+    #TODO now only LL, but this need to be more flexible...maybe list with probes?
+    Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, CosmologicalGrid, "Lensing",
+    "Lensing")
+    CovCℓ = InstantiateEvaluateCovariance(Covaₗₘ)
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, CovCℓ)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
+    return Fisher
+end
+
+function EvaluateFisherMatrix!(VariedParameters::Vector{}, Fisher::AbstractFisher,
+    Path∂Cℓ::String, Cov::AbstractCovariance, Probe::String)
+    for (indexα, Parα) in enumerate(VariedParameters)
+        ∂Cℓα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, Probe*"_"*Probe)
+        for (indexβ, Parβ) in enumerate(VariedParameters)
+            ∂Cℓβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, Probe*"_"*Probe)
+            EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
+            Fisher.FisherMatrix[indexα, indexβ] = Fisher.FisherDict[Parα*"_"*Parβ]
+            Fisher.FisherMatrixCumℓ[:, indexα, indexβ] =
+            cumsum(Fisher.FisherℓDict[Parα*"_"*Parβ])
+        end
+    end
+end
+
+function EvaluateFisherMatrix!(VariedParameters::Vector{}, Fisher::AbstractFisher,
+    Path∂Cℓ::String, Cov::AbstractCovariance, ProbeA::String, ProbeB::String)
+    for (indexα, Parα) in enumerate(VariedParameters)
+        ∂CℓAAα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, ProbeA*"_"*ProbeA)
+        ∂CℓABα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, ProbeA*"_"*ProbeB)
+        ∂CℓBBα = Read∂Cℓ(Path∂Cℓ*"/"*Parα*"/"*Parα, ProbeB*"_"*ProbeB)
+        ∂Cℓα = Merge∂Cℓ(∂CℓAAα, ∂CℓABα, ∂CℓBBα)
+        for (indexβ, Parβ) in enumerate(VariedParameters)
+            ∂CℓAAβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, ProbeA*"_"*ProbeA)
+            ∂CℓABβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, ProbeA*"_"*ProbeB)
+            ∂CℓBBβ = Read∂Cℓ(Path∂Cℓ*"/"*Parβ*"/"*Parβ, ProbeB*"_"*ProbeB)
+            ∂Cℓβ = Merge∂Cℓ(∂CℓAAβ, ∂CℓABβ, ∂CℓBBβ)
+            EvaluateFisherMatrixElement!(Fisher, Cov, ∂Cℓα, ∂Cℓβ, Parα, Parβ)
+            Fisher.FisherMatrix[indexα, indexβ] = Fisher.FisherDict[Parα*"_"*Parβ]
+            Fisher.FisherMatrixCumℓ[:, indexα, indexβ] =
+            cumsum(Fisher.FisherℓDict[Parα*"_"*Parβ])
+        end
+    end
+end
+
+function SelectMatrixAndMarginalize!(VariedParameters::Vector{}, Fisher::AbstractFisher)
+    Fisher.SelectedParametersList = VariedParameters
+    for (idx, Par) in enumerate(reverse(VariedParameters))
+        reverse_index = length(VariedParameters)-idx+1
+        if Fisher.FisherMatrix[reverse_index, reverse_index] == 0
+            Fisher.FisherMatrix = Fisher.FisherMatrix[1:end .!= reverse_index,
+            1:end .!= reverse_index]
+            Fisher.FisherMatrixCumℓ = Fisher.FisherMatrixCumℓ[: ,1:end .!= reverse_index,
+            1:end .!= reverse_index]
+            Fisher.SelectedParametersList =
+            Fisher.SelectedParametersList[1:end .!= reverse_index]
+        end
+    end
+    Fisher.CorrelationMatrix = inv(Fisher.FisherMatrix)
+    Fisher.CorrelationMatrixCumℓ = zeros(length(Fisher.FisherMatrixCumℓ[:,1,1]),
+    length(Fisher.SelectedParametersList), length(Fisher.SelectedParametersList))
+    if Fisher.FisherMatrixCumℓ[:,1,1] != zeros(size(Fisher.FisherMatrixCumℓ[:,1,1]))
+        for i in 1:length(Fisher.FisherMatrixCumℓ[:,1,1])
+            Fisher.CorrelationMatrixCumℓ[i,:,:] = inv(Fisher.FisherMatrixCumℓ[i,:,:])
+        end
+    end
+    
+    for (idxα, Parα) in enumerate(Fisher.SelectedParametersList)
+        Fisher.MarginalizedErrors[Parα] = sqrt(Fisher.CorrelationMatrix[idxα, idxα])
+        Fisher.MarginalizedErrorsCumℓ[Parα] = sqrt.(
+            Fisher.CorrelationMatrixCumℓ[:, idxα, idxα])
+        for (idxβ, Parβ) in enumerate(Fisher.SelectedParametersList)
+            Fisher.CorrelationMatrixDict[Parα*"_"*Parβ] =
+            Fisher.CorrelationMatrix[idxα, idxβ]
+        end
+    end
+end
+
+#Here we try to implement the NEW forecaster, more manageable and flexible
+#Before removing the old one, we will check that everything works
+
+function ReadPresentDict(dict::Dict)
+    newdict = Dict()
+    for (key,value) in dict
+        if key == "model"
+            newdict["model"] = value
+        else
+            newdict[key] = value["value"]
+        end
+    end
+    return newdict
+end
+
+function Iterator!(ContainerDict::Dict, BaseDict::Dict, SteMSteps::Array)
+    for (key,value) in BaseDict
+        if key != "model"
+            if value["free"]
+                for (index, mystep) in enumerate(SteMSteps)
+                    ContainerDict["dvar_"*key*"_step_p_"*string(index)] =
+                    deepcopy(ReadPresentDict(BaseDict))
+                    ContainerDict["dvar_"*key*"_step_p_"*string(index)][key] = 
+                    IncrementedValue(BaseDict[key]["value"], mystep)
+                    ContainerDict["dvar_"*key*"_step_m_"*string(index)] =
+                    deepcopy(ReadPresentDict(BaseDict))
+                    ContainerDict["dvar_"*key*"_step_m_"*string(index)][key] =
+                    IncrementedValue(BaseDict[key]["value"], -mystep)
+                end
+            end
+        end
+    end
+end
+
+function ReadInputForecast(InputDict::Dict, cosmogrid, SteMSteps)
+    ProbesDict = Dict()
+    for (key,value) in InputDict
+        ProbesDict[key] = IterateProbe(value, cosmogrid, SteMSteps)
+    end
+    return ProbesDict
+end
+
+function CreateCosmology(CosmoDict::Dict)
+    if CosmoDict["model"] == "Flatw0waCDM"
+        Cosmo = CreateFlatw0waCDM((CosmoDict))
+    else
+        error("No Cosmology!")
+    end
+    return Cosmo
+end
+
+function IterateCosmologies(CosmoDict::Dict, SteMSteps::Array)
+    CosmoVariedDict = Dict()
+    CosmoVariedDict["dvar_central_step_0"] = (ReadPresentDict(CosmoDict))
+    Iterator!(CosmoVariedDict, CosmoDict, SteMSteps)
+    return CosmoVariedDict
+end
+
+function CreateFlatw0waCDM(CosmoDict::Dict)
+    Cosmo = CosmoCentral.Flatw0waCDMCosmology()
+    Cosmo.w0 = CosmoDict["w0"]
+    Cosmo.wa = CosmoDict["wa"]
+    Cosmo.Mν = CosmoDict["Mν"]
+    Cosmo.H0 = CosmoDict["H0"]
+    Cosmo.ΩM = CosmoDict["ΩM"]
+    Cosmo.ΩB = CosmoDict["ΩB"]
+    Cosmo.ns = CosmoDict["ns"]
+    Cosmo.σ8 = CosmoDict["σ8"]
+    return Cosmo
+end
+
+function ReadInputProbesForecast(InputDict::Dict, cosmogrid::CosmologicalGrid,
+    SteMSteps::Array)
+    ProbesDict = Dict()
+    for (key,value) in InputDict
+        ProbesDict[key] = IterateProbe(value, cosmogrid, SteMSteps)
+    end
+    return ProbesDict
+end
+
+abstract type AbstractContainer end
+
+@kwdef mutable struct ForecastContainer <: AbstractContainer
+    CosmoDict::Dict = Dict()
+    ProbesDict::Dict = Dict()
+    VariedParsList::Array = []
+end
+
+function InitializeForecastContainer(CosmoDict::Dict, ProbesDict::Dict,
+    cosmogrid::CosmologicalGrid, SteMSteps::Array)
+    forcontainer = ForecastContainer()
+    forcontainer.CosmoDict = IterateCosmologies(CosmoDict, SteMSteps)
+    forcontainer.ProbesDict = ReadInputProbesForecast(ProbesDict, cosmogrid, SteMSteps)
+    SelectVariedParameters!(forcontainer, CosmoDict, ProbesDict)
+    return forcontainer
+end
+
+function SelectSubDictProbe(ProbeDict::Dict)
+    if ProbeDict["probe"] == "WLProbe"
+        return ProbeDict["IntrinsicAlignment"]
+    elseif ProbeDict["probe"] == "GCProbe"
+        return ProbeDict["Bias"]
+    else
+        error("Not selected probe")
+    end
+end
+
+function SelectVariedParameters!(forcontainer::ForecastContainer, CosmoDict::Dict, ProbesDict::Dict)
+    varied_parslist = []
+    for (key, value) in CosmoDict
+        if key != "model"
+            if value["free"] == true
+                push!(varied_parslist, (key, value["value"]))
+            end
+        end
+    end
+    for (keyprobe, valueprobe) in ProbesDict
+        subdict = SelectSubDictProbe(valueprobe)
+        for (key, value) in subdict
+            if key != "model"
+                if value["free"] == true
+                    push!(varied_parslist, (key, value["value"]))
+                end
+            end
+        end
+    end
+    forcontainer.VariedParsList = varied_parslist
+end
+
+function CreateDirectoriesForecast!(forcontainer::ForecastContainer, path::String)
+    mkdir(path)
+    mkdir(path*"PowerSpectrum")
+    mkdir(path*"Angular")
+    mkdir(path*"Derivative")
+    for (key,value) in forcontainer.CosmoDict
+        mkdir(path*"PowerSpectrum/"*key)
+        mkdir(path*"Angular/"*key)
+    end
+    for (keyprobe,valueprobe) in forcontainer.ProbesDict
+        for (keyvar,valuevar) in valueprobe
+            if keyvar != "dvar_central_step_0"
+                mkdir(path*"Angular/"*keyvar)
+            end
+        end
+    end
+    for (key, value) in forcontainer.VariedParsList
+        mkdir(path*"Derivative/"*key)
+    end
+end
+
+function ForecastPowerSpectra!(forcontainer::ForecastContainer, Path::String,
+    CosmologicalGrid::CosmologicalGrid)
+    for (key, value) in forcontainer.CosmoDict
+        cosmology = CreateCosmology(value)
+        backgroundquantities = BackgroundQuantities(
+        HZArray = zeros(length(CosmologicalGrid.ZArray)),
+        χZArray=zeros(length(CosmologicalGrid.ZArray)))
+        ComputeBackgroundQuantitiesGrid!(CosmologicalGrid,
+        backgroundquantities, cosmology)
+        ClassyParams = Initializeclassy(cosmology)
+        powerspectrum = PowerSpectrum(PowerSpectrumLinArray =
+        zeros(length(CosmologicalGrid.KArray), length(CosmologicalGrid.ZArray)),
+        PowerSpectrumNonlinArray = zeros(length(CosmologicalGrid.KArray),
+        length(CosmologicalGrid.ZArray)),
+        InterpolatedPowerSpectrum = zeros(length(
+        CosmologicalGrid.ℓBinCenters), length(CosmologicalGrid.ZArray)))
+        EvaluatePowerSpectrum!(ClassyParams, CosmologicalGrid, powerspectrum)
+        WritePowerSpectrumBackground(powerspectrum, backgroundquantities,
+        CosmologicalGrid, Path*key*"/p_mm")
+        WriteCosmology!(cosmology, Path*key)
+    end
+end
+
+function CreateProbesAndObservablesArray(forcontainer::ForecastContainer)
+    probes_array = []
+    for (keyprobe,valueprobe) in forcontainer.ProbesDict
+        push!(probes_array, keyprobe)
+    end
+    sort!(probes_array)
+    observables_array = []
+    for probea in probes_array
+        for probeb in probes_array
+            if probeb*"_"*probea ∉ observables_array
+                push!(observables_array, probea*"_"*probeb)
+            end
+        end
+    end
+    return probes_array, observables_array
+end
+
+function ForecastCℓ!(forcontainer::ForecastContainer, cosmogrid::CosmologicalGrid,
+    PathInputPmm::String, PathOutputCℓ::String)
+    probes_array, observable_array = CreateProbesAndObservablesArray(forcontainer)
+    weightdict = Dict()
+    for (keycosmo,valuecosmo) in forcontainer.CosmoDict
+        cosmology = ReadCosmology(valuecosmo)
+        PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+        CosmoCentral.ReadPowerSpectrumBackground(PathInputPmm*keycosmo*"/p_mm",
+        cosmogrid.ℓBinCenters, cosmogrid.ℓBinWidths)
+        CosmoCentral.ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+        ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+        InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid, BackgroundQuantities,
+        PowerSpectrum, BSplineCubic())
+        for (keyprobe, valueprobe) in forcontainer.ProbesDict
+            for probe in probes_array
+                weightdict[probe] = CreateAndEvaluateWeightFunction(
+                forcontainer.ProbesDict[probe]["dvar_central_step_0"], CosmologicalGrid,
+                BackgroundQuantities, cosmology)
+            end
+        end
+        used_probes = []
+        for probea in probes_array
+            WriteWeightFunctions!(probea, weightdict[probea],
+                PathOutputCℓ*keycosmo*"/cl")
+            for probeb in probes_array
+                if probeb*"_"*probea ∉ used_probes
+                    push!(used_probes, probea*"_"*probeb)
+                    cℓ = Cℓ(CℓArray = 
+                    zeros(length(CosmologicalGrid.ℓBinCenters),
+                    length(weightdict[probea].WeightFunctionArray[:, 1]),
+                    length(weightdict[probeb].WeightFunctionArray[:, 1])))
+                    ComputeCℓ!(cℓ, weightdict[probea], weightdict[probeb],
+                    BackgroundQuantities, cosmology, CosmologicalGrid, PowerSpectrum,
+                    CustomSimpson())
+                    WriteCℓ!(probea*"_"*probeb, cℓ, PathOutputCℓ*keycosmo*"/cl")
+                    WriteCosmology!(cosmology, PathOutputCℓ*keycosmo)
+                end
+            end
+        end
+    end
+    keycosmo = "dvar_central_step_0"
+    cosmology = ReadCosmology(forcontainer.CosmoDict[keycosmo])
+    PowerSpectrum, BackgroundQuantities, CosmologicalGrid =
+    CosmoCentral.ReadPowerSpectrumBackground(PathInputPmm*keycosmo*"/p_mm",
+    cosmogrid.ℓBinCenters, cosmogrid.ℓBinWidths)
+    CosmoCentral.ExtractGrowthFactor!(BackgroundQuantities, PowerSpectrum)
+    ComputeLimberArray!(CosmologicalGrid, BackgroundQuantities)
+    InterpolatePowerSpectrumLimberGrid!(CosmologicalGrid, BackgroundQuantities,
+    PowerSpectrum, BSplineCubic())
+    for probea in probes_array
+        for (keyvarieda,valuevarieda) in forcontainer.ProbesDict[probea]
+            if keyvarieda != "dvar_central_step_0"
+                weightdict[probea] = CreateAndEvaluateWeightFunction(valuevarieda,
+                CosmologicalGrid, BackgroundQuantities, cosmology)
+                WriteWeightFunctions!(probea, weightdict[probea],
+                PathOutputCℓ*keyvarieda*"/cl")
+                for probeb in probes_array
+                    if probeb== probea
+                        cℓ = Cℓ(CℓArray = 
+                        zeros(length(CosmologicalGrid.ℓBinCenters),
+                        length(weightdict[probea].WeightFunctionArray[:, 1]),
+                        length(weightdict[probea].WeightFunctionArray[:, 1])))
+                        ComputeCℓ!(cℓ, weightdict[probea], weightdict[probea],
+                        BackgroundQuantities, cosmology, CosmologicalGrid, PowerSpectrum,
+                        CustomSimpson())
+                        WriteCℓ!(probea*"_"*probea, cℓ, PathOutputCℓ*keyvarieda*"/cl")
+                        WriteCosmology!(cosmology, PathOutputCℓ*keyvarieda)
+
+                    else
+                        weightdict[probeb] = CreateAndEvaluateWeightFunction(
+                        forcontainer.ProbesDict[probeb]["dvar_central_step_0"],
+                        CosmologicalGrid, BackgroundQuantities, cosmology)
+                        WriteWeightFunctions!(probeb, weightdict[probeb],
+                        PathOutputCℓ*keyvarieda*"/cl")
+                        cℓ = Cℓ(CℓArray = 
+                        zeros(length(CosmologicalGrid.ℓBinCenters),
+                        length(weightdict[probea].WeightFunctionArray[:, 1]),
+                        length(weightdict[probeb].WeightFunctionArray[:, 1])))
+                        ComputeCℓ!(cℓ, weightdict[probea], weightdict[probeb],
+                        BackgroundQuantities, cosmology, CosmologicalGrid, PowerSpectrum,
+                        CustomSimpson())
+                        if probea < probeb
+                            WriteCℓ!(probea*"_"*probeb, cℓ, PathOutputCℓ*keyvarieda*"/cl")
+                        else
+                            WriteCℓ!(probeb*"_"*probea, cℓ, PathOutputCℓ*keyvarieda*"/cl")
+                        end
+                        WriteCosmology!(cosmology, PathOutputCℓ*keyvarieda)
+                        cℓ = Cℓ(CℓArray = 
+                        zeros(length(CosmologicalGrid.ℓBinCenters),
+                        length(weightdict[probea].WeightFunctionArray[:, 1]),
+                        length(weightdict[probeb].WeightFunctionArray[:, 1])))
+                        ComputeCℓ!(cℓ, weightdict[probeb], weightdict[probeb],
+                        BackgroundQuantities, cosmology, CosmologicalGrid, PowerSpectrum,
+                        CustomSimpson())
+                        WriteCℓ!(probeb*"_"*probeb, cℓ, PathOutputCℓ*keyvarieda*"/cl")
+                    end
+                end
+            end
+        end
+    end
+end
+
+function Forecast∂Cℓ!(forcontainer::ForecastContainer, PathInput::String,
+    PathConfig::String, Steps::Array)
+    #ProbesDict = JSON.parsefile(PathConfig)
+    #CoefficientsArray = GetProbesArray(ProbesDict)
+    probes_array, observable_array = CreateProbesAndObservablesArray(forcontainer)
+    for observable in observable_array
+        CentralCosmologyCL = ReadCℓ(
+        PathInput*"/Angular/dvar_central_step_0/cl", observable)
+        CℓArray = zeros(size(CentralCosmologyCL.CℓArray, 1),
+        size(CentralCosmologyCL.CℓArray, 2),
+        size(CentralCosmologyCL.CℓArray, 3),
+        2*length(Steps)+1)
+        DerivativeArray = zeros(size(CentralCosmologyCL.CℓArray))
+        CℓArray[:, :, :, length(Steps) + 1] .=
+        CentralCosmologyCL.CℓArray[:,:,:]
+        stepvalues = zeros(2*length(Steps)+1)
+        ∂cℓ = zeros(size(CℓArray, 1),
+        size(CℓArray, 2), size(CℓArray, 3))
+        for (key, value) in forcontainer.VariedParsList
+            stepvalues[length(Steps) + 1] = value
+            for (index, mystep) in enumerate(Steps)
+                cℓminus = ReadCℓ(
+                PathInput*"/Angular/dvar_"*key*"_step_m_"*string(index)*"/cl",
+                observable)
+                cℓplus = ReadCℓ(
+                PathInput*"/Angular/dvar_"*key*"_step_p_"*string(index)*"/cl",
+                observable)
+                CℓArray[:, :, :, length(Steps) + 1 - index] .=
+                cℓminus.CℓArray
+                CℓArray[:, :, :, length(Steps) + 1 + index] .=
+                cℓplus.CℓArray
+                stepvalues[length(Steps) + 1 - index] =
+                IncrementedValue(value, -mystep)
+                stepvalues[length(Steps) + 1 + index] =
+                IncrementedValue(value,  mystep)
+            end
+            for idx_a in 1:size(CentralCosmologyCL.CℓArray, 2)
+                for idx_b in 1:size(CentralCosmologyCL.CℓArray, 3)
+                    for idx_l in 1:size(CentralCosmologyCL.CℓArray, 1)
+                        y = CℓArray[idx_l, idx_a, idx_b, :]
+                        der = SteMDerivative(stepvalues, y)
+                        ∂cℓ[idx_l, idx_a, idx_b] = der
+                    end
+                end
+            end
+            Write∂Cℓ!(∂cℓ,
+            PathInput*"/Derivative/"*key*"/"*key, observable)
+        end
+    end
+end
+
+function ExtractVariedParameters(forcontainer::ForecastContainer)
+    OutputList = []
+    for (key, value) in forcontainer.VariedParsList
+        push!(OutputList, key)
+    end
+    return OutputList
+end
+
+function ForecastFisherαβ(forcontainer::ForecastContainer, PathCentralCℓ::String,
+    Path∂Cℓ::String, cosmogrid::CosmologicalGrid, Probe::String, ciccio::String)
+    Fisher = Fisherαβ()
+    VariedParameters = ExtractVariedParameters(forcontainer)
+    Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.FisherMatrixCumℓ = zeros(length(cosmogrid.ℓBinCenters), length(VariedParameters),
+    length(VariedParameters))
+    Fisher.ParametersList = VariedParameters
+    Fisher.SelectedParametersList = VariedParameters
+    #here we instantiate the density again to evaluate the noise.
+    #However, we should use the density stored in forcontainer
+    AnalitycalDensity = CosmoCentral.AnalitycalDensity()
+    NormalizeAnalitycalDensity!(AnalitycalDensity)
+    InstrumentResponse = CosmoCentral.InstrumentResponse()
+    ConvolvedDensity = CosmoCentral.ConvolvedDensity(DensityGridArray =
+    ones(10, length(cosmogrid.ZArray)))
+    NormalizeConvolvedDensity!(ConvolvedDensity, AnalitycalDensity, InstrumentResponse,
+    cosmogrid)
+    ComputeConvolvedDensityGrid!(cosmogrid, ConvolvedDensity, AnalitycalDensity,
+    InstrumentResponse)
+    ComputeSurfaceDensityBins!(ConvolvedDensity, AnalitycalDensity)
+
+    Cℓ = ReadCℓ(PathCentralCℓ, Probe*"_"*Probe)
+    Covaₗₘ = InstantiateEvaluateCovariance(Cℓ, ConvolvedDensity, cosmogrid, Probe,
+    Probe)
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, Covaₗₘ, Probe)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
+    return Fisher
+end
+
+function ForecastFisherαβ(forcontainer::ForecastContainer, PathCentralCℓ::String,
+    Path∂Cℓ::String, cosmogrid::CosmologicalGrid, ProbeA::String, ProbeB::String,
+    ciccio::String)
+    Fisher = Fisherαβ()
+    VariedParameters = ExtractVariedParameters(forcontainer)
+    Fisher.FisherMatrix = zeros(length(VariedParameters), length(VariedParameters))
+    Fisher.FisherMatrixCumℓ = zeros(length(cosmogrid.ℓBinCenters), length(VariedParameters),
+    length(VariedParameters))
+    Fisher.ParametersList = VariedParameters
+    Fisher.SelectedParametersList = VariedParameters
+    #here we instantiate the density again to evaluate the noise.
+    #However, we should use the density stored in forcontainer
+    analitycdens = AnalitycalDensity()
+    NormalizeAnalitycalDensity!(analitycdens)
+    instrresp = InstrumentResponse()
+    convdens = ConvolvedDensity(DensityGridArray =
+    ones(10, length(cosmogrid.ZArray)))
+    NormalizeConvolvedDensity!(convdens, analitycdens, instrresp,
+    cosmogrid)
+    ComputeConvolvedDensityGrid!(cosmogrid, convdens, analitycdens,
+    instrresp)
+    ComputeSurfaceDensityBins!(convdens, analitycdens)
+
+    CℓAA = ReadCℓ(PathCentralCℓ, ProbeA*"_"*ProbeA)
+    CℓAB = ReadCℓ(PathCentralCℓ, ProbeA*"_"*ProbeB)
+    CℓBB = ReadCℓ(PathCentralCℓ, ProbeB*"_"*ProbeB)
+    CovaₗₘAA = InstantiateEvaluateCovariance(CℓAA, convdens, cosmogrid, ProbeA,
+    ProbeA)
+    CovaₗₘAB = InstantiateEvaluateCovariance(CℓAB, convdens, cosmogrid, ProbeA,
+    ProbeB)
+    CovaₗₘBB = InstantiateEvaluateCovariance(CℓBB, convdens, cosmogrid, ProbeB,
+    ProbeB)
+    MergedCov = MergeCovariances(CovaₗₘAA, CovaₗₘAB, CovaₗₘBB)
+    EvaluateFisherMatrix!(VariedParameters, Fisher, Path∂Cℓ, MergedCov, ProbeA, ProbeB)
+    SelectMatrixAndMarginalize!(VariedParameters, Fisher)
+    return Fisher
+end
+
+function EvaluateNormalizedErrors!(fisher::AbstractFisher, forcontainer::ForecastContainer)
+    for key in fisher.SelectedParametersList
+        value = NormalizingFactor(forcontainer, key)
+        fisher.NormalizedErrors[key] = fisher.MarginalizedErrors[key] / value
+        fisher.NormalizedErrorsCumℓ[key] = fisher.MarginalizedErrorsCumℓ[key] ./ value
+    end
+end
+
+
+function NormalizingFactor(forcontainer::ForecastContainer, param::String)
+    for (key, value) in forcontainer.VariedParsList
+        if key == param
+            if value != 0.
+                return abs(value)
+            else
+                return 1
+            end
+        end
+    end
+    error("Not chosen a parameter present in the list!")
 end
