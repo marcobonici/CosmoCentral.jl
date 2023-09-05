@@ -31,12 +31,14 @@ function EvaluateNoise!(Cov::aₗₘCovariance, ConvDens::AbstractConvolvedDensi
     if ProbeA == ProbeB
         if ProbeA == "Lensing"
             probe_factor = 0.3
+        elseif ProbeA == "KinematicLensing"
+            probe_factor = 0.035
         else
             probe_factor = 1.0
         end
         for lidx in 1:length(Cov.Cℓ.CℓArray[:,1,1])
             for iidx in 1:length(Cov.Cℓ.CℓArray[1,:,1])
-                Cov.Noise[lidx, iidx, iidx] = probe_factor^2 ./ 
+                Cov.Noise[lidx, iidx, iidx] = probe_factor^2 ./
                 (ConvDens.SurfaceDensityArray[iidx]*3437.746771^2)
                 #TODO: the multiplication here is to convert from square degrees to
                 #steradians. This should be done better...
@@ -55,6 +57,7 @@ function EvaluateCovariance!(Cov::aₗₘCovariance, cosmogrid::CosmologicalGrid
 end
 
 function InvertCovariance!(Cov::AbstractCovariance)
+    Cov.Covariance⁻¹ = similar(Cov.Covariance)
     for ℓidx in 1:length(Cov.Covariance[:,1,1])
         Cov.Covariance⁻¹[ℓidx,:,:] = inv(Cov.Covariance[ℓidx,:,:])
     end
@@ -91,7 +94,7 @@ function InstantiateEvaluateCovariance(Covaₗₘ::aₗₘCovariance)
         kronCovaₗₘ = kron(Covaₗₘ.Covariance⁻¹[ℓ,:,:], Covaₗₘ.Covariance⁻¹[ℓ,:,:])
         LinearAlgebra.mul!(DᵀkronCovaₗₘ, Dᵀ, kronCovaₗₘ)
         LinearAlgebra.mul!(TempCov, DᵀkronCovaₗₘ, D)
-        Cov.Covariance⁻¹[ℓ,:,:] = TempCov 
+        Cov.Covariance⁻¹[ℓ,:,:] = TempCov
         Cov.Covariance[ℓ,:,:] = inv(Cov.Covariance⁻¹[ℓ,:,:])
         Matrix = (Cov.Covariance[ℓ,:,:] .+ transpose(Cov.Covariance[ℓ,:,:])) ./2
         Cov.Covariance[ℓ,:,:] = Matrix

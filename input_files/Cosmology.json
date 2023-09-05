@@ -5,7 +5,7 @@
     "wa"  : {"value" : 0.0,
     "free" : true},
     "Mν"  : {"value" : 0.06,
-    "free" : true},
+    "free" : false},
     "H0"  : {"value" : 67.0,
     "free" : true},
     "ΩM"  : {"value" : 0.32,

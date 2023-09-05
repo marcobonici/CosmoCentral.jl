@@ -20,6 +20,7 @@ using Random
 using DelimitedFiles
 using LinearAlgebra
 using Flux
+using NPZ
 numpy = pyimport("numpy")
 
 const classy = PyNULL()

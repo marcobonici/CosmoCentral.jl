@@ -144,8 +144,14 @@ function CreateDensity(DensityDict::Dict, CosmologicalGrid::CosmologicalGrid)
         instrumentresponse, CosmologicalGrid)
         ComputeConvolvedDensityGrid!(CosmologicalGrid, convolveddensity,
         analyticaldensity, instrumentresponse)
-    else
-        error("No Density!")
+    elseif DensityDict["model"] == "KinematicLensing"
+        nigz = npzread("/home/mbonici/Downloads/Materiale/spectroscopic/13bin/n_i.npy")
+        bar_niz = npzread("/home/mbonici/Downloads/Materiale/spectroscopic/13bin/bar_n_i_KL.npy") .* 8.461595013198466e-8#horrible patch
+        ZArray = npzread("/home/mbonici/Downloads/Materiale/spectroscopic/13bin/z.npy")
+        zbinarray = [0.901, 0.97, 1.039, 1.108, 1.177, 1.247, 1.316, 1.385, 1.454, 1.524, 1.593, 1.662, 1.731, 1.799]
+        convolveddensity = ConvolvedDensity(DensityGridArray = nigz,
+        DensityNormalizationArray = ones(13), ZBinArray = zbinarray,
+        SurfaceDensityArray = bar_niz)
     end
     return convolveddensity
 end

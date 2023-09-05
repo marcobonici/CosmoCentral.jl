@@ -47,8 +47,8 @@ This struct contains the value of the cosmological parameters for ``w_0 w_a``CDM
     ΩM::T  = 0.32
     ΩB::T  = 0.05
     ΩDE::T = 0.68
-    Ωk::T  = 0.
-    Ωr::T  = 0.
+    Ωk  = 0.
+    Ωr  = 0.
     ns::T  = 0.96
     σ8::T  = 0.816
 end
@@ -334,12 +334,12 @@ This struct contains the array with the Fisher Matrix.
     MarginalizedErrorsCumℓ::Dict = Dict()
     NormalizedErrors::Dict = Dict()
     NormalizedErrorsCumℓ::Dict = Dict()
-end    
+end
 
 """
     aₗₘCovariance()
 
-This struct contains the Covariance in the field perspective, i.e. when the observables are the 
+This struct contains the Covariance in the field perspective, i.e. when the observables are the
 ``a_{\\ell m}``'s.
 """
 @kwdef mutable struct aₗₘCovariance{T}  <: AbstractCovariance{T}

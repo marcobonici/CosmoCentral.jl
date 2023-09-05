@@ -1,0 +1,60 @@
+{
+  "Lensing" : {
+    "probe" : "WLProbe",
+    "density" : {
+      "model":"AnalitycalDensity",
+      "parameters" : {
+        "Z0" : 0.636396103,
+        "ZMin" : 0.001,
+        "ZMax" : 4.0,
+        "SurfaceDensity" : 30.0
+        }},
+    "IntrinsicAlignment" : {
+      "model" : "ExtendedNLIA",
+      "𝓐IA" : {"value" : 0.0,
+      "free" : false},
+      "βIA" : {"value" : 2.17,
+        "free" : false},
+      "𝓒IA" : {"value" : 0.0134,
+        "free" : false},
+      "ηIA" : {"value" : -0.41,
+        "free" : false}
+      },
+    "present": true
+    }
+  ,
+  "PhotometricClustering" : {
+    "probe" : "GCProbe",
+    "density" : {
+      "model":"AnalitycalDensity",
+      "parameters" : {
+        "Z0" : 0.636396103,
+        "ZMin" : 0.001,
+        "ZMax" : 4.0,
+        "SurfaceDensity" : 30.0
+    }},
+    "Bias" : {
+      "model" : "PiecewiseBias",
+      "b1" : {"value" : 1.0,
+      "free" : true},
+      "b2" : {"value" : 1.0,
+        "free" : true},
+      "b3" : {"value" : 1.0,
+        "free" : true},
+      "b4" : {"value" : 1.0,
+        "free" : true},
+      "b5" : {"value" : 1.0,
+      "free" : true},
+      "b6" : {"value" : 1.0,
+        "free" : true},
+      "b7" : {"value" : 1.0,
+        "free" : true},
+      "b8" : {"value" : 1.0,
+        "free" : true},
+      "b9" : {"value" : 1.0,
+      "free" : true},
+      "b10" : {"value" : 1.0,
+        "free" : true}},
+      "present": true
+  }
+} 
