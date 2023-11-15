@@ -11,14 +11,14 @@
         }},
     "IntrinsicAlignment" : {
       "model" : "ExtendedNLIA",
-      "𝓐IA" : {"value" : 1.72,
-      "free" : true},
+      "𝓐IA" : {"value" : 0.0,
+      "free" : false},
       "βIA" : {"value" : 2.17,
-        "free" : true},
+        "free" : false},
       "𝓒IA" : {"value" : 0.0134,
         "free" : false},
       "ηIA" : {"value" : -0.41,
-        "free" : true}
+        "free" : false}
       },
     "present": true
     }
